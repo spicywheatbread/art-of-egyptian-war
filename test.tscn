@@ -1,0 +1,15 @@
+[gd_scene format=3 uid="uid://cvm5e3rsawxhi"]
+
+[ext_resource type="PackedScene" uid="uid://bixoatsoqg66h" path="res://card.tscn" id="1_37kl0"]
+
+[node name="test_scene" type="Node" unique_id=586198480]
+
+[node name="Card" parent="." unique_id=1788740857 instance=ExtResource("1_37kl0")]
+position = Vector2(460.99997, 352.99997)
+scale = Vector2(0.1, 0.1)
+debug_name = "back card"
+
+[node name="Card2" parent="." unique_id=775175373 instance=ExtResource("1_37kl0")]
+position = Vector2(507, 417)
+scale = Vector2(0.1, 0.1)
+debug_name = "front card"
