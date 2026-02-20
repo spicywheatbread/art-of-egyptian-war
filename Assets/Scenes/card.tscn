@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://bixoatsoqg66h"]
 
-[ext_resource type="Texture2D" uid="uid://bfqgekpuawv8t" path="res://8BitDeck52.png" id="1_kikvd"]
-[ext_resource type="Script" uid="uid://dmsetux0gpc30" path="res://card.gd" id="1_rjlel"]
+[ext_resource type="Texture2D" uid="uid://bfqgekpuawv8t" path="res://Assets/Images/8BitDeck52.png" id="1_kikvd"]
+[ext_resource type="Script" uid="uid://dmsetux0gpc30" path="res://Assets/Scripts/card.gd" id="1_rjlel"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_rjlel"]
 size = Vector2(859, 1138)
