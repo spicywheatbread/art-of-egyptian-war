@@ -1,15 +1,48 @@
 [gd_scene format=3 uid="uid://cvm5e3rsawxhi"]
 
+[ext_resource type="Script" uid="uid://csrdqhnq7qehm" path="res://Assets/Scripts/test_scene.gd" id="1_3fuio"]
 [ext_resource type="PackedScene" uid="uid://bixoatsoqg66h" path="res://Assets/Scenes/card.tscn" id="1_37kl0"]
 
+[sub_resource type="Gradient" id="Gradient_4ejv0"]
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_3fuio"]
+gradient = SubResource("Gradient_4ejv0")
+fill_to = Vector2(0, 0)
+
 [node name="test_scene" type="Node" unique_id=586198480]
+script = ExtResource("1_3fuio")
+card_tscn = ExtResource("1_37kl0")
 
-[node name="Card" parent="." unique_id=1788740857 instance=ExtResource("1_37kl0")]
-position = Vector2(460.99997, 352.99997)
-scale = Vector2(0.1, 0.1)
-debug_name = "back card"
+[node name="Reset Button" type="Button" parent="." unique_id=471743317]
+offset_left = 1031.0
+offset_top = 580.0
+offset_right = 1125.0
+offset_bottom = 611.0
+text = "Reset Deck"
 
-[node name="Card2" parent="." unique_id=775175373 instance=ExtResource("1_37kl0")]
-position = Vector2(507, 417)
-scale = Vector2(0.1, 0.1)
-debug_name = "front card"
+[node name="Backgorund" type="Sprite2D" parent="." unique_id=681653225]
+z_index = -5
+position = Vector2(572, 322.5)
+scale = Vector2(18, 9.921875)
+texture = SubResource("GradientTexture2D_3fuio")
+metadata/_edit_lock_ = true
+
+[node name="Deck Position" type="Node2D" parent="." unique_id=1616714325]
+position = Vector2(530, 317)
+metadata/_edit_group_ = true
+
+[node name="Label" type="Label" parent="Deck Position" unique_id=6264525]
+offset_right = 40.0
+offset_bottom = 23.0
+text = "Deck Position"
+
+[node name="Random Position" type="Node2D" parent="." unique_id=967168217]
+position = Vector2(911, 70)
+metadata/_edit_group_ = true
+
+[node name="Label" type="Label" parent="Random Position" unique_id=1813113541]
+offset_right = 40.0
+offset_bottom = 23.0
+text = "Random Position"
+
+[connection signal="pressed" from="Reset Button" to="." method="_on_button_pressed"]
