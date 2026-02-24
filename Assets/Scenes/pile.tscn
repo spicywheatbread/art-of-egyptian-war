@@ -1,0 +1,31 @@
+[gd_scene format=3 uid="uid://rg70vbowntkn"]
+
+[ext_resource type="Script" uid="uid://roke7kdnvqpo" path="res://Assets/Scenes/pile.gd" id="1_rxvhy"]
+[ext_resource type="PackedScene" uid="uid://bixoatsoqg66h" path="res://Assets/Scenes/card.tscn" id="2_avjei"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_yga71"]
+size = Vector2(84, 112)
+
+[node name="Pile" type="Node2D" unique_id=1284586332]
+z_index = 10
+script = ExtResource("1_rxvhy")
+metadata/_edit_group_ = true
+
+[node name="Area2D" type="Area2D" parent="." unique_id=484140159]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D" unique_id=1145284744]
+position = Vector2(-5, -3)
+shape = SubResource("RectangleShape2D_yga71")
+
+[node name="Card" parent="." unique_id=1788740857 instance=ExtResource("2_avjei")]
+visible = false
+position = Vector2(-4.5, -1.5)
+
+[node name="Label" type="Label" parent="." unique_id=1458556156]
+offset_left = -47.155
+offset_top = -13.16
+offset_right = 48.845
+offset_bottom = 9.84
+text = "Pile of Cards"
+
+[connection signal="input_event" from="Area2D" to="." method="_on_area_2d_input_event"]

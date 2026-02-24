@@ -12,7 +12,6 @@ func _ready() -> void:
 		for rank in range(1, 14):
 			var new_card = card_tscn.instantiate()
 			new_card.setup(rank, suit)
-			new_card.scale = Vector2(0.1, 0.1)
 			cards.append(new_card)
 			add_child(new_card)
 			

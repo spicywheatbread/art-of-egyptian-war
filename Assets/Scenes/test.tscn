@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" uid="uid://csrdqhnq7qehm" path="res://Assets/Scripts/test_scene.gd" id="1_3fuio"]
 [ext_resource type="PackedScene" uid="uid://bixoatsoqg66h" path="res://Assets/Scenes/card.tscn" id="1_37kl0"]
+[ext_resource type="PackedScene" uid="uid://rg70vbowntkn" path="res://Assets/Scenes/pile.tscn" id="3_u224g"]
 
 [sub_resource type="Gradient" id="Gradient_4ejv0"]
 
@@ -44,5 +45,8 @@ metadata/_edit_group_ = true
 offset_right = 40.0
 offset_bottom = 23.0
 text = "Random Position"
+
+[node name="Pile" parent="." unique_id=1284586332 instance=ExtResource("3_u224g")]
+position = Vector2(278, 333)
 
 [connection signal="pressed" from="Reset Button" to="." method="_on_button_pressed"]
