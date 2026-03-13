@@ -9,7 +9,7 @@ func get_top_card():
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
 	var new_card = card_tscn.instantiate()
-	new_card.setup(0, "NotRealSuits")
+	new_card.setup(Card.Rank.ACE, Card.Suit.SPADES)
 	cards.append(new_card)
 
 

@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://rg70vbowntkn"]
 
-[ext_resource type="Script" uid="uid://roke7kdnvqpo" path="res://Assets/Scenes/pile.gd" id="1_rxvhy"]
+[ext_resource type="Script" uid="uid://roke7kdnvqpo" path="res://Assets/Scripts/pile.gd" id="1_rxvhy"]
 [ext_resource type="PackedScene" uid="uid://bixoatsoqg66h" path="res://Assets/Scenes/card.tscn" id="2_avjei"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_yga71"]

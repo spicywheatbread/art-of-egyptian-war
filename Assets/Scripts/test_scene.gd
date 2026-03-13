@@ -1,15 +1,15 @@
 extends Node
 
 @export var card_tscn : PackedScene
-var suits = ["Hearts", "Clubs", "Spades", "Diamonds" ]
 var cards = []
+
 var deck_position : Vector2
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
 	deck_position = $"Deck Position".position
-	for suit in suits:
-		for rank in range(1, 14):
+	for suit in Card.Suit.values():
+		for rank in Card.Rank.values():
 			var new_card = card_tscn.instantiate()
 			new_card.setup(rank, suit)
 			cards.append(new_card)

@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bfqgekpuawv8t"
-path="res://.godot/imported/8BitDeck52.png-6db690994af724d66b2f5d1258a21351.ctex"
+uid="uid://bf3f044o8msj4"
+path="res://.godot/imported/8BitDeck39.png-7271d90eb9641e0bace000354efbe457.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Assets/Images/8BitDeck52.png"
-dest_files=["res://.godot/imported/8BitDeck52.png-6db690994af724d66b2f5d1258a21351.ctex"]
+source_file="res://Assets/Images/Cards/Diamonds/8BitDeck39.png"
+dest_files=["res://.godot/imported/8BitDeck39.png-7271d90eb9641e0bace000354efbe457.ctex"]
 
 [params]
 
