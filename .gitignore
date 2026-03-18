@@ -2,3 +2,8 @@
 .godot/
 /android/
 todo.txt
+
+
+#Node/TS server
+server/node_modules/
+server/dist/
