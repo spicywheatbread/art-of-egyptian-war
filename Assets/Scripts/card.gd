@@ -31,28 +31,43 @@ const SUIT_NAMES = {
 	Suit.CLUBS: "Clubs"
 }
 
+const RANK_NAMES = {
+	Rank.ACE: "Ace",
+	Rank.TWO: "2",
+	Rank.THREE: "3",
+	Rank.FOUR: "4",
+	Rank.FIVE: "5",
+	Rank.SIX: "6",
+	Rank.SEVEN: "7",
+	Rank.EIGHT: "8",
+	Rank.NINE: "9",
+	Rank.TEN: "10",
+	Rank.JACK: "Jack",
+	Rank.QUEEN: "Queen",
+	Rank.KING: "King",
+}
+
 var card_name : String = "Uninitialized Card"
 var rank : Rank = Rank.ACE
 var suit : Suit = Suit.SPADES
 
-func set_sprite():
-	var path = str("res://Assets/Images/Cards/")
+func set_texture():
+	var path = "res://Assets/Images/Cards/" + SUIT_NAMES[self.suit] + "/" + str(rank) + ".png"
+	var texture = load(path)
+	if texture == null:
+		texture = load("res://Assets/Images/Cards/Spades/1.png")
+	$Sprite2D.texture = texture
+	
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
-	pass # Replace with function body.
-
-func setup(rank: Rank, suit: Suit) -> void:
-	rank = rank
-	suit = suit
-	card_name = str(rank, " of ", SUIT_NAMES[suit])
+	pass
+	
+func setup(suit : Suit, rank : Rank) -> void:
+	self.rank = rank
+	self.suit = suit
+	self.card_name = str(RANK_NAMES[self.rank], " of ", SUIT_NAMES[self.suit])
+	set_texture()
 	
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:
 	pass
-
-
-func _on_input_event(viewport: Node, event: InputEvent, shape_idx: int) -> void:
-	if event is InputEventMouseButton:
-		if event.button_index == MouseButton.MOUSE_BUTTON_LEFT and event.pressed:
-			print("clicked " + card_name)
-			get_viewport().set_input_as_handled()
