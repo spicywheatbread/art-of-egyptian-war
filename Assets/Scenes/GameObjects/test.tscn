@@ -1,8 +1,8 @@
 [gd_scene format=3 uid="uid://cvm5e3rsawxhi"]
 
 [ext_resource type="Script" uid="uid://csrdqhnq7qehm" path="res://Assets/Scripts/test_scene.gd" id="1_3fuio"]
-[ext_resource type="PackedScene" uid="uid://bixoatsoqg66h" path="res://Assets/Scenes/card.tscn" id="1_37kl0"]
-[ext_resource type="PackedScene" uid="uid://rg70vbowntkn" path="res://Assets/Scenes/pile.tscn" id="3_u224g"]
+[ext_resource type="PackedScene" uid="uid://bixoatsoqg66h" path="res://Assets/Scenes/GameObjects/card.tscn" id="1_37kl0"]
+[ext_resource type="PackedScene" uid="uid://rg70vbowntkn" path="res://Assets/Scenes/GameObjects/pile.tscn" id="3_u224g"]
 
 [sub_resource type="Gradient" id="Gradient_4ejv0"]
 
