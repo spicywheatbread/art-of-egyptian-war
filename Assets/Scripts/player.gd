@@ -1,5 +1,5 @@
 extends Node2D
-var card_tscn : PackedScene = preload("res://Assets/Scenes/card.tscn")
+var card_tscn : PackedScene = preload("res://Assets/Scenes/GameObjects/card.tscn")
 var cards = []
 
 func get_top_card():
