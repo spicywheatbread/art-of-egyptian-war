@@ -11,7 +11,7 @@ config_version=5
 [application]
 
 config/name="EgyptianWar"
-run/main_scene="uid://cvm5e3rsawxhi"
+run/main_scene="uid://dqryd53k7p17l"
 config/features=PackedStringArray("4.6", "Forward Plus")
 config/icon="res://Assets/Images/icon.svg"
 
@@ -29,5 +29,6 @@ left_click={
 
 [rendering]
 
+textures/canvas_textures/default_texture_filter=0
 rendering_device/driver.windows="d3d12"
 renderer/rendering_method="gl_compatibility"
