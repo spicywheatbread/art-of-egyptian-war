@@ -57,17 +57,17 @@ func set_texture():
 	if texture == null:
 		texture = load("res://Assets/Images/Cards/Spades/1.png")
 	$Sprite2D.texture = texture
-	
-# Called when the node enters the scene tree for the first time.
-func _ready() -> void:
-	pass
-	
+		
 func setup(suit : Suit, rank : Rank) -> void:
 	self.rank = rank
 	self.suit = suit
 	self.card_name = str(RANK_NAMES[self.rank], " of ", SUIT_NAMES[self.suit])
 	set_texture()
 	
+# Called when the node enters the scene tree for the first time.
+func _ready() -> void:
+	pass
+
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:
 	pass

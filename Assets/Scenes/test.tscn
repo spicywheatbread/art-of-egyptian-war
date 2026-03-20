@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://cvm5e3rsawxhi"]
 
-[ext_resource type="Script" uid="uid://csrdqhnq7qehm" path="res://Assets/Scripts/test_scene.gd" id="1_3fuio"]
-[ext_resource type="PackedScene" uid="uid://rg70vbowntkn" path="res://Assets/Scenes/deck.tscn" id="3_u224g"]
+[ext_resource type="Script" uid="uid://csrdqhnq7qehm" path="res://Assets/Scripts/game.gd" id="1_3fuio"]
+[ext_resource type="PackedScene" uid="uid://rg70vbowntkn" path="res://Assets/Scenes/player.tscn" id="3_u224g"]
 
 [sub_resource type="Gradient" id="Gradient_3fuio"]
 offsets = PackedFloat32Array(0.089201875)
@@ -11,7 +11,7 @@ colors = PackedColorArray(0.1122, 0.33, 0.21384001, 1)
 gradient = SubResource("Gradient_3fuio")
 fill_to = Vector2(1, 1)
 
-[node name="test_scene" type="Node" unique_id=586198480]
+[node name="Game" type="Node" unique_id=586198480]
 script = ExtResource("1_3fuio")
 
 [node name="Reset Button" type="Button" parent="." unique_id=471743317]
@@ -53,7 +53,9 @@ offset_right = 40.0
 offset_bottom = 23.0
 text = "Random Position"
 
-[node name="Deck" parent="." unique_id=1284586332 instance=ExtResource("3_u224g")]
-position = Vector2(278, 333)
+[node name="Players" type="Node" parent="." unique_id=888546088]
+
+[node name="Test Player" parent="Players" unique_id=1284586332 instance=ExtResource("3_u224g")]
+position = Vector2(189, 308)
 
 [connection signal="pressed" from="Reset Button" to="." method="_on_button_pressed"]

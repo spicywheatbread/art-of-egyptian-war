@@ -1,5 +1,4 @@
 extends Node2D
-
 var card_tscn : PackedScene = preload("res://Assets/Scenes/card.tscn")
 var cards = []
 
@@ -20,8 +19,7 @@ func set_card_positions() -> void:
 	for i in range(cards.size()):
 		cards[i].position = i * offset
 		
-# Called when the node enters the scene tree for the first time.
-func _ready() -> void:
+func give_all_cards():
 	for suit in Card.Suit.values():
 		for rank in Card.Rank.values():
 			var new_card = card_tscn.instantiate()
@@ -30,7 +28,10 @@ func _ready() -> void:
 			# add_child adds the node to the scene hierarchy.
 			cards.append(new_card)
 			add_child(new_card)
-			
+
+# Called when the node enters the scene tree for the first time.
+func _ready() -> void:
+	give_all_cards() # temporary, haven't made card dealing yet
 	shuffle(cards)
 	set_card_positions()
 
