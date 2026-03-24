@@ -11,7 +11,7 @@ colors = PackedColorArray(0.1122, 0.33, 0.21384001, 1)
 gradient = SubResource("Gradient_3fuio")
 fill_to = Vector2(1, 1)
 
-[node name="Game" type="Node" unique_id=586198480]
+[node name="Game" type="Node2D" unique_id=1841649472]
 script = ExtResource("1_3fuio")
 
 [node name="Reset Button" type="Button" parent="." unique_id=471743317]

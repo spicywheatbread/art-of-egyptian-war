@@ -5,7 +5,7 @@
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_yga71"]
 size = Vector2(84, 112)
 
-[node name="deck" type="Node2D" unique_id=1284586332]
+[node name="player" type="Node2D" unique_id=1284586332]
 z_index = 10
 script = ExtResource("1_rxvhy")
 metadata/_edit_group_ = true

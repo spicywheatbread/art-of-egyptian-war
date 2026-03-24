@@ -1,9 +1,14 @@
 extends Node2D
+class_name Player 
+
 var card_tscn : PackedScene = preload("res://Assets/Scenes/GameObjects/card.tscn")
 var cards = []
 
 func get_top_card():
 	return cards.back()
+	
+func pop_card() -> Card:
+	return cards.pop_back()
 	
 func shuffle(deck: Array) -> void:
 	# Fisher-Yates shuffle
@@ -31,6 +36,7 @@ func give_all_cards():
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
+	add_to_group("players")
 	give_all_cards() # temporary, haven't made card dealing yet
 	shuffle(cards)
 	set_card_positions()
@@ -40,8 +46,8 @@ func _ready() -> void:
 func _process(delta: float) -> void:
 	pass
 
+signal clicked(player)
 
 func _on_area_2d_input_event(viewport: Node, event: InputEvent, shape_idx: int) -> void:
-	if event is InputEventMouseButton:
-		if event.button_index == MouseButton.MOUSE_BUTTON_LEFT and event.pressed:
-			print(get_top_card().card_name)
+	if event is InputEventMouseButton and event.pressed:
+		clicked.emit(self)
