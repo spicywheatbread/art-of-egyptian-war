@@ -1,5 +1,4 @@
-class_name Card
-extends Area2D
+class_name Card extends Area2D
 
 enum Suit {
 	SPADES,
@@ -24,6 +23,7 @@ enum Rank {
 	KING = 13,
 	
 }
+
 const SUIT_NAMES = {
 	Suit.SPADES: "Spades",
 	Suit.HEARTS: "Hearts",
@@ -47,27 +47,19 @@ const RANK_NAMES = {
 	Rank.KING: "King",
 }
 
-var card_name : String = "Uninitialized Card"
-var rank : Rank = Rank.ACE
-var suit : Suit = Suit.SPADES
+var card_name: String = "Uninitialized Card"
+var rank: Rank = Rank.ACE
+var suit: Suit = Suit.SPADES
 
-func set_texture():
+func set_texture() -> void:
 	var path = "res://Assets/Images/Cards/" + SUIT_NAMES[self.suit] + "/" + str(rank) + ".png"
 	var texture = load(path)
 	if texture == null:
 		texture = load("res://Assets/Images/Cards/Spades/1.png")
 	$Sprite2D.texture = texture
 		
-func setup(suit : Suit, rank : Rank) -> void:
+func setup(suit: Suit, rank: Rank) -> void:
 	self.rank = rank
 	self.suit = suit
 	self.card_name = str(RANK_NAMES[self.rank], " of ", SUIT_NAMES[self.suit])
 	set_texture()
-	
-# Called when the node enters the scene tree for the first time.
-func _ready() -> void:
-	pass
-
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta: float) -> void:
-	pass
