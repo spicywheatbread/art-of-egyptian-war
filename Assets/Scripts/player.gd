@@ -1,16 +1,16 @@
 class_name Player extends Pile
 
-var card_tscn : PackedScene = preload("res://Assets/Scenes/GameObjects/card.tscn")
+var card_tscn: PackedScene = preload("res://Assets/Scenes/GameObjects/card.tscn")
 var cards = []
 var offset = Vector2(0, -0.5)
 
-func get_top_card():
+func get_top_card() -> Card:
 	return cards.back()
 	
-func add_card(card):
+func add_card(card : Card) -> void:
 	cards.append(card)
 	
-func pop():
+func pop() -> Card:
 	return cards.pop_back()
 	
 func shuffle(deck: Array) -> void:
@@ -28,7 +28,7 @@ func set_card_positions() -> void:
 		cards[i].z_index = i
 		
 func get_card_position():
-	return cards.size() * offset
+	return self.position + cards.size() * offset
 		
 func give_all_cards():
 	for suit in Card.Suit.values():

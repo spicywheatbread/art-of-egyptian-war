@@ -1,19 +1,9 @@
 extends Pile
+var cards = []
 
-func add_card(card):
+func add_card(card) -> void:
 	card.z_index = cards.size()
 	cards.append(card)
 
-func pop():
-	cards.pop_back()
-	
-var cards = []
-
-# Called when the node enters the scene tree for the first time.
-func _ready() -> void:
-	pass # Replace with function body.
-
-
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta: float) -> void:
-	pass
+func pop() -> Card:
+	return cards.pop_back()
