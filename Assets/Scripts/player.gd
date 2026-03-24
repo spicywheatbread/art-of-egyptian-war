@@ -39,7 +39,6 @@ func give_all_cards():
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
-	add_to_group("players")
 	give_all_cards() # temporary, haven't made card dealing yet
 	shuffle(cards)
 	set_card_positions()
