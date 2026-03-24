@@ -1,17 +1,70 @@
-extends Node
+extends Node2D
 
-var card_tscn : PackedScene
-var center_position : Vector2
-var selected_card
+var selected_player : Pile = null
+var selected_card : Card = null
+var is_dragging : bool = false
+var queue_click : bool = false
 
-# Called when the node enters the scene tree for the first time.
-func _ready() -> void:
-	pass
+@onready var center_pile = get_node("Center Pile")
+
+func _input(event):
+	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
+			if event.pressed:
+				queue_click = true
+			else:
+				if is_dragging:
+					drop_card()
+				is_dragging = false
+				
+func _physics_process(delta):
+	if queue_click:
+		queue_click = false
+
+		var target = get_under_mouse()
+		if target is Player:
+			player_click(target)
+				
+	if is_dragging and selected_card:
+		selected_card.global_position = get_global_mouse_position()
 		
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta: float) -> void:
-	pass
+func reset_selection():
+	selected_player = null
+	selected_card = null
+	
+func player_click(player):
+	selected_player = player
+	selected_card = player.get_top_card() 
+	is_dragging = true
+	print("Picked card:", selected_card.card_name)
+	
+func valid_drop(target) -> bool:
+	if target == center_pile:
+		return true
+	return false
+	
+func drop_card():
+	if selected_card and selected_player:
+		var target = get_under_mouse()
+		if valid_drop(target):
+			selected_player.pop()
+			target.add_card(selected_card)
+			print("Dropped card on:", target.name)
+		else:
+			# Return to original pile
+			selected_card.global_position = selected_player.get_card_position()
+		reset_selection()
 
-
-func _on_button_pressed() -> void:
-	pass
+	selected_card = null
+	selected_player = null
+	
+func get_under_mouse():
+	var space_state = get_world_2d().direct_space_state
+	var query = PhysicsPointQueryParameters2D.new()
+	query.position = get_global_mouse_position()
+	query.collide_with_areas = true
+	query.collide_with_bodies = false
+	var results = space_state.intersect_point(query)
+	if results.size() > 0:
+		var area = results[0]["collider"]
+		return area.get_parent()
+	return null

@@ -1,9 +1,17 @@
-extends Node2D
-var card_tscn : PackedScene = preload("res://Assets/Scenes/card.tscn")
+class_name Player extends Pile
+
+var card_tscn : PackedScene = preload("res://Assets/Scenes/GameObjects/card.tscn")
 var cards = []
+var offset = Vector2(0, -0.5)
 
 func get_top_card():
 	return cards.back()
+	
+func add_card(card):
+	cards.append(card)
+	
+func pop():
+	return cards.pop_back()
 	
 func shuffle(deck: Array) -> void:
 	# Fisher-Yates shuffle
@@ -15,9 +23,12 @@ func shuffle(deck: Array) -> void:
 		deck[j] = temp
 		
 func set_card_positions() -> void:
-	var offset = Vector2(0, -0.5)
 	for i in range(cards.size()):
 		cards[i].position = i * offset
+		cards[i].z_index = i
+		
+func get_card_position():
+	return cards.size() * offset
 		
 func give_all_cards():
 	for suit in Card.Suit.values():
@@ -39,9 +50,3 @@ func _ready() -> void:
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:
 	pass
-
-
-func _on_area_2d_input_event(viewport: Node, event: InputEvent, shape_idx: int) -> void:
-	if event is InputEventMouseButton:
-		if event.button_index == MouseButton.MOUSE_BUTTON_LEFT and event.pressed:
-			print(get_top_card().card_name)
