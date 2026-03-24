@@ -1,6 +1,7 @@
 extends Pile
 
 func add_card(card):
+	card.z_index = cards.size()
 	cards.append(card)
 
 func pop():

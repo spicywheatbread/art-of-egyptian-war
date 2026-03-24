@@ -25,6 +25,7 @@ func shuffle(deck: Array) -> void:
 func set_card_positions() -> void:
 	for i in range(cards.size()):
 		cards[i].position = i * offset
+		cards[i].z_index = i
 		
 func get_card_position():
 	return cards.size() * offset
