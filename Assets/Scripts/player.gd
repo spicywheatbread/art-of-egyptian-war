@@ -2,7 +2,9 @@ class_name Player extends Pile
 
 var card_tscn: PackedScene = preload("res://Assets/Scenes/GameObjects/card.tscn")
 var cards = []
-var offset = Vector2(0, -0.5)
+
+#const OFFSET = Vector2(0, -0.5) # vertical pile look
+const OFFSET = Vector2(0.05, -0.5) # slight diagonal pile look
 
 func get_top_card() -> Card:
 	return cards.back()
@@ -23,20 +25,19 @@ func shuffle(deck: Array) -> void:
 		deck[j] = temp
 		
 func set_card_positions() -> void:
+	# this sets depth and creates the "stacking" look.
 	for i in range(cards.size()):
-		cards[i].position = i * offset
+		cards[i].position = i * OFFSET
 		cards[i].z_index = i
 		
-func get_card_position():
-	return self.position + cards.size() * offset
+func get_top_position():
+	return self.position + cards.size() * OFFSET
 		
 func give_all_cards():
 	for suit in Card.Suit.values():
 		for rank in Card.Rank.values():
 			var new_card = card_tscn.instantiate()
 			new_card.setup(suit, rank)
-			# cards is a list for the purpose of scripting. 
-			# add_child adds the node to the scene hierarchy.
 			cards.append(new_card)
 			add_child(new_card)
 
@@ -45,8 +46,3 @@ func _ready() -> void:
 	give_all_cards() # temporary, haven't made card dealing yet
 	shuffle(cards)
 	set_card_positions()
-
-
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta: float) -> void:
-	pass
