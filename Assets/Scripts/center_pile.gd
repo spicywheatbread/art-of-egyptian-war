@@ -1,5 +1,11 @@
-extends Node2D
+extends Pile
 
+func add_card(card):
+	cards.append(card)
+
+func pop():
+	cards.pop_back()
+	
 var cards = []
 
 # Called when the node enters the scene tree for the first time.

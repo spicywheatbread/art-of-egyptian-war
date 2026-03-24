@@ -1,9 +1,9 @@
 extends Node2D
 
-var selected_player = null
-var selected_card = null
-var is_dragging = false
-var queue_click = false
+var selected_player : Pile = null
+var selected_card : Card = null
+var is_dragging : bool = false
+var queue_click : bool = false
 
 @onready var center_pile = get_node("Center Pile")
 
@@ -27,6 +27,10 @@ func _physics_process(delta):
 	if is_dragging and selected_card:
 		selected_card.global_position = get_global_mouse_position()
 		
+func reset_selection():
+	selected_player = null
+	selected_card = null
+	
 func player_click(player):
 	selected_player = player
 	selected_card = player.get_top_card() 
@@ -37,16 +41,18 @@ func valid_drop(target) -> bool:
 	if target == center_pile:
 		return true
 	return false
+	
 func drop_card():
 	if selected_card and selected_player:
 		var target = get_under_mouse()
 		if valid_drop(target):
-			selected_player.remove_card(selected_card)
+			selected_player.pop()
 			target.add_card(selected_card)
 			print("Dropped card on:", target.name)
 		else:
 			# Return to original pile
 			selected_card.global_position = selected_player.get_card_position()
+		reset_selection()
 
 	selected_card = null
 	selected_player = null

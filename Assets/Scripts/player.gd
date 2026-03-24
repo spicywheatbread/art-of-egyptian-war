@@ -1,5 +1,4 @@
-extends Node2D
-class_name Player 
+class_name Player extends Pile
 
 var card_tscn : PackedScene = preload("res://Assets/Scenes/GameObjects/card.tscn")
 var cards = []
@@ -8,7 +7,10 @@ var offset = Vector2(0, -0.5)
 func get_top_card():
 	return cards.back()
 	
-func pop_card() -> Card:
+func add_card(card):
+	cards.append(card)
+	
+func pop():
 	return cards.pop_back()
 	
 func shuffle(deck: Array) -> void:
