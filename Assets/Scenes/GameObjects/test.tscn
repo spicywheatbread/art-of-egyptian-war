@@ -11,6 +11,9 @@ colors = PackedColorArray(0.1122, 0.33, 0.21384001, 1)
 gradient = SubResource("Gradient_3fuio")
 fill_to = Vector2(1, 1)
 
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_atkjy"]
+size = Vector2(106, 166)
+
 [node name="Game" type="Node2D" unique_id=1841649472]
 script = ExtResource("1_3fuio")
 
@@ -37,12 +40,18 @@ offset_right = 40.0
 offset_bottom = 23.0
 text = "Central Pile"
 
-[node name="Polygon2D" type="Polygon2D" parent="Central Pile" unique_id=1189831175]
-position = Vector2(1.9999809, -67)
+[node name="Area2D" type="Area2D" parent="Central Pile" unique_id=509257579]
+
+[node name="Polygon2D" type="Polygon2D" parent="Central Pile/Area2D" unique_id=1189831175]
+position = Vector2(1.9999695, -67)
 scale = Vector2(2.3555555, 5.187501)
 color = Color(0, 0, 0, 0.3372549)
 polygon = PackedVector2Array(-4, 0, -4, 32, 41, 32, 41, 0, 18.254715, 0)
 metadata/_edit_group_ = true
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Central Pile/Area2D" unique_id=1558502908]
+position = Vector2(45, 16)
+shape = SubResource("RectangleShape2D_atkjy")
 
 [node name="Random Position" type="Node2D" parent="." unique_id=967168217]
 position = Vector2(911, 70)
@@ -59,3 +68,4 @@ text = "Random Position"
 position = Vector2(189, 308)
 
 [connection signal="pressed" from="Reset Button" to="." method="_on_button_pressed"]
+[connection signal="input_event" from="Central Pile/Area2D" to="." method="_on_center_input_event"]

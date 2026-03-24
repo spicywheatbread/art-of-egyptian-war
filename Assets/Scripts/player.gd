@@ -3,6 +3,7 @@ class_name Player
 
 var card_tscn : PackedScene = preload("res://Assets/Scenes/GameObjects/card.tscn")
 var cards = []
+var offset = Vector2(0, -0.5)
 
 func get_top_card():
 	return cards.back()
@@ -20,9 +21,11 @@ func shuffle(deck: Array) -> void:
 		deck[j] = temp
 		
 func set_card_positions() -> void:
-	var offset = Vector2(0, -0.5)
 	for i in range(cards.size()):
 		cards[i].position = i * offset
+		
+func get_card_position():
+	return cards.size() * offset
 		
 func give_all_cards():
 	for suit in Card.Suit.values():
@@ -45,9 +48,3 @@ func _ready() -> void:
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:
 	pass
-
-signal clicked(player)
-
-func _on_area_2d_input_event(viewport: Node, event: InputEvent, shape_idx: int) -> void:
-	if event is InputEventMouseButton and event.pressed:
-		clicked.emit(self)
