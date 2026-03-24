@@ -5,6 +5,8 @@ var selected_card = null
 var is_dragging = false
 var queue_click = false
 
+@onready var center_pile = get_node("Center Pile")
+
 func _input(event):
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
 			if event.pressed:
