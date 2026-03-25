@@ -1,6 +1,6 @@
 class_name Player extends Pile
 
-var card_tscn: PackedScene = preload("res://Assets/Scenes/GameObjects/card.tscn")
+@export var card_tscn: PackedScene
 var cards = []
 
 #const OFFSET = Vector2(0, -0.5) # vertical pile look
