@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" uid="uid://csrdqhnq7qehm" path="res://Assets/Scripts/game.gd" id="1_3fuio"]
 [ext_resource type="Script" uid="uid://cvat275xsp4qw" path="res://Assets/Scripts/center_pile.gd" id="2_wg47v"]
+[ext_resource type="PackedScene" uid="uid://bixoatsoqg66h" path="res://Assets/Scenes/GameObjects/card.tscn" id="3_7og6b"]
 [ext_resource type="PackedScene" uid="uid://rg70vbowntkn" path="res://Assets/Scenes/GameObjects/player.tscn" id="3_u224g"]
 
 [sub_resource type="Gradient" id="Gradient_3fuio"]
@@ -23,7 +24,7 @@ offset_left = 1031.0
 offset_top = 580.0
 offset_right = 1125.0
 offset_bottom = 611.0
-text = "Reset Deck"
+text = "Add a 2 :P"
 
 [node name="Background" type="Sprite2D" parent="." unique_id=681653225]
 z_index = -5
@@ -35,6 +36,7 @@ metadata/_edit_lock_ = true
 [node name="Center Pile" type="Node2D" parent="." unique_id=1616714325]
 position = Vector2(510, 313)
 script = ExtResource("2_wg47v")
+card_tscn = ExtResource("3_7og6b")
 metadata/_edit_group_ = true
 
 [node name="Label" type="Label" parent="Center Pile" unique_id=6264525]
@@ -69,5 +71,5 @@ text = "Random Position"
 [node name="Test Player" parent="Players" unique_id=1284586332 instance=ExtResource("3_u224g")]
 position = Vector2(189, 308)
 
-[connection signal="pressed" from="Reset Button" to="." method="_on_button_pressed"]
+[connection signal="pressed" from="Reset Button" to="Center Pile" method="_on_two_button_pressed"]
 [connection signal="input_event" from="Center Pile/Area2D" to="." method="_on_center_input_event"]

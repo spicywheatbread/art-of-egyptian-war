@@ -7,7 +7,6 @@
 size = Vector2(84, 112)
 
 [node name="player" type="Node2D" unique_id=1284586332]
-z_index = 10
 script = ExtResource("1_rxvhy")
 card_tscn = ExtResource("2_r4ko2")
 metadata/_edit_group_ = true
