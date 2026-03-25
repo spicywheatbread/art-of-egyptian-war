@@ -23,7 +23,7 @@ offset_left = 1031.0
 offset_top = 580.0
 offset_right = 1125.0
 offset_bottom = 611.0
-text = "Reset Deck"
+text = "Add a 2 :P"
 
 [node name="Background" type="Sprite2D" parent="." unique_id=681653225]
 z_index = -5
@@ -69,5 +69,5 @@ text = "Random Position"
 [node name="Test Player" parent="Players" unique_id=1284586332 instance=ExtResource("3_u224g")]
 position = Vector2(189, 308)
 
-[connection signal="pressed" from="Reset Button" to="." method="_on_button_pressed"]
+[connection signal="pressed" from="Reset Button" to="Center Pile" method="_on_two_button_pressed"]
 [connection signal="input_event" from="Center Pile/Area2D" to="." method="_on_center_input_event"]

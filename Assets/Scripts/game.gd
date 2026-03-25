@@ -26,6 +26,8 @@ func _physics_process(delta: float):
 		var target = get_under_mouse()
 		if target is Player:
 			player_clicked(target)
+		if target is Center_Pile:
+			center_clicked()
 				
 	if is_dragging and selected_card:
 		selected_card.global_position = get_global_mouse_position()
@@ -39,6 +41,9 @@ func player_clicked(player: Player) -> void:
 	selected_card = player.get_top_card() 
 	is_dragging = true
 	
+func center_clicked():
+	print("Slap: ", center_pile.is_valid_slap())
+
 # TODO: Create a larger radius around the center pile to allow for valid selection.
 func is_valid_drop(target: Pile) -> bool:
 	if target == center_pile:
