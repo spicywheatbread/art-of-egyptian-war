@@ -1,6 +1,8 @@
 class_name Center_Pile extends Pile
+
 var cards = []
 var rules: Array[Callable] = []
+@export var card_tscn: PackedScene
 
 func get_card(index: int):
 	return cards[index]
@@ -30,7 +32,7 @@ func is_valid_slap() -> bool:
 	return false
 	
 func _add_two() -> void:
-	var new_card = load("res://Assets/Scenes/GameObjects/card.tscn").instantiate()
+	var new_card = card_tscn.instantiate()
 	new_card.setup(Card.Suit.SPADES, Card.Rank.TWO)
 	add_card(new_card)
 	add_child(new_card)
