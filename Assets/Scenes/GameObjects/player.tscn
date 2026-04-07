@@ -1,13 +1,14 @@
 [gd_scene format=3 uid="uid://rg70vbowntkn"]
 
 [ext_resource type="Script" uid="uid://roke7kdnvqpo" path="res://Assets/Scripts/player.gd" id="1_rxvhy"]
+[ext_resource type="PackedScene" uid="uid://bixoatsoqg66h" path="res://Assets/Scenes/GameObjects/card.tscn" id="2_r4ko2"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_yga71"]
 size = Vector2(84, 112)
 
 [node name="player" type="Node2D" unique_id=1284586332]
-z_index = 10
 script = ExtResource("1_rxvhy")
+card_tscn = ExtResource("2_r4ko2")
 metadata/_edit_group_ = true
 
 [node name="Area2D" type="Area2D" parent="." unique_id=484140159]
