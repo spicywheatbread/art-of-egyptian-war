@@ -1,21 +1,48 @@
 extends Node2D
+# TODO delete 
+# https://docs.godotengine.org/en/stable/tutorials/networking/websocket.html
+@export var websocket_url = "wss://echo.websocket.org" # TODO 
+@export var center_pile : Node 
 
+var socket = WebSocketPeer.new() 
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
-	# shuffle 
-	pass # Replace with function body.
+	var resp = socket.connect_to_url(websocket_url) 
+	if resp != OK:
+		print ("failed to connect to", websocket_url) 
+		return 
+	
+	# shuffle, actually, should happen on server
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:
+	
+	
+	var state = socket.get_ready_state()
+	if state == WebSocketPeer.STATE_CLOSED:
+		print ("webstocket closed") 
+		return 
+	socket.poll() 
+
+	while socket.get_available_packet_count():
+		var packet = socket.get_packet()
+		if socket.was_string_packet():
+			var packet_json = JSON.parse_string(packet.get_string_from_utf8()) 
+			var event_type = "" # TODO actually get event from json 
+			
+			if event_type == "playCard":
+				pass
+			elif event_type == "slap":
+				pass
+		
 	# check if user made a move (maybe check from card) 
 	# check if server detected a move, update ui 
-	
 	pass
 
 
 
-# just fo me 
+# just fo me TODO delte 
 #Goal: Collect all the cards in your hand.
 
 #1. Shuffle and deal the cards out to all players. The players must keep their cards face down, in hand. Egyptian War is played clockwise from the dealer.
