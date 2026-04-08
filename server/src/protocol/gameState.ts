@@ -8,6 +8,7 @@ export type RoomStatus = "Lobby" | "InGame" | "GameOver";
 export interface LobbyRoomState {
   status: "Lobby";
   roomId: RoomId;
+  gameCode: string;
   hostPlayerId: PlayerId;
   players: UserProfile[];
   settings: GameSettings;
