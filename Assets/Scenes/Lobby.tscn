@@ -45,7 +45,7 @@ bg_color = Color(0.9262043, 0.9160181, 0.8847256, 1)
 
 [node name="Lobby" type="Node2D" unique_id=1115395009 node_paths=PackedStringArray("QuoteDisplay", "HostConfirmGame", "JoinConfirmGame", "JoinCodeInput")]
 script = ExtResource("1_3afsy")
-QuoteDisplay = NodePath("CanvasLayer/MarginContainer/MainScreen/TextureRect/QuoteDisplay")
+QuoteDisplay = NodePath("CanvasLayer/MarginContainer/MainScreen/Cloud/QuoteDisplay")
 HostConfirmGame = NodePath("CanvasLayer/MarginContainer/HostConfirmGame")
 JoinConfirmGame = NodePath("CanvasLayer/MarginContainer/JoinConfirmGame")
 JoinCodeInput = NodePath("CanvasLayer/MarginContainer/JoinConfirmGame/JoinConfirmPopup/VBoxContainer/JoinCodeInput")
@@ -81,7 +81,7 @@ size_flags_vertical = 4
 theme_override_constants/separation = 20
 alignment = 1
 
-[node name="TextureRect" type="TextureRect" parent="CanvasLayer/MarginContainer/MainScreen" unique_id=897414242]
+[node name="Cloud" type="TextureRect" parent="CanvasLayer/MarginContainer/MainScreen" unique_id=897414242]
 z_index = -1
 custom_minimum_size = Vector2(0, 400)
 layout_mode = 2
@@ -89,7 +89,7 @@ size_flags_vertical = 3
 texture = ExtResource("3_dbdlk")
 expand_mode = 1
 
-[node name="QuoteDisplay" type="RichTextLabel" parent="CanvasLayer/MarginContainer/MainScreen/TextureRect" unique_id=132493823]
+[node name="QuoteDisplay" type="RichTextLabel" parent="CanvasLayer/MarginContainer/MainScreen/Cloud" unique_id=132493823]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0

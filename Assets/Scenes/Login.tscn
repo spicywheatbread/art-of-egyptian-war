@@ -3,7 +3,9 @@
 [ext_resource type="Script" uid="uid://c1lla5rs0jool" path="res://Assets/Scripts/login.gd" id="1_qduus"]
 [ext_resource type="FontFile" uid="uid://6303at6snnwr" path="res://Assets/Font/Font1.png" id="1_qok2h"]
 [ext_resource type="Texture2D" uid="uid://b43kgykuic00e" path="res://Assets/Images/UI/Settings.png" id="1_spjw4"]
+[ext_resource type="Texture2D" uid="uid://d8rd1x0jg6c8" path="res://Assets/Images/UI/Backgrounds/CasinoBackground.jpg" id="2_nclou"]
 [ext_resource type="Texture2D" uid="uid://ct3ttysfdqk34" path="res://Assets/Images/UI/Buttons.png" id="2_sd1wl"]
+[ext_resource type="Texture2D" uid="uid://bs6k0o4gr84gp" path="res://Assets/Images/UI/Backgrounds/Cloud.png" id="3_8cvmk"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_qduus"]
 atlas = ExtResource("2_sd1wl")
@@ -24,6 +26,16 @@ userNameInput = NodePath("CanvasLayer/PopupContainer/LoginPopup/username")
 passwordInput = NodePath("CanvasLayer/PopupContainer/LoginPopup/password")
 
 [node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=228981683]
+
+[node name="Background" type="TextureRect" parent="CanvasLayer" unique_id=386454966]
+z_index = -5
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("2_nclou")
+expand_mode = 1
 
 [node name="LoginContainer" type="MarginContainer" parent="CanvasLayer" unique_id=1716731488]
 custom_minimum_size = Vector2(1000, 500)
@@ -47,8 +59,21 @@ layout_mode = 2
 size_flags_vertical = 4
 theme_override_constants/separation = 50
 
-[node name="GameTitle" type="RichTextLabel" parent="CanvasLayer/LoginContainer/VBoxContainer" unique_id=175644302]
+[node name="Cloud" type="TextureRect" parent="CanvasLayer/LoginContainer/VBoxContainer" unique_id=52300509]
+z_index = -1
+custom_minimum_size = Vector2(0, 400)
 layout_mode = 2
+size_flags_vertical = 3
+texture = ExtResource("3_8cvmk")
+expand_mode = 1
+
+[node name="GameTitle" type="RichTextLabel" parent="CanvasLayer/LoginContainer/VBoxContainer/Cloud" unique_id=175644302]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 size_flags_vertical = 4
 theme_override_fonts/normal_font = ExtResource("1_qok2h")
 theme_override_font_sizes/normal_font_size = 75
