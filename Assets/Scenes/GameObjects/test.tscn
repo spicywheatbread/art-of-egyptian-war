@@ -1,0 +1,75 @@
+[gd_scene format=3 uid="uid://cvm5e3rsawxhi"]
+
+[ext_resource type="Script" uid="uid://cetk40n3ry0ow" path="res://Assets/Scenes/main_game.gd" id="1_7og6b"]
+[ext_resource type="Script" path="res://Assets/Scripts/center_pile.gd" id="2_wg47v"]
+[ext_resource type="PackedScene" uid="uid://bixoatsoqg66h" path="res://Assets/Scenes/GameObjects/card.tscn" id="3_7og6b"]
+[ext_resource type="PackedScene" uid="uid://rg70vbowntkn" path="res://Assets/Scenes/GameObjects/player.tscn" id="3_u224g"]
+
+[sub_resource type="Gradient" id="Gradient_jxrll"]
+offsets = PackedFloat32Array(0.089201875)
+colors = PackedColorArray(0.1122, 0.33, 0.21384001, 1)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_u224g"]
+gradient = SubResource("Gradient_jxrll")
+fill_to = Vector2(1, 1)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_atkjy"]
+size = Vector2(106, 166)
+
+[node name="Game" type="Node2D" unique_id=1841649472]
+script = ExtResource("1_7og6b")
+
+[node name="Reset Button" type="Button" parent="." unique_id=471743317]
+offset_left = 1031.0
+offset_top = 580.0
+offset_right = 1125.0
+offset_bottom = 611.0
+text = "Add a 2 :P"
+
+[node name="Background" type="Sprite2D" parent="." unique_id=681653225]
+z_index = -5
+position = Vector2(572, 322.5)
+scale = Vector2(18, 9.921875)
+texture = SubResource("GradientTexture2D_u224g")
+metadata/_edit_lock_ = true
+
+[node name="Center Pile" type="Node2D" parent="." unique_id=1616714325]
+position = Vector2(510, 313)
+script = ExtResource("2_wg47v")
+card_tscn = ExtResource("3_7og6b")
+metadata/_edit_group_ = true
+
+[node name="Label" type="Label" parent="Center Pile" unique_id=6264525]
+offset_right = 40.0
+offset_bottom = 23.0
+text = "Central Pile"
+
+[node name="Area2D" type="Area2D" parent="Center Pile" unique_id=509257579]
+
+[node name="Polygon2D" type="Polygon2D" parent="Center Pile/Area2D" unique_id=1189831175]
+position = Vector2(1.9999695, -67)
+scale = Vector2(2.3555555, 5.187501)
+color = Color(0, 0, 0, 0.3372549)
+polygon = PackedVector2Array(-4, 0, -4, 32, 41, 32, 41, 0, 18.254715, 0)
+metadata/_edit_group_ = true
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Center Pile/Area2D" unique_id=1558502908]
+position = Vector2(45, 16)
+shape = SubResource("RectangleShape2D_atkjy")
+
+[node name="Random Position" type="Node2D" parent="." unique_id=967168217]
+position = Vector2(911, 70)
+metadata/_edit_group_ = true
+
+[node name="Label" type="Label" parent="Random Position" unique_id=1813113541]
+offset_right = 40.0
+offset_bottom = 23.0
+text = "Random Position"
+
+[node name="Players" type="Node" parent="." unique_id=888546088]
+
+[node name="Test Player" parent="Players" unique_id=1284586332 instance=ExtResource("3_u224g")]
+position = Vector2(189, 308)
+
+[connection signal="pressed" from="Reset Button" to="Center Pile" method="_on_two_button_pressed"]
+[connection signal="input_event" from="Center Pile/Area2D" to="." method="_on_center_input_event"]

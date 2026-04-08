@@ -1,0 +1,25 @@
+[remap]
+
+importer="font_data_image"
+type="FontFile"
+uid="uid://bblip53tcwvsv"
+path="res://.godot/imported/Text1.png-7fcc3e0c88b771260ba939d4c4f3252d.fontdata"
+
+[deps]
+
+source_file="res://Assets/Font/Text1.png"
+dest_files=["res://.godot/imported/Text1.png-7fcc3e0c88b771260ba939d4c4f3252d.fontdata"]
+
+[params]
+
+character_ranges=PackedStringArray("65-90", "32", "32", "32", "1-9", "0", ".,:?!()+-=")
+kerning_pairs=PackedStringArray()
+columns=10
+rows=35
+image_margin=Rect2i(0, 0, 0, 0)
+character_margin=Rect2i(0, 0, 0, 0)
+ascent=0
+descent=0
+fallbacks=[]
+compress=true
+scaling_mode=2
