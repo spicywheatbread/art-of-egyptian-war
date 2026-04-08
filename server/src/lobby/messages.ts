@@ -4,24 +4,44 @@ import type { GameSettings, LobbyRoomState } from "../protocol";
 
 export interface CreateLobbyMessage {
   type: "createLobby";
-  username: string;
+  username?: string;
   settings?: Partial<GameSettings>;
 }
 
 export interface JoinLobbyMessage {
   type: "joinLobby";
   gameCode: string;
-  username: string;
+  username?: string;
 }
 
 export interface LeaveLobbyMessage {
   type: "leaveLobby";
 }
 
+export interface RegisterMessage {
+  type: "register";
+  username: string;
+  password: string;
+}
+
+export interface LoginMessage {
+  type: "login";
+  username: string;
+  password: string;
+}
+
+export interface RecordOutcomeMessage {
+  type: "recordOutcome";
+  didWin: boolean;
+}
+
 export type ClientMessage =
   | CreateLobbyMessage
   | JoinLobbyMessage
-  | LeaveLobbyMessage;
+  | LeaveLobbyMessage
+  | RegisterMessage
+  | LoginMessage
+  | RecordOutcomeMessage;
 
 // --- Server → Client ---
 
@@ -41,11 +61,29 @@ export interface ErrorMessage {
   message: string;
 }
 
-export type ServerMessage = WelcomeMessage | LobbyStateMessage | ErrorMessage;
+export interface AuthOkMessage {
+  type: "authOk";
+  username: string;
+  wins: number;
+  gamesPlayed: number;
+}
+
+export type ServerMessage =
+  | WelcomeMessage
+  | LobbyStateMessage
+  | ErrorMessage
+  | AuthOkMessage;
 
 // --- Parsing ---
 
-const CLIENT_TYPES = new Set<string>(["createLobby", "joinLobby", "leaveLobby"]);
+const CLIENT_TYPES = new Set<string>([
+  "createLobby",
+  "joinLobby",
+  "leaveLobby",
+  "register",
+  "login",
+  "recordOutcome",
+]);
 
 export function parseClientMessage(raw: string): ClientMessage {
   let json: unknown;
@@ -65,15 +103,36 @@ export function parseClientMessage(raw: string): ClientMessage {
     throw new ParseError("UNKNOWN_TYPE", `Unknown message type: ${String(obj.type)}`);
   }
 
-  if (obj.type === "createLobby" || obj.type === "joinLobby") {
+  if (
+    (obj.type === "createLobby" || obj.type === "joinLobby") &&
+    obj.username !== undefined
+  ) {
     if (typeof obj.username !== "string" || obj.username.trim().length === 0) {
-      throw new ParseError("INVALID_USERNAME", "username must be a non-empty string");
+      throw new ParseError(
+        "INVALID_USERNAME",
+        "username must be a non-empty string when provided",
+      );
     }
   }
 
   if (obj.type === "joinLobby") {
     if (typeof obj.gameCode !== "string" || !/^\d{4}$/.test(obj.gameCode)) {
       throw new ParseError("INVALID_GAME_CODE", "gameCode must be a 4-digit string");
+    }
+  }
+
+  if (obj.type === "register" || obj.type === "login") {
+    if (typeof obj.username !== "string" || obj.username.trim().length === 0) {
+      throw new ParseError("INVALID_USERNAME", "username must be a non-empty string");
+    }
+    if (typeof obj.password !== "string" || obj.password.length === 0) {
+      throw new ParseError("INVALID_PASSWORD", "password must be a non-empty string");
+    }
+  }
+
+  if (obj.type === "recordOutcome") {
+    if (typeof obj.didWin !== "boolean") {
+      throw new ParseError("INVALID_DID_WIN", "didWin must be a boolean");
     }
   }
 
