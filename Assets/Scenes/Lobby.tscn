@@ -4,6 +4,7 @@
 [ext_resource type="FontFile" uid="uid://6303at6snnwr" path="res://Assets/Font/Font1.png" id="2_dvqbj"]
 [ext_resource type="Texture2D" uid="uid://ct3ttysfdqk34" path="res://Assets/Images/UI/Buttons.png" id="3_dvqbj"]
 [ext_resource type="Texture2D" uid="uid://dmg1jup6jxrus" path="res://Assets/Images/UI/Icons.png" id="4_pjan7"]
+[ext_resource type="Texture2D" uid="uid://c7sjej3uh7fl4" path="res://Assets/Images/UI/Win_Lose.png" id="5_4c0xn"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_pjan7"]
 atlas = ExtResource("3_dvqbj")
@@ -25,9 +26,27 @@ region = Rect2(93, 419, 56, 11)
 atlas = ExtResource("4_pjan7")
 region = Rect2(81, 49, 14, 14)
 
-[node name="Lobby" type="Node2D" unique_id=1115395009 node_paths=PackedStringArray("quote")]
+[sub_resource type="AtlasTexture" id="AtlasTexture_52xik"]
+atlas = ExtResource("5_4c0xn")
+region = Rect2(11, 299, 90, 74)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_3fred"]
+atlas = ExtResource("3_dvqbj")
+region = Rect2(13, 418, 56, 12)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_xik4p"]
+atlas = ExtResource("3_dvqbj")
+region = Rect2(93, 419, 56, 11)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_4c0xn"]
+bg_color = Color(0.9262043, 0.9160181, 0.8847256, 1)
+
+[node name="Lobby" type="Node2D" unique_id=1115395009 node_paths=PackedStringArray("QuoteDisplay", "HostConfirmGame", "JoinConfirmGame", "JoinCodeInput")]
 script = ExtResource("1_3afsy")
-quote = NodePath("CanvasLayer/MarginContainer/VBoxContainer/QuoteDisplay")
+QuoteDisplay = NodePath("CanvasLayer/MarginContainer/MainScreen/QuoteDisplay")
+HostConfirmGame = NodePath("CanvasLayer/MarginContainer/HostConfirmGame")
+JoinConfirmGame = NodePath("CanvasLayer/MarginContainer/JoinConfirmGame")
+JoinCodeInput = NodePath("CanvasLayer/MarginContainer/JoinConfirmGame/JoinConfirmPopup/VBoxContainer/JoinCodeInput")
 
 [node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=792386771]
 
@@ -44,13 +63,13 @@ theme_override_constants/margin_top = 10
 theme_override_constants/margin_right = 10
 theme_override_constants/margin_bottom = 10
 
-[node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer/MarginContainer" unique_id=662318691]
+[node name="MainScreen" type="VBoxContainer" parent="CanvasLayer/MarginContainer" unique_id=662318691]
 layout_mode = 2
 size_flags_vertical = 4
 theme_override_constants/separation = 50
 alignment = 1
 
-[node name="QuoteDisplay" type="RichTextLabel" parent="CanvasLayer/MarginContainer/VBoxContainer" unique_id=132493823]
+[node name="QuoteDisplay" type="RichTextLabel" parent="CanvasLayer/MarginContainer/MainScreen" unique_id=132493823]
 layout_mode = 2
 size_flags_vertical = 3
 theme_override_fonts/normal_font = ExtResource("2_dvqbj")
@@ -60,7 +79,7 @@ fit_content = true
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="TitleDisplay" type="RichTextLabel" parent="CanvasLayer/MarginContainer/VBoxContainer" unique_id=1169177065]
+[node name="TitleDisplay" type="RichTextLabel" parent="CanvasLayer/MarginContainer/MainScreen" unique_id=1169177065]
 layout_mode = 2
 size_flags_vertical = 3
 theme_override_fonts/normal_font = ExtResource("2_dvqbj")
@@ -70,13 +89,13 @@ fit_content = true
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="HBoxContainer" type="HBoxContainer" parent="CanvasLayer/MarginContainer/VBoxContainer" unique_id=1991228585]
+[node name="HBoxContainer" type="HBoxContainer" parent="CanvasLayer/MarginContainer/MainScreen" unique_id=1991228585]
 layout_mode = 2
 size_flags_vertical = 3
 theme_override_constants/separation = 40
 alignment = 1
 
-[node name="HostGameButton" type="TextureButton" parent="CanvasLayer/MarginContainer/VBoxContainer/HBoxContainer" unique_id=2113580919]
+[node name="HostGameButton" type="TextureButton" parent="CanvasLayer/MarginContainer/MainScreen/HBoxContainer" unique_id=2113580919]
 custom_minimum_size = Vector2(400, 100)
 layout_mode = 2
 mouse_default_cursor_shape = 2
@@ -84,7 +103,7 @@ texture_normal = SubResource("AtlasTexture_pjan7")
 texture_pressed = SubResource("AtlasTexture_dvqbj")
 stretch_mode = 0
 
-[node name="MarginContainer" type="MarginContainer" parent="CanvasLayer/MarginContainer/VBoxContainer/HBoxContainer/HostGameButton" unique_id=1799409629]
+[node name="MarginContainer" type="MarginContainer" parent="CanvasLayer/MarginContainer/MainScreen/HBoxContainer/HostGameButton" unique_id=1799409629]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -93,7 +112,7 @@ grow_horizontal = 2
 grow_vertical = 2
 theme_override_constants/margin_bottom = 10
 
-[node name="HostGameDisplay" type="RichTextLabel" parent="CanvasLayer/MarginContainer/VBoxContainer/HBoxContainer/HostGameButton/MarginContainer" unique_id=656331587]
+[node name="HostGameDisplay" type="RichTextLabel" parent="CanvasLayer/MarginContainer/MainScreen/HBoxContainer/HostGameButton/MarginContainer" unique_id=656331587]
 layout_mode = 2
 mouse_filter = 2
 theme_override_fonts/normal_font = ExtResource("2_dvqbj")
@@ -102,7 +121,7 @@ text = "INITIATE A WAR"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="JoinGameButton" type="TextureButton" parent="CanvasLayer/MarginContainer/VBoxContainer/HBoxContainer" unique_id=948227028]
+[node name="JoinGameButton" type="TextureButton" parent="CanvasLayer/MarginContainer/MainScreen/HBoxContainer" unique_id=948227028]
 custom_minimum_size = Vector2(400, 100)
 layout_mode = 2
 mouse_default_cursor_shape = 2
@@ -110,7 +129,7 @@ texture_normal = SubResource("AtlasTexture_4c0xn")
 texture_pressed = SubResource("AtlasTexture_7il6l")
 stretch_mode = 0
 
-[node name="MarginContainer" type="MarginContainer" parent="CanvasLayer/MarginContainer/VBoxContainer/HBoxContainer/JoinGameButton" unique_id=479003630]
+[node name="MarginContainer" type="MarginContainer" parent="CanvasLayer/MarginContainer/MainScreen/HBoxContainer/JoinGameButton" unique_id=479003630]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -119,7 +138,7 @@ grow_horizontal = 2
 grow_vertical = 2
 theme_override_constants/margin_bottom = 10
 
-[node name="JoinGameDisplay" type="RichTextLabel" parent="CanvasLayer/MarginContainer/VBoxContainer/HBoxContainer/JoinGameButton/MarginContainer" unique_id=1948226080]
+[node name="JoinGameDisplay" type="RichTextLabel" parent="CanvasLayer/MarginContainer/MainScreen/HBoxContainer/JoinGameButton/MarginContainer" unique_id=1948226080]
 layout_mode = 2
 mouse_filter = 2
 theme_override_fonts/normal_font = ExtResource("2_dvqbj")
@@ -136,3 +155,176 @@ size_flags_horizontal = 8
 size_flags_vertical = 0
 texture_normal = SubResource("AtlasTexture_dbdlk")
 stretch_mode = 0
+
+[node name="HostConfirmGame" type="TextureRect" parent="CanvasLayer/MarginContainer" unique_id=1315625928]
+layout_mode = 2
+
+[node name="HostConfirmPopup" type="TextureRect" parent="CanvasLayer/MarginContainer/HostConfirmGame" unique_id=489635454]
+custom_minimum_size = Vector2(500, 400)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+grow_horizontal = 2
+grow_vertical = 2
+texture = SubResource("AtlasTexture_52xik")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer/MarginContainer/HostConfirmGame/HostConfirmPopup" unique_id=1889915729]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -163.5
+offset_top = -33.5
+offset_right = 163.5
+offset_bottom = 33.5
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 40
+
+[node name="HostConfirmPrompt" type="Label" parent="CanvasLayer/MarginContainer/HostConfirmGame/HostConfirmPopup/VBoxContainer" unique_id=457304612]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_dvqbj")
+theme_override_font_sizes/font_size = 30
+text = "INTIATE A WAR?"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="HostConfirmButton" type="TextureButton" parent="CanvasLayer/MarginContainer/HostConfirmGame/HostConfirmPopup/VBoxContainer" unique_id=1909749999]
+custom_minimum_size = Vector2(250, 75)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+texture_normal = SubResource("AtlasTexture_3fred")
+texture_pressed = SubResource("AtlasTexture_xik4p")
+stretch_mode = 0
+
+[node name="MarginContainer" type="MarginContainer" parent="CanvasLayer/MarginContainer/HostConfirmGame/HostConfirmPopup/VBoxContainer/HostConfirmButton" unique_id=2040267693]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_bottom = 10
+
+[node name="HostConfirmText" type="RichTextLabel" parent="CanvasLayer/MarginContainer/HostConfirmGame/HostConfirmPopup/VBoxContainer/HostConfirmButton/MarginContainer" unique_id=267607321]
+layout_mode = 2
+mouse_filter = 2
+theme_override_fonts/normal_font = ExtResource("2_dvqbj")
+theme_override_font_sizes/normal_font_size = 30
+text = "ARRRR"
+fit_content = true
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Button" type="Button" parent="CanvasLayer/MarginContainer/HostConfirmGame/HostConfirmPopup" unique_id=1388455908]
+modulate = Color(1, 1, 1, 0)
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -68.0
+offset_top = 9.0
+offset_right = -13.0
+offset_bottom = 64.0
+grow_horizontal = 0
+
+[node name="JoinConfirmGame" type="TextureRect" parent="CanvasLayer/MarginContainer" unique_id=772025618]
+layout_mode = 2
+
+[node name="JoinConfirmPopup" type="TextureRect" parent="CanvasLayer/MarginContainer/JoinConfirmGame" unique_id=39994139]
+custom_minimum_size = Vector2(500, 400)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+grow_horizontal = 2
+grow_vertical = 2
+texture = SubResource("AtlasTexture_52xik")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer/MarginContainer/JoinConfirmGame/JoinConfirmPopup" unique_id=922588307]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -163.5
+offset_top = -33.5
+offset_right = 163.5
+offset_bottom = 33.5
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 40
+
+[node name="JoinConfirmPrompt" type="Label" parent="CanvasLayer/MarginContainer/JoinConfirmGame/JoinConfirmPopup/VBoxContainer" unique_id=84914854]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_dvqbj")
+theme_override_font_sizes/font_size = 30
+text = "JOIN A WAR?"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="JoinCodeInput" type="LineEdit" parent="CanvasLayer/MarginContainer/JoinConfirmGame/JoinConfirmPopup/VBoxContainer" unique_id=1289528622]
+layout_mode = 2
+theme_override_colors/caret_color = Color(0, 0, 0, 1)
+theme_override_fonts/font = ExtResource("2_dvqbj")
+theme_override_font_sizes/font_size = 30
+theme_override_styles/normal = SubResource("StyleBoxFlat_4c0xn")
+placeholder_text = "XXXXXX"
+alignment = 1
+max_length = 6
+caret_blink = true
+
+[node name="JoinConfirmButton" type="TextureButton" parent="CanvasLayer/MarginContainer/JoinConfirmGame/JoinConfirmPopup/VBoxContainer" unique_id=1383340584]
+custom_minimum_size = Vector2(250, 75)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+texture_normal = SubResource("AtlasTexture_3fred")
+texture_pressed = SubResource("AtlasTexture_xik4p")
+stretch_mode = 0
+
+[node name="MarginContainer" type="MarginContainer" parent="CanvasLayer/MarginContainer/JoinConfirmGame/JoinConfirmPopup/VBoxContainer/JoinConfirmButton" unique_id=1803339013]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_bottom = 10
+
+[node name="JoinConfirmText" type="RichTextLabel" parent="CanvasLayer/MarginContainer/JoinConfirmGame/JoinConfirmPopup/VBoxContainer/JoinConfirmButton/MarginContainer" unique_id=1505491601]
+layout_mode = 2
+mouse_filter = 2
+theme_override_fonts/normal_font = ExtResource("2_dvqbj")
+theme_override_font_sizes/normal_font_size = 30
+text = "ARRRR"
+fit_content = true
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Button" type="Button" parent="CanvasLayer/MarginContainer/JoinConfirmGame/JoinConfirmPopup" unique_id=1073120240]
+modulate = Color(1, 1, 1, 0)
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -68.0
+offset_top = 9.0
+offset_right = -13.0
+offset_bottom = 64.0
+grow_horizontal = 0
+
+[connection signal="pressed" from="CanvasLayer/MarginContainer/MainScreen/HBoxContainer/HostGameButton" to="." method="_on_host_game_button_pressed"]
+[connection signal="pressed" from="CanvasLayer/MarginContainer/MainScreen/HBoxContainer/JoinGameButton" to="." method="_on_join_game_button_pressed"]
+[connection signal="pressed" from="CanvasLayer/MarginContainer/HostConfirmGame/HostConfirmPopup/Button" to="." method="_close_popup"]
+[connection signal="text_changed" from="CanvasLayer/MarginContainer/JoinConfirmGame/JoinConfirmPopup/VBoxContainer/JoinCodeInput" to="." method="_on_join_code_input_text_changed"]
+[connection signal="pressed" from="CanvasLayer/MarginContainer/JoinConfirmGame/JoinConfirmPopup/Button" to="." method="_close_popup"]

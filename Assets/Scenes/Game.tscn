@@ -17,6 +17,7 @@ fill_to = Vector2(1, 1)
 size = Vector2(106, 166)
 
 [node name="Game" type="Node2D" unique_id=156695613]
+<<<<<<< HEAD
 script = ExtResource("1_cycvv")
 
 [node name="Reset Button" type="Button" parent="." unique_id=809785790]
@@ -71,3 +72,5 @@ text = "Random Position"
 [node name="Test Player" parent="Players" unique_id=1284586332 instance=ExtResource("4_jqtiv")]
 position = Vector2(189, 308)
 script = null
+
+[node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=1307791960]
