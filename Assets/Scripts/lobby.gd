@@ -45,7 +45,8 @@ func _on_host_game_button_pressed() -> void:
 	
 
 func _on_host_game_confirm_button_pressed() -> void:
-	get_tree().change_scene_to_file("res://Scenes/GameObjects/test.tscn")
+	print("clicked")
+	get_tree().change_scene_to_file("res://Assets/Scenes/GameObjects/test.tscn")
 
 
 func _on_join_game_button_pressed() -> void:

@@ -108,7 +108,7 @@ vertical_alignment = 1
 [node name="HBoxContainer" type="HBoxContainer" parent="CanvasLayer/MarginContainer/MainScreen" unique_id=1991228585]
 layout_mode = 2
 size_flags_vertical = 3
-theme_override_constants/separation = 40
+theme_override_constants/separation = 80
 alignment = 1
 
 [node name="HostGameButton" type="TextureButton" parent="CanvasLayer/MarginContainer/MainScreen/HBoxContainer" unique_id=2113580919]
@@ -403,6 +403,7 @@ grow_horizontal = 0
 [connection signal="pressed" from="CanvasLayer/MarginContainer/MainScreen/HBoxContainer/HostGameButton" to="." method="_on_host_game_button_pressed"]
 [connection signal="pressed" from="CanvasLayer/MarginContainer/MainScreen/HBoxContainer/JoinGameButton" to="." method="_on_join_game_button_pressed"]
 [connection signal="pressed" from="CanvasLayer/MarginContainer/SettingsButton" to="." method="_on_profile_button_pressed"]
+[connection signal="pressed" from="CanvasLayer/MarginContainer/HostConfirmGame/HostConfirmPopup/VBoxContainer/HostConfirmButton" to="." method="_on_host_game_confirm_button_pressed"]
 [connection signal="pressed" from="CanvasLayer/MarginContainer/HostConfirmGame/HostConfirmPopup/Button" to="." method="_close_popup"]
 [connection signal="text_changed" from="CanvasLayer/MarginContainer/JoinConfirmGame/JoinConfirmPopup/VBoxContainer/JoinCodeInput" to="." method="_on_join_code_input_text_changed"]
 [connection signal="pressed" from="CanvasLayer/MarginContainer/JoinConfirmGame/JoinConfirmPopup/Button" to="." method="_close_popup"]
