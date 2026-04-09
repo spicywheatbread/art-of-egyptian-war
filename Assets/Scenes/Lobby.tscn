@@ -43,11 +43,12 @@ region = Rect2(93, 419, 56, 11)
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_4c0xn"]
 bg_color = Color(0.9262043, 0.9160181, 0.8847256, 1)
 
-[node name="Lobby" type="Node2D" unique_id=1115395009 node_paths=PackedStringArray("QuoteDisplay", "HostConfirmGame", "JoinConfirmGame", "JoinCodeInput")]
+[node name="Lobby" type="Node2D" unique_id=1115395009 node_paths=PackedStringArray("QuoteDisplay", "HostConfirmGame", "JoinConfirmGame", "Profile", "JoinCodeInput")]
 script = ExtResource("1_3afsy")
 QuoteDisplay = NodePath("CanvasLayer/MarginContainer/MainScreen/Cloud/QuoteDisplay")
 HostConfirmGame = NodePath("CanvasLayer/MarginContainer/HostConfirmGame")
 JoinConfirmGame = NodePath("CanvasLayer/MarginContainer/JoinConfirmGame")
+Profile = NodePath("CanvasLayer/MarginContainer/Profile")
 JoinCodeInput = NodePath("CanvasLayer/MarginContainer/JoinConfirmGame/JoinConfirmPopup/VBoxContainer/JoinCodeInput")
 
 [node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=792386771]
@@ -293,9 +294,9 @@ theme_override_colors/caret_color = Color(0, 0, 0, 1)
 theme_override_fonts/font = ExtResource("2_dvqbj")
 theme_override_font_sizes/font_size = 30
 theme_override_styles/normal = SubResource("StyleBoxFlat_4c0xn")
-placeholder_text = "XXXXXX"
+placeholder_text = "XXXX"
 alignment = 1
-max_length = 6
+max_length = 4
 caret_blink = true
 
 [node name="JoinConfirmButton" type="TextureButton" parent="CanvasLayer/MarginContainer/JoinConfirmGame/JoinConfirmPopup/VBoxContainer" unique_id=1383340584]
@@ -338,8 +339,71 @@ offset_right = -13.0
 offset_bottom = 64.0
 grow_horizontal = 0
 
+[node name="Profile" type="TextureRect" parent="CanvasLayer/MarginContainer" unique_id=1963351535]
+layout_mode = 2
+
+[node name="ProfilePopup" type="TextureRect" parent="CanvasLayer/MarginContainer/Profile" unique_id=910770982]
+custom_minimum_size = Vector2(500, 400)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+grow_horizontal = 2
+grow_vertical = 2
+texture = SubResource("AtlasTexture_52xik")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer/MarginContainer/Profile/ProfilePopup" unique_id=306866191]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -163.5
+offset_top = -33.5
+offset_right = 163.5
+offset_bottom = 33.5
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 40
+
+[node name="WelcomeMessage" type="Label" parent="CanvasLayer/MarginContainer/Profile/ProfilePopup/VBoxContainer" unique_id=1378520451]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_dvqbj")
+theme_override_font_sizes/font_size = 30
+text = "WELCOME, 
+USERNAME!"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="StatsDisplay" type="Label" parent="CanvasLayer/MarginContainer/Profile/ProfilePopup/VBoxContainer" unique_id=7897893]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_dvqbj")
+theme_override_font_sizes/font_size = 30
+text = "GAMES PLAYED: 0
+
+GAMES WON: 0"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Button" type="Button" parent="CanvasLayer/MarginContainer/Profile/ProfilePopup" unique_id=496332253]
+modulate = Color(1, 1, 1, 0)
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -68.0
+offset_top = 9.0
+offset_right = -13.0
+offset_bottom = 64.0
+grow_horizontal = 0
+
 [connection signal="pressed" from="CanvasLayer/MarginContainer/MainScreen/HBoxContainer/HostGameButton" to="." method="_on_host_game_button_pressed"]
 [connection signal="pressed" from="CanvasLayer/MarginContainer/MainScreen/HBoxContainer/JoinGameButton" to="." method="_on_join_game_button_pressed"]
+[connection signal="pressed" from="CanvasLayer/MarginContainer/SettingsButton" to="." method="_on_profile_button_pressed"]
 [connection signal="pressed" from="CanvasLayer/MarginContainer/HostConfirmGame/HostConfirmPopup/Button" to="." method="_close_popup"]
 [connection signal="text_changed" from="CanvasLayer/MarginContainer/JoinConfirmGame/JoinConfirmPopup/VBoxContainer/JoinCodeInput" to="." method="_on_join_code_input_text_changed"]
 [connection signal="pressed" from="CanvasLayer/MarginContainer/JoinConfirmGame/JoinConfirmPopup/Button" to="." method="_close_popup"]
+[connection signal="pressed" from="CanvasLayer/MarginContainer/Profile/ProfilePopup/Button" to="." method="_on_profile_close_button_pressed"]
