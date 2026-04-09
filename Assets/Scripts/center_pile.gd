@@ -2,27 +2,12 @@ class_name Center_Pile extends Pile
 
 var cards = []
 var rules: Array[Callable] = []
-@export var card_tscn: PackedScene
-
-func get_card(index: int):
-	return cards[index]
-	
-func add_card(card) -> void:
-	card.z_index = cards.size()
-	cards.append(card)
-
-func pop() -> Card:
-	return cards.pop_back()
 
 func is_sandwich() -> bool:
-	if cards.size() <= 2:
-		return false
-	return cards[-1].rank == cards[-3].rank
+	return $Cards.get_child_count() >= 3 and $Cards.get_child(-1).rank == $Cards.get_child(-3).rank
 	
 func is_pair() -> bool:
-	if cards.size() <= 1:
-		return false
-	return cards[-1].rank == cards[-2].rank
+	return $Cards.get_child_count() >= 2 and $Cards.get_child(-1).rank == $Cards.get_child(-2).rank
 
 func is_valid_slap() -> bool:
 	for rule in rules:
