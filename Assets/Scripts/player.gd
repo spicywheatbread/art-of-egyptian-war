@@ -5,7 +5,7 @@ func give_all_cards():
 		for rank in Card.Rank.values():
 			var new_card = card_tscn.instantiate()
 			new_card.setup(suit, rank)
-			$Cards.add_child(new_card)
+			add_card(new_card)
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:

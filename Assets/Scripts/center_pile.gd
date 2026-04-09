@@ -29,5 +29,4 @@ func _add_two() -> void:
 	var new_card = card_tscn.instantiate()
 	new_card.setup(Card.Suit.SPADES, Card.Rank.TWO)
 	add_card(new_card)
-	add_child(new_card)
 	
