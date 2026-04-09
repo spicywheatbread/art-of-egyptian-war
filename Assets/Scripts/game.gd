@@ -56,9 +56,10 @@ func drop_card() -> void:
 		if is_valid_drop(target):
 			selected_player.pop()
 			target.add_card(selected_card)
+			selected_card.global_position = get_global_mouse_position()
 		else:
 			# return to original position
-			selected_card.global_position = selected_player.get_top_position()
+			selected_card.position = selected_player.get_top_position()
 			
 	reset_selection()
 	

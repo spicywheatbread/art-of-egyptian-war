@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://cvm5e3rsawxhi"]
 
-[ext_resource type="Script" uid="uid://cetk40n3ry0ow" path="res://Assets/Scenes/main_game.gd" id="1_7og6b"]
+[ext_resource type="Script" uid="uid://csrdqhnq7qehm" path="res://Assets/Scripts/game.gd" id="1_7og6b"]
 [ext_resource type="Script" uid="uid://cvat275xsp4qw" path="res://Assets/Scripts/center_pile.gd" id="2_wg47v"]
 [ext_resource type="PackedScene" uid="uid://bixoatsoqg66h" path="res://Assets/Scenes/GameObjects/card.tscn" id="3_7og6b"]
 [ext_resource type="PackedScene" uid="uid://rg70vbowntkn" path="res://Assets/Scenes/GameObjects/player.tscn" id="3_u224g"]
