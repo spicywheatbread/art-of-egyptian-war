@@ -4,6 +4,7 @@ extends Node2D
 @export var QuoteDisplay : Node
 @export var HostConfirmGame : Node
 @export var JoinConfirmGame : Node
+@export var Profile : Node
 @export var JoinCodeInput : Node
 
 
@@ -26,6 +27,7 @@ func _ready() -> void:
 	# Hide on start
 	HostConfirmGame.visible = false
 	JoinConfirmGame.visible = false
+	Profile.visible = false
 	
 	# Choose random quote
 	var random_int = randi() % quotes.size()
@@ -64,3 +66,11 @@ func _on_join_code_input_text_changed(new_text: String) -> void:
 	
 	# Restore cursor position
 	JoinCodeInput.caret_column = caret_pos
+
+
+func _on_profile_button_pressed() -> void:
+	Profile.visible = true
+
+
+func _on_profile_close_button_pressed() -> void:
+	Profile.visible = false
