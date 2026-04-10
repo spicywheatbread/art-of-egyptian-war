@@ -43,12 +43,13 @@ region = Rect2(93, 419, 56, 11)
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_4c0xn"]
 bg_color = Color(0.9262043, 0.9160181, 0.8847256, 1)
 
-[node name="Lobby" type="Node2D" unique_id=1115395009 node_paths=PackedStringArray("QuoteDisplay", "HostConfirmGame", "JoinConfirmGame", "Profile", "JoinCodeInput")]
+[node name="Lobby" type="Node2D" unique_id=1115395009 node_paths=PackedStringArray("QuoteDisplay", "HostConfirmGame", "JoinConfirmGame", "Profile", "StatsDisplay", "JoinCodeInput")]
 script = ExtResource("1_3afsy")
 QuoteDisplay = NodePath("CanvasLayer/MarginContainer/MainScreen/Cloud/QuoteDisplay")
 HostConfirmGame = NodePath("CanvasLayer/MarginContainer/HostConfirmGame")
 JoinConfirmGame = NodePath("CanvasLayer/MarginContainer/JoinConfirmGame")
 Profile = NodePath("CanvasLayer/MarginContainer/Profile")
+StatsDisplay = NodePath("CanvasLayer/MarginContainer/Profile/ProfilePopup/VBoxContainer/StatsDisplay")
 JoinCodeInput = NodePath("CanvasLayer/MarginContainer/JoinConfirmGame/JoinConfirmPopup/VBoxContainer/JoinCodeInput")
 
 [node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=792386771]
