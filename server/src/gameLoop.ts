@@ -17,13 +17,9 @@ import {
 } from "./protocol";
 
 // ASSUMPTIONS 
-    // all of this happens on createLobby 
-    // players use a code to join the game. 
-
-var gameStarted = false; 
-var dealer_user = ""; 
-var deck = [] as Card[]; // the shuffled deck 
-var curr_player_index = 0; 
+    // the main socket makes one of these 
+    // the last index is the top of the deck 
+    // TODO if there's extra cards after dealing, they go into the cetner
 
 interface InGamePlayer extends UserProfile {
     hand: Card[];
@@ -36,14 +32,10 @@ interface GameSession {
     players: InGamePlayer[];
     status: "Lobby" | "gameStarted" | "gameOver"; 
     turnIndex: number; 
-    deck: Card[];
+    centerPile: Card[];
     winnerId: PlayerId | null;
 }
 
-// wait for a dealer to start the game
-// accept the players that join the game until dealer starts the game. 
-
-// socket.on ("message", async (message) => {
 export class GameLoop {
     private readonly sessions = new Map<RoomId, GameSession>();
 
@@ -176,7 +168,7 @@ export class GameLoop {
             players: lobby.players.map ((player) => ({ ...player, hand: [] })),
             status: "Lobby",
             turnIndex: 0, 
-            deck: [],
+            centerPile: [],
             winnerId: null,
         })
     }
@@ -193,8 +185,6 @@ export class GameLoop {
         } 
 
         s.players = lobby.players.map ((player) => ({...player, hand: []})); 
-        // TODO give them their hand, maype validate turn index
-
     }
 
     removeRoom (roomId: RoomId): void {
@@ -214,11 +204,11 @@ export class GameLoop {
         }
         deck.forEach ((card: Card, index: number) => {
             s.players[index % s.players.length].hand.push (card);
-        })
+        }) // TODO this might give people an inequal set of cards 
 
         s.status = "gameStarted";
         s.turnIndex = 0;
-        // s.pileCards = []; 
+        s.centerPile = [];
         return { ok: true };
     }
 
@@ -238,7 +228,7 @@ export class GameLoop {
         }
 
         const card = currPlayer.hand.pop()!;
-        // this.sessions.pileCards.push (card); TODO forgot to add the pile 
+        s.centerPile.push (card);
 
         this.setNextPlayerIndex (s); 
         this.checkForWin (s); 
@@ -257,7 +247,8 @@ export class GameLoop {
 
         const goodSlap = this.isGoodSlap (s); 
         if (goodSlap) {
-            // give that player the pile 
+            player.hand.push (...s.centerPile); 
+            s.centerPile = [];
         } 
 
         this.checkForWin (s);
@@ -284,8 +275,7 @@ export class GameLoop {
     }
 
     private isGoodSlap (s: GameSession): boolean {
-        // TODO add actual slap logic 
-        return false; 
+        return s.centerPile.length > 2 && s.centerPile[s.centerPile.length - 1] == s.centerPile[s.centerPile.length - 3]; 
     }
 
     private checkForWin (s: GameSession): void {
