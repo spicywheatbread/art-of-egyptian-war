@@ -1,6 +1,7 @@
 import { WebSocketServer, type WebSocket } from "ws";
 import { LobbyStore } from "./lobby/store";
 import { parseClientMessage, ParseError } from "./lobby/messages";
+import { GameLoop } from "./gameLoop";
 import {
   AccountServiceError,
   loginAccount,
@@ -8,6 +9,7 @@ import {
   registerAccount,
 } from "./accounts/service";
 import type { AccountStats } from "./accounts/types";
+import type { RoomId } from "./protocol";
 
 const DEFAULT_PORT = 8080;
 export const PROTOCOL_VERSION = 2;
@@ -57,7 +59,27 @@ export async function startServer(options: StartServerOptions = {}): Promise<Run
   };
   const wss = new WebSocketServer({ port });
   const store = new LobbyStore();
+  const gameLoop = new GameLoop();
   const authenticatedBySocket = new Map<WebSocket, string>();
+
+  const sendGameSnapshotsForRoom = (roomId: RoomId): void => {
+    const snapshots = gameLoop.getSnapshotsForRoom(roomId);
+    if (!snapshots) {
+      return;
+    }
+
+    for (const ws of store.getSocketsInRoom(roomId)) {
+      const info = store.getSocketInfo(ws);
+      if (!info) {
+        continue;
+      }
+      const snapshot = snapshots.get(info.playerId);
+      if (!snapshot) {
+        continue;
+      }
+      store.send(ws, { type: "gameState", room: snapshot });
+    }
+  };
 
   wss.on("connection", (socket) => {
     store.send(socket, { type: "welcome", protocol: protocolVersion });
@@ -138,6 +160,7 @@ export async function startServer(options: StartServerOptions = {}): Promise<Run
             return;
           }
           const lobby = store.createRoom(socket, authenticatedUsername, msg.settings);
+          gameLoop.createSessionForLobby(lobby);
           store.broadcast(lobby.roomId, { type: "lobbyState", lobby });
           break;
         }
@@ -177,6 +200,7 @@ export async function startServer(options: StartServerOptions = {}): Promise<Run
           }
           try {
             const lobby = store.joinRoom(socket, msg.gameCode, authenticatedUsername);
+            gameLoop.updateLobbyPlayers(lobby);
             store.broadcast(lobby.roomId, { type: "lobbyState", lobby });
           } catch {
             sendError(store, socket, "ROOM_NOT_FOUND", `No room with code "${msg.gameCode}"`);
@@ -185,10 +209,127 @@ export async function startServer(options: StartServerOptions = {}): Promise<Run
         }
 
         case "leaveLobby": {
+          const socketInfo = store.getSocketInfo(socket);
           const remaining = store.removeSocket(socket);
           if (remaining) {
+            gameLoop.updateLobbyPlayers(remaining);
             store.broadcast(remaining.roomId, { type: "lobbyState", lobby: remaining });
+          } else if (socketInfo) {
+            gameLoop.removeRoom(socketInfo.roomId);
           }
+          break;
+        }
+
+        case "startGame": {
+          const authenticatedUsername = getAuthenticatedUsername(authenticatedBySocket, socket);
+          if (!authenticatedUsername) {
+            sendError(
+              store,
+              socket,
+              "NOT_AUTHENTICATED",
+              "Login or register before lobby actions",
+            );
+            return;
+          }
+          if (
+            msg.username !== undefined &&
+            normalizeUsernameForCompare(msg.username) !==
+              normalizeUsernameForCompare(authenticatedUsername)
+          ) {
+            sendError(
+              store,
+              socket,
+              "AUTH_USERNAME_MISMATCH",
+              "username must match the authenticated account",
+            );
+            return;
+          }
+
+          const socketInfo = store.getSocketInfo(socket);
+          if (!socketInfo) {
+            sendError(store, socket, "NOT_IN_ROOM", "Join a lobby before starting the game");
+            return;
+          }
+
+          const result = gameLoop.startGame(socketInfo.roomId, socketInfo.playerId);
+          if (!result.ok) {
+            sendError(store, socket, result.code ?? "GAME_START_FAILED", result.message ?? "");
+            return;
+          }
+
+          sendGameSnapshotsForRoom(socketInfo.roomId);
+          break;
+        }
+
+        case "playCard": {
+          const authenticatedUsername = getAuthenticatedUsername(authenticatedBySocket, socket);
+          if (!authenticatedUsername) {
+            sendError(store, socket, "NOT_AUTHENTICATED", "Login or register before playing");
+            return;
+          }
+          if (
+            msg.username !== undefined &&
+            normalizeUsernameForCompare(msg.username) !==
+              normalizeUsernameForCompare(authenticatedUsername)
+          ) {
+            sendError(
+              store,
+              socket,
+              "AUTH_USERNAME_MISMATCH",
+              "username must match the authenticated account",
+            );
+            return;
+          }
+
+          const socketInfo = store.getSocketInfo(socket);
+          if (!socketInfo) {
+            sendError(store, socket, "NOT_IN_ROOM", "Join a lobby before playing");
+            return;
+          }
+
+          const result = gameLoop.playCard(socketInfo.roomId, socketInfo.playerId);
+          if (!result.ok) {
+            sendError(store, socket, result.code ?? "PLAY_FAILED", result.message ?? "");
+            return;
+          }
+
+          sendGameSnapshotsForRoom(socketInfo.roomId);
+          break;
+        }
+
+        case "slap": {
+          const authenticatedUsername = getAuthenticatedUsername(authenticatedBySocket, socket);
+          if (!authenticatedUsername) {
+            sendError(store, socket, "NOT_AUTHENTICATED", "Login or register before slapping");
+            return;
+          }
+          if (
+            msg.username !== undefined &&
+            normalizeUsernameForCompare(msg.username) !==
+              normalizeUsernameForCompare(authenticatedUsername)
+          ) {
+            sendError(
+              store,
+              socket,
+              "AUTH_USERNAME_MISMATCH",
+              "username must match the authenticated account",
+            );
+            return;
+          }
+
+          const socketInfo = store.getSocketInfo(socket);
+          if (!socketInfo) {
+            sendError(store, socket, "NOT_IN_ROOM", "Join a lobby before slapping");
+            return;
+          }
+
+          const result = gameLoop.slap(socketInfo.roomId, socketInfo.playerId);
+          if (!result.ok) {
+            sendError(store, socket, result.code ?? "SLAP_FAILED", result.message ?? "");
+            return;
+          }
+
+          sendGameSnapshotsForRoom(socketInfo.roomId);
           break;
         }
 
@@ -229,10 +370,14 @@ export async function startServer(options: StartServerOptions = {}): Promise<Run
     });
 
     socket.on("close", () => {
+      const socketInfo = store.getSocketInfo(socket);
       authenticatedBySocket.delete(socket);
       const remaining = store.removeSocket(socket);
       if (remaining) {
+        gameLoop.updateLobbyPlayers(remaining);
         store.broadcast(remaining.roomId, { type: "lobbyState", lobby: remaining });
+      } else if (socketInfo) {
+        gameLoop.removeRoom(socketInfo.roomId);
       }
     });
   });

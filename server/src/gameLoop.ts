@@ -100,6 +100,46 @@ export class GameLoop {
         
     }
 
+    playCard (roomId: RoomId, playerId: PlayerId): void {
+        const s = this.sessions.get (roomId);
+        if (!s) return;
+        if (s.status != "gameStarted") return;
+
+        const currPlayer = s.players[s.turnIndex]; 
+        if (!currPlayer || currPlayer.playerId != playerId) {
+            console.warn ("it's not this player's turn"); 
+            return;
+        }
+
+        if (currPlayer.hand.length == 0) {
+            return; // TODO 
+        }
+
+        const card = currPlayer.hand.pop()!;
+        // this.sessions.pileCards.push (card); TODO forgot to add the pile 
+
+        this.setNextPlayerIndex (s); 
+        this.checkForWin (s); 
+
+        // TODO add the actual card play logic  
+    } 
+
+    slap (roomId: RoomId, playerId: PlayerId): void {
+        const s = this.sessions.get (roomId);
+        if (!s) return;
+        if (s.status != "gameStarted") return;
+
+        const player = s.players.find ((p) => p.playerId == playerId);
+        if (!player) return;
+
+        const goodSlap = this.isGoodSlap (s); 
+        if (goodSlap) {
+            // give that player the pile 
+        } 
+
+        this.checkForWin (s);
+    } 
+
     private makeAndShuffleDeck (): Card[] {
         const deck = [] as Card[];
         for (const s of Object.values(Suit)) {
@@ -113,5 +153,22 @@ export class GameLoop {
             [deck[i], deck[j]] = [deck[j], deck[i]];
         }
         return deck; 
+    }
+
+    private setNextPlayerIndex (s: GameSession): void {
+        s.turnIndex = (s.turnIndex + 1) % s.players.length; 
+    }
+
+    private isGoodSlap (s: GameSession): boolean {
+        // TODO add actual slap logic 
+        return false; 
+    }
+
+    private checkForWin (s: GameSession): void {
+        const winner = s.players.find ((p) => p.hand.length == 52); 
+        if (winner) {
+            s.status = "gameOver"; 
+            s.winnerId = winner.playerId; 
+        }
     }
 }
