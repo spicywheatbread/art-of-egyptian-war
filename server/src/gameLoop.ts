@@ -1,34 +1,117 @@
+import { parseClientMessage, ParseError } from "./lobby/messages";
+import { LobbyStore } from "./lobby/store";
+import {
+    Rank,
+    Suit,
+    type Card,
+    type GameOverRoomState,
+    type GameStatistics,
+    type LastActionEvent,
+    type LobbyRoomState,
+    type PlayerId,
+    type PrivatePlayerState,
+    type PublicGameRoomState,
+    type RoomId,
+    type RoomSnapshotForPlayer,
+    type UserProfile,
+} from "./protocol";
+
+// ASSUMPTIONS 
+    // all of this happens on createLobby 
+    // players use a code to join the game. 
+
+var gameStarted = false; 
+var dealer_user = ""; 
+var deck = [] as Card[]; // the shuffled deck 
+var curr_player_index = 0; 
+
+interface InGamePlayer extends UserProfile {
+    hand: Card[];
+}
+var players = [] as InGamePlayer[];
+
+interface GameSession {
+    roomId: RoomId;
+    hostPlayerId: PlayerId;
+    players: InGamePlayer[];
+    status: "Lobby" | "gameStarted" | "gameOver"; 
+    turnIndex: number; 
+    deck: Card[];
+    winnerId: PlayerId | null;
+}
 
 // wait for a dealer to start the game
 // accept the players that join the game until dealer starts the game. 
 
-// establish player order
-    // broadcast that 
+// socket.on ("message", async (message) => {
+export class GameLoop {
+    private readonly sessions = new Map<RoomId, GameSession>();
 
-// shuffle, deal all cards evenly (face down) 
+    createSessionForLobby (lobby: LobbyRoomState): void {
+        this.sessions.set (lobby.roomId, {
+            roomId: lobby.roomId,
+            hostPlayerId: lobby.hostPlayerId,
+            players: lobby.players.map ((player) => ({ ...player, hand: [] })),
+            status: "Lobby",
+            turnIndex: 0, 
+            deck: [],
+            winnerId: null,
+        })
+    }
 
-// wait for the relevant player to play (flip or slap) 
-// validate the play 
+    updateLobbyPlayers (lobby: LobbyRoomState): void {
+        const s = this.sessions.get (lobby.roomId); 
+        if (!s) {
+            this.createSessionForLobby (lobby); 
+            return; 
+        }
+        if (s.status != "Lobby") {
+            console.warn ("ignoring lobby update for not-lobby state"); 
+            return; 
+        } 
 
-	// if flip: 
-	// check if they must flip a royal card within their move 
-		// (if they fail to flip a royal card in time, give the stack to the previous player) 
+        s.players = lobby.players.map ((player) => ({...player, hand: []})); 
+        // TODO give them their hand, maype validate turn index
 
-    // (player flips up a card in middle of table)
-        // if card is number from 2-10, nothing happens, 
-        // if card is A J Q K, next player has: 
-            // A: 4 chances to flip a royal card
-            // K: 3 chances to flip a royal card
-            // Q: 2 chances to flip a royal card
-            // J: 1 chance to flip a royal card 
-    // broadcast their play, if valid 
+    }
 
-	// if slap: 
-	// check if they slapped a sandwich, and the later slaps in the queue are discarded
-	// broadcast their play, if valid 
+    removeRoom (roomId: RoomId): void {
+        this.sessions.delete (roomId); 
+    }
 
-// if someone won (has all the cards in their hand), broadcast gameOver and winner 
-// save the game results to db? (possibly do that per turn?) TODO 
+    startGame (roomId: RoomId, requestedByPlayerId: PlayerId): void {
+        const s = this.sessions.get (roomId);
+        if (!s) return; // TODO 
+        if (s.hostPlayerId != requestedByPlayerId) return; // TODO
+        if (s.players.length < 2) return; // TODO
+        if (s.status != "Lobby") return; // TODO
 
+        const deck = this.makeAndShuffleDeck (); 
+        for (const player of s.players) {
+            player.hand = []; 
+        }
+        deck.forEach ((card: Card, index: number) => {
+            s.players[index % s.players.length].hand.push (card);
+        })
 
+        s.status = "gameStarted";
+        s.turnIndex = 0;
+        // s.pileCards = []; 
+        
+    }
 
+    private makeAndShuffleDeck (): Card[] {
+        const deck = [] as Card[];
+        for (const s of Object.values(Suit)) {
+            for (const r of Object.values(Rank)) {
+                deck.push({ suit: s, rank: r } as Card);
+            }
+        } 
+
+        for (let i = deck.length - 1; i > 0; i--) {
+            const j = Math.floor (Math.random() * (i +1)); 
+            [deck[i], deck[j]] = [deck[j], deck[i]];
+        }
+        return deck; 
+    }
+}
