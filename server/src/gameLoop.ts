@@ -47,6 +47,128 @@ interface GameSession {
 export class GameLoop {
     private readonly sessions = new Map<RoomId, GameSession>();
 
+    getSnapshotForRoom(roomId: RoomId, forPlayerId: PlayerId): RoomSnapshotForPlayer | null {
+        const session = this.sessions.get(roomId);
+        if (!session) {
+            return null;
+        }
+
+        const publicPlayers = session.players.map((player) => ({
+            playerId: player.playerId,
+            username: player.username,
+        }));
+
+        if (session.status === "Lobby") {
+            const lobby: LobbyRoomState = {
+                status: "Lobby",
+                roomId: session.roomId,
+                gameCode: "", 
+                hostPlayerId: session.hostPlayerId,
+                players: publicPlayers,
+                settings: {
+                    includeJokers: false,
+                    enableTopSlaps: true,
+                    enableBottomSlaps: false,
+                    burnCardsOnBadSlap: 2,
+                    turnTimeLimitMs: null,
+                },
+                createdAtMs: Date.now(), // TODO
+            };
+
+            return {
+                public: lobby,
+                private: null,
+            };
+        }
+
+        if (session.status === "gameOver") {
+            const gameOver: GameOverRoomState = {
+                status: "GameOver",
+                roomId: session.roomId,
+                players: publicPlayers,
+                hostPlayerId: session.hostPlayerId,
+                settings: {
+                    includeJokers: false,
+                    enableTopSlaps: true,
+                    enableBottomSlaps: false,
+                    burnCardsOnBadSlap: 2,
+                    turnTimeLimitMs: null,
+                },
+                endedAtMs: Date.now(),
+                gameStartedAtMs: null,
+                finalStats: {
+                    winnerPlayerId: session.winnerId,
+                    mostSuccessfulSlapsPlayerId: null,
+                    leastSlapsPlayerId: null,
+                    longestGameInSessionPlayerId: null,
+                    players: session.players.map((player) => ({
+                        playerId: player.playerId,
+                        successfulSlaps: 0,
+                        unsuccessfulSlaps: 0,
+                        totalSlaps: 0,
+                        gamesPlayed: 0,
+                        longestGameMs: null,
+                    })),
+                },
+            };
+
+            return {
+                public: gameOver,
+                private: null,
+            };
+        }
+
+        const currentPlayer = session.players.find((player) => player.playerId === forPlayerId);
+        const publicGame: PublicGameRoomState = {
+            status: "InGame",
+            roomId: session.roomId,
+            players: publicPlayers,
+            hostPlayerId: session.hostPlayerId,
+            settings: {
+                includeJokers: false,
+                enableTopSlaps: true,
+                enableBottomSlaps: false,
+                burnCardsOnBadSlap: 2,
+                turnTimeLimitMs: null,
+            },
+            turn: {
+                currentPlayerId: session.players[session.turnIndex]?.playerId ?? null,
+                turnStartedAtMs: null,
+                turnEndsAtMs: null,
+            },
+            pileCards: [],
+            drawPileRemainingCount: 0,
+            burnedCardsOnBadSlapCount: 0,
+            gameStartedAtMs: null,
+        };
+
+        return {
+            public: publicGame,
+            private: currentPlayer
+                ? {
+                      playerId: currentPlayer.playerId,
+                      handCards: [...currentPlayer.hand],
+                  }
+                : null,
+        };
+    }
+
+    getSnapshotsForRoom(roomId: RoomId): Map<PlayerId, RoomSnapshotForPlayer> | null {
+        const session = this.sessions.get(roomId);
+        if (!session) {
+            return null;
+        }
+
+        const snapshots = new Map<PlayerId, RoomSnapshotForPlayer>();
+        for (const player of session.players) {
+            const snapshot = this.getSnapshotForRoom(roomId, player.playerId);
+            if (snapshot) {
+                snapshots.set(player.playerId, snapshot);
+            }
+        }
+        return snapshots; // TODO personalize it to each player
+    }
+
     createSessionForLobby (lobby: LobbyRoomState): void {
         this.sessions.set (lobby.roomId, {
             roomId: lobby.roomId,
@@ -79,12 +201,12 @@ export class GameLoop {
         this.sessions.delete (roomId); 
     }
 
-    startGame (roomId: RoomId, requestedByPlayerId: PlayerId): void {
+    startGame (roomId: RoomId, requestedByPlayerId: PlayerId): { ok: boolean; code?: string; message?: string } {
         const s = this.sessions.get (roomId);
-        if (!s) return; // TODO 
-        if (s.hostPlayerId != requestedByPlayerId) return; // TODO
-        if (s.players.length < 2) return; // TODO
-        if (s.status != "Lobby") return; // TODO
+        if (!s) return { ok: false, code: "ROOM_NOT_FOUND", message: "Room not found" }; 
+        if (s.hostPlayerId != requestedByPlayerId) return { ok: false, code: "HOST_ONLY", message: "Only the host can start the game" }; 
+        if (s.players.length < 2) return { ok: false, code: "NOT_ENOUGH_PLAYERS", message: "At least two players are required" }; 
+        if (s.status != "Lobby") return { ok: false, code: "GAME_ALREADY_STARTED", message: "Game already started" }; 
 
         const deck = this.makeAndShuffleDeck (); 
         for (const player of s.players) {
@@ -97,22 +219,22 @@ export class GameLoop {
         s.status = "gameStarted";
         s.turnIndex = 0;
         // s.pileCards = []; 
-        
+        return { ok: true };
     }
 
-    playCard (roomId: RoomId, playerId: PlayerId): void {
+    playCard (roomId: RoomId, playerId: PlayerId): { ok: boolean; code?: string; message?: string } {
         const s = this.sessions.get (roomId);
-        if (!s) return;
-        if (s.status != "gameStarted") return;
+        if (!s) return { ok: false, code: "ROOM_NOT_FOUND", message: "Room not found" };
+        if (s.status != "gameStarted") return { ok: false, code: "GAME_NOT_STARTED", message: "Game has not started" };
 
         const currPlayer = s.players[s.turnIndex]; 
         if (!currPlayer || currPlayer.playerId != playerId) {
             console.warn ("it's not this player's turn"); 
-            return;
+            return { ok: false, code: "NOT_YOUR_TURN", message: "It is not your turn" };
         }
 
         if (currPlayer.hand.length == 0) {
-            return; // TODO 
+            return { ok: false, code: "NO_CARDS_LEFT", message: "Player has no cards left" }; // TODO 
         }
 
         const card = currPlayer.hand.pop()!;
@@ -122,15 +244,16 @@ export class GameLoop {
         this.checkForWin (s); 
 
         // TODO add the actual card play logic  
+        return { ok: true };
     } 
 
-    slap (roomId: RoomId, playerId: PlayerId): void {
+    slap (roomId: RoomId, playerId: PlayerId): { ok: boolean; code?: string; message?: string } {
         const s = this.sessions.get (roomId);
-        if (!s) return;
-        if (s.status != "gameStarted") return;
+        if (!s) return { ok: false, code: "ROOM_NOT_FOUND", message: "Room not found" };
+        if (s.status != "gameStarted") return { ok: false, code: "GAME_NOT_STARTED", message: "Game has not started" };
 
         const player = s.players.find ((p) => p.playerId == playerId);
-        if (!player) return;
+        if (!player) return { ok: false, code: "PLAYER_NOT_FOUND", message: "Player not found" };
 
         const goodSlap = this.isGoodSlap (s); 
         if (goodSlap) {
@@ -138,6 +261,7 @@ export class GameLoop {
         } 
 
         this.checkForWin (s);
+        return { ok: true };
     } 
 
     private makeAndShuffleDeck (): Card[] {
