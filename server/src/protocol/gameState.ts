@@ -49,15 +49,14 @@ export interface PublicGameRoomState {
 
   turn: TurnState;
 
-  // Cards on the central pile, with the top card at index 0.
   pileCards: Card[];
   // Optional explicit top/bottom for client convenience.
   pileTopCard?: Card;
   pileBottomCard?: Card;
 
-  // Remaining face-down cards. The client should not see exact order.
   drawPileRemainingCount: number;
   burnedCardsOnBadSlapCount: number;
+  remainingChancesToFlipRoyal: number; // -1 if N/A
 
   lastAction?: LastActionEvent;
   gameStartedAtMs: TimestampMs | null;

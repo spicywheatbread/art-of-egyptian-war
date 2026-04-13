@@ -34,9 +34,25 @@ interface GameSession {
     turnIndex: number; 
     centerPile: Card[];
     winnerId: PlayerId | null;
+    remainingChancesToFlipRoyal: number; // -1 if N/A 
 }
 
 export class GameLoop {
+    private readonly rankToChances: Record<Rank, number> = {
+        [Rank.JACK]: 1,
+        [Rank.QUEEN]: 2,
+        [Rank.KING]: 3,
+        [Rank.ACE]: 4,
+        [Rank.TWO]: 0, // ug i had to add this to make the error go away 
+        [Rank.THREE]: 0,
+        [Rank.FOUR]: 0,
+        [Rank.FIVE]: 0,
+        [Rank.SIX]: 0,
+        [Rank.SEVEN]: 0,
+        [Rank.EIGHT]: 0,
+        [Rank.NINE]: 0,
+        [Rank.TEN]: 0
+    };
     private readonly sessions = new Map<RoomId, GameSession>();
 
     getSnapshotForRoom(roomId: RoomId, forPlayerId: PlayerId): RoomSnapshotForPlayer | null {
@@ -132,6 +148,7 @@ export class GameLoop {
             drawPileRemainingCount: 0,
             burnedCardsOnBadSlapCount: 0,
             gameStartedAtMs: null,
+            remainingChancesToFlipRoyal: -1,
         };
 
         return {
@@ -170,6 +187,7 @@ export class GameLoop {
             turnIndex: 0, 
             centerPile: [],
             winnerId: null,
+            remainingChancesToFlipRoyal: -1,
         })
     }
 
@@ -227,13 +245,27 @@ export class GameLoop {
             return { ok: false, code: "NO_CARDS_LEFT", message: "Player has no cards left" }; // TODO 
         }
 
+        if (s.remainingChancesToFlipRoyal == 0) {
+            if (s.turnIndex == 0) {
+                s.players[s.players.length - 1].hand.push (...s.centerPile); 
+            } else {
+                s.players [s.turnIndex -1].hand.push (...s.centerPile); 
+            }
+            s.centerPile = [];
+        }
+
         const card = currPlayer.hand.pop()!;
         s.centerPile.push (card);
 
-        this.setNextPlayerIndex (s); 
-        this.checkForWin (s); 
+        if (card.rank >= Rank.JACK || card.rank == Rank.ACE) {
+            s.remainingChancesToFlipRoyal = this.rankToChances[card.rank];
+            this.setNextPlayerIndex (s); 
 
-        // TODO add the actual card play logic  
+        } else if (s.remainingChancesToFlipRoyal > 0) {
+            s.remainingChancesToFlipRoyal -= 1;
+        }
+
+        this.checkForWin (s); 
         return { ok: true };
     } 
 
