@@ -1,44 +1,116 @@
 extends Node2D
-# TODO delete 
-# https://docs.godotengine.org/en/stable/tutorials/networking/websocket.html
-@export var websocket_url = "wss://echo.websocket.org" # TODO 
-@export var center_pile : Node 
+@export var websocket_url: String = "ws://127.0.0.1:8080"
+@export var auto_connect: bool = true
+@export var center_pile: Node
 
-var socket = WebSocketPeer.new() 
+signal backend_connected()
+signal backend_disconnected()
+signal auth_ok(payload: Dictionary)
+signal lobby_state(payload: Dictionary)
+signal game_state(payload: Dictionary)
+signal backend_error(code: String, message: String)
 
-# Called when the node enters the scene tree for the first time.
+var socket = WebSocketPeer.new()
+var is_backend_connected = false
+
 func _ready() -> void:
-	var resp = socket.connect_to_url(websocket_url) 
-	if resp != OK:
-		print ("failed to connect to", websocket_url) 
-		return 
-	
-	# shuffle, actually, should happen on server
+	if auto_connect:
+		connect_backend()
 
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta: float) -> void:
-	
-	
-	var state = socket.get_ready_state()
-	if state == WebSocketPeer.STATE_CLOSED:
-		print ("webstocket closed") 
-		return 
-	socket.poll() 
+func _process(_delta: float) -> void:
+	poll_backend()
 
-	while socket.get_available_packet_count():
+func connect_backend() -> void:
+	if socket.get_ready_state() == WebSocketPeer.STATE_OPEN or socket.get_ready_state() == WebSocketPeer.STATE_CONNECTING:
+		return
+
+	var err := socket.connect_to_url(websocket_url)
+	if err != OK:
+		push_error("Failed to connect to backend: %s (%s)" % [websocket_url, error_string(err)])
+		return
+
+	print("Connecting to backend at: ", websocket_url)
+
+func disconnect_backend() -> void:
+	if socket.get_ready_state() == WebSocketPeer.STATE_OPEN or socket.get_ready_state() == WebSocketPeer.STATE_CONNECTING:
+		socket.close()
+
+func poll_backend() -> void:
+	if socket.get_ready_state() == WebSocketPeer.STATE_CLOSED:
+		if is_backend_connected:
+			is_backend_connected = false
+			emit_signal("backend_disconnected")
+		return
+
+	socket.poll()
+
+	if socket.get_ready_state() == WebSocketPeer.STATE_OPEN and not is_backend_connected:
+		is_backend_connected = true
+		emit_signal("backend_connected")
+		print("Connected to backend")
+
+	while socket.get_available_packet_count() > 0:
 		var packet = socket.get_packet()
-		if socket.was_string_packet():
-			var packet_json = JSON.parse_string(packet.get_string_from_utf8()) 
-			var event_type = "" # TODO actually get event from json 
-			
-			if event_type == "playCard":
-				pass
-			elif event_type == "slap":
-				pass
-		
-	# check if user made a move (maybe check from card) 
-	# check if server detected a move, update ui 
-	pass
+		if not socket.was_string_packet():
+			continue
+		var raw = packet.get_string_from_utf8()
+		var parsed = JSON.parse_string(raw)
+		handle_server_message(parsed)
+
+func handle_server_message(msg: Dictionary) -> void:
+	var msg_type := String(msg.get("type", ""))
+		"lobbyState":
+			emit_signal("lobby_state", msg)
+
+		"gameState":
+			emit_signal("game_state", msg)
+			# TODO = = == = == = = = == == = = = == ===== = = = == = = = = = = = 
+			# this is where we handle the game state changing 
+
+		"error":
+			var code := String(msg.get("code", "UNKNOWN"))
+			var text := String(msg.get("message", "Unknown error"))
+			print("Backend error [%s]: %s" % [code, text])
+			emit_signal("backend_error", code, text)
+
+		_:
+			print("Unhandled backend message: ", msg)
+
+func send_json(payload: Dictionary) -> bool:
+	if socket.get_ready_state() != WebSocketPeer.STATE_OPEN:
+		push_warning("Socket is not open, cannot send payload")
+		return false
+
+	var text = JSON.stringify(payload)
+	var err = socket.send_text(text)
+	if err != OK:
+		push_warning("Failed to send payload: %s" % error_string(err))
+		return false
+	return true
+
+func create_lobby(settings := {}) -> bool:
+	var payload = { "type": "createLobby" }
+	if not settings.is_empty():
+		payload["settings"] = settings
+	return send_json(payload)
+
+func join_lobby(game_code: String) -> bool:
+	return send_json({
+		"type": "joinLobby",
+		"gameCode": game_code,
+	})
+
+func leave_lobby() -> bool:
+	return send_json({ "type": "leaveLobby" })
+
+func start_game() -> bool:
+	return send_json({ "type": "startGame" })
+
+func play_card() -> bool:
+	return send_json({ "type": "playCard" })
+
+func slap() -> bool:
+	return send_json({ "type": "slap" })
 
 
 
