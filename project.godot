@@ -15,6 +15,10 @@ run/main_scene="uid://byayv1v10y3ck"
 config/features=PackedStringArray("4.6", "Forward Plus")
 config/icon="res://Assets/Images/icon.svg"
 
+[autoload]
+
+NetworkClient="*uid://bxojecquvvo3l"
+
 [input]
 
 left_click={
