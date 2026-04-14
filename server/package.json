@@ -4,8 +4,10 @@
   "description": "",
   "main": "dist/index.js",
   "scripts": {
-    "test": "vitest run",
-    "test:watch": "vitest",
+    "test": "vitest run --project unit",
+    "test:all": "vitest run",
+    "test:watch": "vitest --project unit",
+    "test:firestore-integration": "RUN_FIRESTORE_INTEGRATION=1 npx -y firebase-tools@latest emulators:exec --only firestore --project demo-test \"npx vitest run --project firestore-integration\"",
     "build": "tsc -p tsconfig.json",
     "start": "node dist/index.js",
     "dev": "tsx watch src/index.ts"

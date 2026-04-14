@@ -1,9 +1,26 @@
-import { defineConfig } from "vitest/config";
+import { defineConfig, defineProject } from "vitest/config";
 
 export default defineConfig({
   test: {
-    environment: "node",
-    include: ["tests/**/*.test.ts"],
-    globals: false,
+    projects: [
+      defineProject({
+        test: {
+          name: "unit",
+          environment: "node",
+          include: ["tests/**/*.test.ts"],
+          exclude: ["tests/firestore-websocket.integration.test.ts"],
+          globals: false,
+        },
+      }),
+      defineProject({
+        test: {
+          name: "firestore-integration",
+          environment: "node",
+          include: ["tests/firestore-websocket.integration.test.ts"],
+          setupFiles: ["tests/setup/firestore-integration-env.ts"],
+          globals: false,
+        },
+      }),
+    ],
   },
 });
