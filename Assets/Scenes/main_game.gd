@@ -59,6 +59,7 @@ func poll_backend() -> void:
 
 func handle_server_message(msg: Dictionary) -> void:
 	var msg_type := String(msg.get("type", ""))
+	match msg_type:
 		"lobbyState":
 			emit_signal("lobby_state", msg)
 

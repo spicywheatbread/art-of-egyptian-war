@@ -1,10 +1,10 @@
 extends Node2D
 
-
 @export var QuoteDisplay : Node
 @export var HostConfirmGame : Node
 @export var JoinConfirmGame : Node
 @export var Profile : Node
+@export var WelcomeMessage : Node
 @export var StatsDisplay : Node
 @export var JoinCodeInput : Node
 
@@ -34,7 +34,8 @@ func _ready() -> void:
 	JoinConfirmGame.visible = false
 	Profile.visible = false
 	
-	# Display stats on start
+	# Display welcome and stats on start
+	WelcomeMessage.text = "WELCOME,\n" + Globals.username.to_upper() + "!"
 	StatsDisplay.text = "GAMES PLAYED: " + Globals.games_played + "\n\nGAMES WON: " + Globals.games_won
 	
 	# Choose random quote
@@ -68,7 +69,21 @@ func _process(delta: float) -> void:
 			var packet = socket.get_packet()
 			if socket.was_string_packet():
 				var packet_text = packet.get_string_from_utf8()
-				print("< Got text data from server: %s" % packet_text)
+				var response = JSON.parse_string(packet_text)
+				print(response)
+				
+				# Handle error
+				if response["type"] == "error":
+					print(response)
+				else:
+					# Change scene to lobby upon creation or joining
+					if response["type"] == "lobbyState":
+						# Set lobby_id in Global variables
+						Globals.lobby_code = response["gameCode"]
+				
+						# Switch the lobby after getting/confirming lobby ID
+						get_tree().change_scene_to_file("res://Assets/Scenes/GameObjects/test.tscn")
+
 			else:
 				print("< Got binary data from server: %d bytes" % packet.size())
 
@@ -89,37 +104,35 @@ func _process(delta: float) -> void:
 func _on_host_game_button_pressed() -> void:
 	HostConfirmGame.visible = true
 	
-
-func _on_host_game_confirm_button_pressed() -> void:
-	print("clicked")
-	var new_lobby = JSON.stringify({ "type": "createLobby", "username": "Username" })
-	socket.send_text(new_lobby)
-	get_tree().change_scene_to_file("res://Assets/Scenes/GameObjects/test.tscn")
-	
-
 func _on_join_game_button_pressed() -> void:
 	JoinConfirmGame.visible = true
-
-
+	
 func _close_popup() -> void:
 	HostConfirmGame.visible = false
 	JoinConfirmGame.visible = false
+	
+func _on_profile_button_pressed() -> void:
+	Profile.visible = true
 
-
+func _on_profile_close_button_pressed() -> void:
+	Profile.visible = false
+	
+	
 func _on_join_code_input_text_changed(new_text: String) -> void:
 	# Store current cursor position
 	var caret_pos = JoinCodeInput.caret_column
-	
 	# Convert text to uppercase
 	JoinCodeInput.text = new_text.to_upper()
-	
 	# Restore cursor position
 	JoinCodeInput.caret_column = caret_pos
 
 
-func _on_profile_button_pressed() -> void:
-	Profile.visible = true
-
-
-func _on_profile_close_button_pressed() -> void:
-	Profile.visible = false
+func _on_host_game_confirm_button_pressed() -> void:
+	var new_lobby = JSON.stringify({ "type": "createLobby", "username": Globals.username })
+	socket.send_text(new_lobby)
+	# Sending new lobby triggers scene change in process function on success
+	
+func _on_join_game_confirm_button_pressed() -> void:
+	var join_lobby = JSON.stringify({ "type": "joinLobby", "gameCode": JoinCodeInput.text })
+	socket.send_text(join_lobby)
+	# Sending join lobby triggers scene change in process function on success
