@@ -157,3 +157,14 @@ export async function recordGameOutcome(
     };
   });
 }
+
+/**
+ * Deletes the account document for integration tests only.
+ * Do not call from the WebSocket server or other production code paths.
+ */
+export async function deleteAccountForTesting(username: string): Promise<void> {
+  const validUsername = validateUsername(username);
+  const normalizedUsername = normalizeUsername(validUsername);
+  const db = getFirestore();
+  await db.collection(ACCOUNTS_COLLECTION).doc(normalizedUsername).delete();
+}
