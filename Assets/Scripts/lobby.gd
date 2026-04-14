@@ -10,10 +10,6 @@ extends Node2D
 @export var InvalidCodeMessage : Node
 
 
-var socket = WebSocketPeer.new()
-var websocket_url = "ws://127.0.0.1:8080" # Localhost
-
-
 var quotes = ["Victorious warriors win first...",
 	"The greatest victory is that which requires no battle.",
 	"In the midst of chaos, there is also opportunity.",
@@ -43,67 +39,11 @@ func _ready() -> void:
 	# Choose random quote
 	var random_int = randi() % quotes.size()
 	QuoteDisplay.text = quotes[random_int].to_upper()
-	
-	
-	# Initiate connection to the given URL.
-	var err = socket.connect_to_url(websocket_url)
-	if err == OK:
-		print("Connecting to %s..." % websocket_url)
-		# Wait for the socket to connect.
-		await get_tree().create_timer(2).timeout
-	else:
-		push_error("Unable to connect.")
-		set_process(false)
 
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:
-	# Data transfer and state updates will only happen when calling this function.
-	socket.poll()
-
-	# get_ready_state() tells you what state the socket is in.
-	var state = socket.get_ready_state()
-
-	# `WebSocketPeer.STATE_OPEN` means the socket is connected and ready
-	# to send and receive data.
-	if state == WebSocketPeer.STATE_OPEN:
-		while socket.get_available_packet_count():
-			var packet = socket.get_packet()
-			if socket.was_string_packet():
-				var packet_text = packet.get_string_from_utf8()
-				var response = JSON.parse_string(packet_text)
-				print(response)
-				
-				# Handle error
-				if response["type"] == "error":
-					if response["code"] == "INVALID_GAME_CODE":
-						InvalidCodeMessage.visible = true
-					else:
-						print(response)
-				else:
-					# Change scene to lobby upon creation or joining
-					if response["type"] == "lobbyState":
-						# Set lobby_id in Global variables
-						Globals.lobby_code = response["gameCode"]
-				
-						# Switch the lobby after getting/confirming lobby ID
-						get_tree().change_scene_to_file("res://Assets/Scenes/GameObjects/test.tscn")
-
-			else:
-				print("< Got binary data from server: %d bytes" % packet.size())
-
-	# `WebSocketPeer.STATE_CLOSING` means the socket is closing.
-	# It is important to keep polling for a clean close.
-	elif state == WebSocketPeer.STATE_CLOSING:
-		pass
-
-	# `WebSocketPeer.STATE_CLOSED` means the connection has fully closed.
-	# It is now safe to stop polling.
-	elif state == WebSocketPeer.STATE_CLOSED:
-		# The code will be `-1` if the disconnection was not properly notified by the remote peer.
-		var code = socket.get_close_code()
-		print("WebSocket closed with code: %d. Clean: %s" % [code, code != -1])
-		set_process(false) # Stop processing.
+	pass
 
 
 func _on_host_game_button_pressed() -> void:
@@ -133,12 +73,10 @@ func _on_join_code_input_text_changed(new_text: String) -> void:
 
 
 func _on_host_game_confirm_button_pressed() -> void:
-	var new_lobby = JSON.stringify({ "type": "createLobby", "username": Globals.username })
-	socket.send_text(new_lobby)
-	# Sending new lobby triggers scene change in process function on success
+	NetworkClient.create_lobby()
 	
 func _on_join_game_confirm_button_pressed() -> void:
 	InvalidCodeMessage.visible = false
-	var join_lobby = JSON.stringify({ "type": "joinLobby", "gameCode": JoinCodeInput.text })
-	socket.send_text(join_lobby)
-	# Sending join lobby triggers scene change in process function on success
+	var success = await NetworkClient.join_lobby(JoinCodeInput.text)
+	if !success:
+		InvalidCodeMessage.visible = true

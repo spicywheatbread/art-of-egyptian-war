@@ -18,6 +18,7 @@ config/icon="res://Assets/Images/icon.svg"
 [autoload]
 
 NetworkClient="*uid://bxojecquvvo3l"
+Globals="*uid://eqdn7hh8se5r"
 
 [input]
 
