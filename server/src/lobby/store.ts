@@ -117,6 +117,10 @@ export class LobbyStore {
     return this.socketInfo.get(socket);
   }
 
+  getSocketsInRoom(roomId: RoomId): ReadonlySet<WebSocket> {
+    return this.roomSockets.get(roomId) ?? new Set<WebSocket>();
+  }
+
   broadcast(roomId: RoomId, message: ServerMessage): void {
     const sockets = this.roomSockets.get(roomId);
     if (!sockets) return;

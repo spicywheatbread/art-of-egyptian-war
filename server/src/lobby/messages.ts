@@ -1,4 +1,4 @@
-import type { GameSettings, LobbyRoomState } from "../protocol";
+import type { GameSettings, LobbyRoomState, RoomSnapshotForPlayer } from "../protocol";
 
 // --- Client → Server ---
 
@@ -35,13 +35,31 @@ export interface RecordOutcomeMessage {
   didWin: boolean;
 }
 
+export interface StartGameMessage {
+  type: "startGame";
+  username: string; 
+}
+
+export interface PlayCardMessage {
+  type: "playCard";
+  username: string; 
+}
+
+export interface SlapMessage {
+  type: "slap";
+  username: string;   
+}
+
 export type ClientMessage =
   | CreateLobbyMessage
   | JoinLobbyMessage
   | LeaveLobbyMessage
   | RegisterMessage
   | LoginMessage
-  | RecordOutcomeMessage;
+  | RecordOutcomeMessage
+  | StartGameMessage
+  | PlayCardMessage
+  | SlapMessage;
 
 // --- Server → Client ---
 
@@ -68,11 +86,17 @@ export interface AuthOkMessage {
   gamesPlayed: number;
 }
 
+export interface GameStateMessage {
+  type: "gameState";
+  room: RoomSnapshotForPlayer;
+}
+
 export type ServerMessage =
   | WelcomeMessage
   | LobbyStateMessage
   | ErrorMessage
-  | AuthOkMessage;
+  | AuthOkMessage
+  | GameStateMessage;
 
 // --- Parsing ---
 
@@ -83,6 +107,10 @@ const CLIENT_TYPES = new Set<string>([
   "register",
   "login",
   "recordOutcome",
+
+  "startGame", // TODO mention i added this 
+  "playCard", 
+  "slap" 
 ]);
 
 export function parseClientMessage(raw: string): ClientMessage {
@@ -104,7 +132,11 @@ export function parseClientMessage(raw: string): ClientMessage {
   }
 
   if (
-    (obj.type === "createLobby" || obj.type === "joinLobby") &&
+    (obj.type === "createLobby" ||
+      obj.type === "joinLobby" ||
+      obj.type === "startGame" ||
+      obj.type === "playCard" ||
+      obj.type === "slap") &&
     obj.username !== undefined
   ) {
     if (typeof obj.username !== "string" || obj.username.trim().length === 0) {
