@@ -7,6 +7,7 @@ extends Node2D
 @export var WelcomeMessage : Node
 @export var StatsDisplay : Node
 @export var JoinCodeInput : Node
+@export var InvalidCodeMessage : Node
 
 
 var socket = WebSocketPeer.new()
@@ -33,6 +34,7 @@ func _ready() -> void:
 	HostConfirmGame.visible = false
 	JoinConfirmGame.visible = false
 	Profile.visible = false
+	InvalidCodeMessage.visible = false
 	
 	# Display welcome and stats on start
 	WelcomeMessage.text = "WELCOME,\n" + Globals.username.to_upper() + "!"
@@ -74,7 +76,10 @@ func _process(delta: float) -> void:
 				
 				# Handle error
 				if response["type"] == "error":
-					print(response)
+					if response["code"] == "INVALID_GAME_CODE":
+						InvalidCodeMessage.visible = true
+					else:
+						print(response)
 				else:
 					# Change scene to lobby upon creation or joining
 					if response["type"] == "lobbyState":
@@ -133,6 +138,7 @@ func _on_host_game_confirm_button_pressed() -> void:
 	# Sending new lobby triggers scene change in process function on success
 	
 func _on_join_game_confirm_button_pressed() -> void:
+	InvalidCodeMessage.visible = false
 	var join_lobby = JSON.stringify({ "type": "joinLobby", "gameCode": JoinCodeInput.text })
 	socket.send_text(join_lobby)
 	# Sending join lobby triggers scene change in process function on success
