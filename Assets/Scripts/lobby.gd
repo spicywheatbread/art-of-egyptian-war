@@ -34,7 +34,7 @@ func _ready() -> void:
 	
 	# Display welcome and stats on start
 	WelcomeMessage.text = "WELCOME,\n" + Globals.username.to_upper() + "!"
-	StatsDisplay.text = "GAMES PLAYED: " + Globals.games_played + "\n\nGAMES WON: " + Globals.games_won
+	StatsDisplay.text = "GAMES PLAYED: " + str(int(Globals.games_played)) + "\n\nGAMES WON: " + str(int(Globals.games_won))
 	
 	# Choose random quote
 	var random_int = randi() % quotes.size()

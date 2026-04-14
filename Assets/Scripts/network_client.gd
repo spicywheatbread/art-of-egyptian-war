@@ -5,7 +5,6 @@ signal disconnected()
 signal auth_ok (username: String)
 signal lobby_state(payload: Dictionary)
 signal game_state (payload: Dictionary)
-signal lobby_response(data)
 
 @export var websocket_url: String = "ws://127.0.0.1:8080" 
 #@export var auto_reconnect: bool = false 
@@ -38,6 +37,52 @@ func send_json (payload: Dictionary):
 	if _socket.get_ready_state() != WebSocketPeer.STATE_OPEN:
 		print ("failed") 
 		return 
+	else:
+		_socket.send_text(JSON.stringify(payload))
+
+
+func register_user (username: String, password: String):
+	send_json({"type": "register", "username": username, "password": password})
+	var response = await auth_ok
+	
+	complete_login(response)
+
+func login_user (username: String, password: String):
+	send_json({"type": "login", "username": username, "password": password})
+	var response = await auth_ok
+	
+	complete_login(response)
+	
+func complete_login(response):
+	# Set username and go to lobby
+	Globals.username = response["username"]
+	Globals.games_played = response["gamesPlayed"]
+	Globals.games_won = response["wins"]
+	get_tree().change_scene_to_file("res://Assets/Scenes/Lobby.tscn")
+
+
+func create_lobby (): 
+	send_json({ "type": "createLobby", "username": Globals.username })
+	var data = await lobby_state
+	if data["type"] != "error":
+		# Set lobby codeand go to game
+		Globals.lobby_code = data["lobby"]["gameCode"]
+		get_tree().change_scene_to_file("res://Assets/Scenes/GameObjects/test.tscn")
+
+func join_lobby (game_code: String):
+	send_json({ "type": "joinLobby", "gameCode": game_code })
+	var data = await lobby_state
+	if data["code"] == "ROOM_NOT_FOUND":
+		return false
+	elif data["type"] != "error":
+		# Set lobby code and go to game
+		Globals.lobby_code = data["lobby"]["gameCode"]
+		get_tree().change_scene_to_file("res://Assets/Scenes/GameObjects/test.tscn")
+	
+func leave_lobby ():
+	send_json({ "type": "leaveLobby" })
+	get_tree().change_scene_to_file("res://Assets/Scenes/Lobby.tscn")
+
 
 func play_card ():
 	pass 
@@ -45,35 +90,6 @@ func play_card ():
 func slap ():
 	pass 
 
-func register_user (username: String, password: String):
-	pass 
-
-func login_user (username: String, password: String):
-	pass
-
-func create_lobby (): 
-	var new_lobby = JSON.stringify({ "type": "createLobby", "username": Globals.username })
-	_socket.send_text(new_lobby)
-	var data = await lobby_response
-	if data["type"] != "error":
-		# Set lobby codeand go to game
-		Globals.lobby_code = data["lobby"]["gameCode"]
-		get_tree().change_scene_to_file("res://Assets/Scenes/GameObjects/test.tscn")
-
-func join_lobby (game_code: String):
-	var join_lobby = JSON.stringify({ "type": "joinLobby", "gameCode": game_code })
-	_socket.send_text(join_lobby)
-	var data = await lobby_response
-	print(lobby_response)
-	if data["code"] == "ROOM_NOT_FOUND":
-		return false
-	elif data["type"] != "error":
-		# Set lobby codeand go to game
-		Globals.lobby_code = data["lobby"]["gameCode"]
-		get_tree().change_scene_to_file("res://Assets/Scenes/GameObjects/test.tscn")
-	
-func leave_lobby ():
-	pass 
 
 func _poll_socket ():
 	# Data transfer and state updates will only happen when calling this function.
@@ -90,12 +106,13 @@ func _poll_socket ():
 			if _socket.was_string_packet():
 				var packet_text = packet.get_string_from_utf8()
 				var response = JSON.parse_string(packet_text)
-				print(response)
 				
 				# Emit signal based on type received
-				match response.get("type"):
+				match response["type"]:
+					"authOk":
+						auth_ok.emit(response)
 					"lobbyState":
-						lobby_response.emit(response)
+						lobby_state.emit(response)
 						
 			else:
 				print("< Got binary data from server: %d bytes" % packet.size())
