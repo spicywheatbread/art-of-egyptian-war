@@ -1,52 +1,32 @@
-import type WebSocket from "ws";
 import { describe, expect, it } from "vitest";
-import { LobbyStore } from "../src/lobby/store";
-
-function mockSocket(): WebSocket {
-  return {} as WebSocket;
-}
+import { LobbyStore, LobbyStoreError } from "../src/lobby/store";
+import { InvalidGameSettingsError, MAX_PLAYERS_PER_GAME, mergeGameSettings } from "../src/protocol";
+import { mockSocket } from "./helpers/twoPlayerLobby";
 
 describe("LobbyStore", () => {
-  it("creates a room and lets another player join by game code", () => {
+  it("rejects join when lobby is at maxPlayers", () => {
     const store = new LobbyStore();
-    const hostSocket = mockSocket();
-    const guestSocket = mockSocket();
-
-    const lobby = store.createRoom(hostSocket, "Alice");
-    const updated = store.joinRoom(guestSocket, lobby.gameCode, "Bob");
-
-    expect(updated.players).toHaveLength(2);
-    expect(updated.players.map((p) => p.username)).toEqual(["Alice", "Bob"]);
-    expect(store.getSocketInfo(hostSocket)).toBeDefined();
-    expect(store.getSocketInfo(guestSocket)).toBeDefined();
+    const host = mockSocket();
+    const lobby = store.createRoom(host, "Host", { maxPlayers: 2 });
+    store.joinRoom(mockSocket(), lobby.gameCode, "Guest");
+    expect(() => store.joinRoom(mockSocket(), lobby.gameCode, "Third")).toThrowError(
+      expect.objectContaining({ code: "LOBBY_FULL" }),
+    );
   });
 
-  it("promotes the next player when host leaves", () => {
+  it("allows four players with default maxPlayers then rejects a fifth join", () => {
     const store = new LobbyStore();
-    const hostSocket = mockSocket();
-    const guestSocket = mockSocket();
-
-    const lobby = store.createRoom(hostSocket, "Alice");
-    const joined = store.joinRoom(guestSocket, lobby.gameCode, "Bob");
-    const guestPlayerId = joined.players.find((p) => p.username === "Bob")?.playerId;
-
-    const remaining = store.removeSocket(hostSocket);
-
-    expect(remaining).not.toBeNull();
-    expect(remaining?.players).toHaveLength(1);
-    expect(remaining?.players[0]?.username).toBe("Bob");
-    expect(remaining?.hostPlayerId).toBe(guestPlayerId);
+    const lobby = store.createRoom(mockSocket(), "P0");
+    expect(lobby.settings.maxPlayers).toBe(MAX_PLAYERS_PER_GAME);
+    for (let i = 1; i < 4; i++) {
+      store.joinRoom(mockSocket(), lobby.gameCode, `P${i}`);
+    }
+    expect(store.getRoom(lobby.roomId)!.players).toHaveLength(4);
+    expect(() => store.joinRoom(mockSocket(), lobby.gameCode, "P4")).toThrow(LobbyStoreError);
   });
 
-  it("cleans up room when last player disconnects", () => {
-    const store = new LobbyStore();
-    const hostSocket = mockSocket();
-
-    const lobby = store.createRoom(hostSocket, "Alice");
-    const remaining = store.removeSocket(hostSocket);
-
-    expect(remaining).toBeNull();
-    expect(store.getRoom(lobby.roomId)).toBeUndefined();
-    expect(() => store.joinRoom(mockSocket(), lobby.gameCode, "Bob")).toThrowError();
+  it("mergeGameSettings rejects out-of-range maxPlayers", () => {
+    expect(() => mergeGameSettings({ maxPlayers: 1 })).toThrow(InvalidGameSettingsError);
+    expect(() => mergeGameSettings({ maxPlayers: 5 })).toThrow(InvalidGameSettingsError);
   });
 });

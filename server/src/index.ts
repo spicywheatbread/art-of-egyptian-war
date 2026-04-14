@@ -1,5 +1,6 @@
 import { WebSocketServer, type WebSocket } from "ws";
-import { LobbyStore } from "./lobby/store";
+import { LobbyStore, LobbyStoreError } from "./lobby/store";
+import { InvalidGameSettingsError } from "./protocol";
 import { parseClientMessage, ParseError } from "./lobby/messages";
 import { GameLoop } from "./gameLoop";
 import {
@@ -159,9 +160,17 @@ export async function startServer(options: StartServerOptions = {}): Promise<Run
             );
             return;
           }
-          const lobby = store.createRoom(socket, authenticatedUsername, msg.settings);
-          gameLoop.createSessionForLobby(lobby);
-          store.broadcast(lobby.roomId, { type: "lobbyState", lobby });
+          try {
+            const lobby = store.createRoom(socket, authenticatedUsername, msg.settings);
+            gameLoop.createSessionForLobby(lobby);
+            store.broadcast(lobby.roomId, { type: "lobbyState", lobby });
+          } catch (err) {
+            if (err instanceof InvalidGameSettingsError) {
+              sendError(store, socket, err.code, err.message);
+              return;
+            }
+            throw err;
+          }
           break;
         }
 
@@ -202,7 +211,11 @@ export async function startServer(options: StartServerOptions = {}): Promise<Run
             const lobby = store.joinRoom(socket, msg.gameCode, authenticatedUsername);
             gameLoop.updateLobbyPlayers(lobby);
             store.broadcast(lobby.roomId, { type: "lobbyState", lobby });
-          } catch {
+          } catch (err) {
+            if (err instanceof LobbyStoreError) {
+              sendError(store, socket, err.code, err.message);
+              return;
+            }
             sendError(store, socket, "ROOM_NOT_FOUND", `No room with code "${msg.gameCode}"`);
           }
           break;

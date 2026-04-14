@@ -6,8 +6,18 @@ import type {
   LobbyRoomState,
   GameSettings,
 } from "../protocol";
-import { defaultGameSettings } from "../protocol";
+import { mergeGameSettings } from "../protocol";
 import type { ServerMessage } from "./messages";
+
+export class LobbyStoreError extends Error {
+  constructor(
+    public readonly code: string,
+    message: string,
+  ) {
+    super(message);
+    this.name = "LobbyStoreError";
+  }
+}
 
 interface SocketInfo {
   playerId: PlayerId;
@@ -36,7 +46,7 @@ export class LobbyStore {
     const roomId = randomUUID() as RoomId;
     const playerId = randomUUID() as PlayerId;
     const gameCode = this.generateGameCode();
-    const settings: GameSettings = { ...defaultGameSettings(), ...settingsOverrides };
+    const settings = mergeGameSettings(settingsOverrides);
 
     const lobby: LobbyRoomState = {
       status: "Lobby",
@@ -68,6 +78,10 @@ export class LobbyStore {
     const lobby = this.rooms.get(roomId);
     if (!lobby) {
       throw new Error("Room not found");
+    }
+
+    if (lobby.players.length >= lobby.settings.maxPlayers) {
+      throw new LobbyStoreError("LOBBY_FULL", "This lobby is full");
     }
 
     const playerId = randomUUID() as PlayerId;

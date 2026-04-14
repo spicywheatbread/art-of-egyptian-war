@@ -1,34 +1,32 @@
-import { parseClientMessage, ParseError } from "./lobby/messages";
-import { LobbyStore } from "./lobby/store";
 import {
     Rank,
     Suit,
     type Card,
     type GameOverRoomState,
-    type GameStatistics,
-    type LastActionEvent,
+    type GameSettings,
     type LobbyRoomState,
     type PlayerId,
-    type PrivatePlayerState,
     type PublicGameRoomState,
     type RoomId,
     type RoomSnapshotForPlayer,
     type UserProfile,
+    MAX_PLAYERS_PER_GAME,
+    MIN_PLAYERS_PER_GAME,
 } from "./protocol";
 
-// ASSUMPTIONS 
-    // the main socket makes one of these 
-    // the last index is the top of the deck 
-    // TODO if there's extra cards after dealing, they go into the cetner
+// ASSUMPTIONS
+// the main socket makes one of these
+// the last index is the top of the deck
+// TODO if there's extra cards after dealing, they go into the cetner
 
 interface InGamePlayer extends UserProfile {
     hand: Card[];
 }
-var players = [] as InGamePlayer[];
 
 interface GameSession {
     roomId: RoomId;
     hostPlayerId: PlayerId;
+    settings: GameSettings;
     players: InGamePlayer[];
     status: "Lobby" | "gameStarted" | "gameOver"; 
     turnIndex: number; 
@@ -73,13 +71,7 @@ export class GameLoop {
                 gameCode: "", 
                 hostPlayerId: session.hostPlayerId,
                 players: publicPlayers,
-                settings: {
-                    includeJokers: false,
-                    enableTopSlaps: true,
-                    enableBottomSlaps: false,
-                    burnCardsOnBadSlap: 2,
-                    turnTimeLimitMs: null,
-                },
+                settings: session.settings,
                 createdAtMs: Date.now(), // TODO
             };
 
@@ -95,13 +87,7 @@ export class GameLoop {
                 roomId: session.roomId,
                 players: publicPlayers,
                 hostPlayerId: session.hostPlayerId,
-                settings: {
-                    includeJokers: false,
-                    enableTopSlaps: true,
-                    enableBottomSlaps: false,
-                    burnCardsOnBadSlap: 2,
-                    turnTimeLimitMs: null,
-                },
+                settings: session.settings,
                 endedAtMs: Date.now(),
                 gameStartedAtMs: null,
                 finalStats: {
@@ -132,13 +118,7 @@ export class GameLoop {
             roomId: session.roomId,
             players: publicPlayers,
             hostPlayerId: session.hostPlayerId,
-            settings: {
-                includeJokers: false,
-                enableTopSlaps: true,
-                enableBottomSlaps: false,
-                burnCardsOnBadSlap: 2,
-                turnTimeLimitMs: null,
-            },
+            settings: session.settings,
             turn: {
                 currentPlayerId: session.players[session.turnIndex]?.playerId ?? null,
                 turnStartedAtMs: null,
@@ -182,6 +162,7 @@ export class GameLoop {
         this.sessions.set (lobby.roomId, {
             roomId: lobby.roomId,
             hostPlayerId: lobby.hostPlayerId,
+            settings: lobby.settings,
             players: lobby.players.map ((player) => ({ ...player, hand: [] })),
             status: "Lobby",
             turnIndex: 0, 
@@ -203,6 +184,7 @@ export class GameLoop {
         } 
 
         s.players = lobby.players.map ((player) => ({...player, hand: []})); 
+        s.settings = lobby.settings;
     }
 
     removeRoom (roomId: RoomId): void {
@@ -213,7 +195,20 @@ export class GameLoop {
         const s = this.sessions.get (roomId);
         if (!s) return { ok: false, code: "ROOM_NOT_FOUND", message: "Room not found" }; 
         if (s.hostPlayerId != requestedByPlayerId) return { ok: false, code: "HOST_ONLY", message: "Only the host can start the game" }; 
-        if (s.players.length < 2) return { ok: false, code: "NOT_ENOUGH_PLAYERS", message: "At least two players are required" }; 
+        if (s.players.length < MIN_PLAYERS_PER_GAME) {
+            return {
+                ok: false,
+                code: "NOT_ENOUGH_PLAYERS",
+                message: `At least ${MIN_PLAYERS_PER_GAME} players are required`,
+            };
+        }
+        if (s.players.length > s.settings.maxPlayers || s.players.length > MAX_PLAYERS_PER_GAME) {
+            return {
+                ok: false,
+                code: "TOO_MANY_PLAYERS",
+                message: `A game can have at most ${MAX_PLAYERS_PER_GAME} players`,
+            };
+        }
         if (s.status != "Lobby") return { ok: false, code: "GAME_ALREADY_STARTED", message: "Game already started" }; 
 
         const deck = this.makeAndShuffleDeck (); 
@@ -289,11 +284,13 @@ export class GameLoop {
 
     private makeAndShuffleDeck (): Card[] {
         const deck = [] as Card[];
-        for (const s of Object.values(Suit)) {
-            for (const r of Object.values(Rank)) {
-                deck.push({ suit: s, rank: r } as Card);
+        const suits = Object.values(Suit).filter((v): v is Suit => typeof v === "number");
+        const ranks = Object.values(Rank).filter((v): v is Rank => typeof v === "number");
+        for (const s of suits) {
+            for (const r of ranks) {
+                deck.push({ suit: s, rank: r });
             }
-        } 
+        }
 
         for (let i = deck.length - 1; i > 0; i--) {
             const j = Math.floor (Math.random() * (i +1)); 
