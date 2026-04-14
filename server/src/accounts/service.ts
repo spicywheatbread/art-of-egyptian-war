@@ -126,6 +126,25 @@ export async function loginAccount(
   };
 }
 
+export async function getAccountStats(username: string): Promise<AccountStats> {
+  const validUsername = validateUsername(username);
+  const normalizedUsername = normalizeUsername(validUsername);
+  const db = getFirestore();
+  const ref = db.collection(ACCOUNTS_COLLECTION).doc(normalizedUsername);
+
+  const snap = await ref.get();
+  if (!snap.exists) {
+    throw new AccountServiceError("ACCOUNT_NOT_FOUND", "Account not found");
+  }
+
+  const account = parseAccountDocument(snap.data() as DocumentData);
+  return {
+    username: account.username,
+    wins: account.wins,
+    gamesPlayed: account.gamesPlayed,
+  };
+}
+
 export async function recordGameOutcome(
   username: string,
   didWin: boolean,

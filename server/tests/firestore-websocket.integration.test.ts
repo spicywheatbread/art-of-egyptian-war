@@ -113,6 +113,28 @@ describe.skipIf(!shouldRun)("WebSocket with real accounts", () => {
     expect(auth).toMatchObject({ type: "authOk", username });
   });
 
+  it("getMyStats returns stats from Firestore after login", async () => {
+    const username = uniqueUsername();
+    trackAccount(username);
+    await registerAccount(username, PASSWORD);
+
+    const client = await openClient(server.port);
+    clients.push(client);
+    await client.nextMessage();
+
+    client.ws.send(JSON.stringify({ type: "login", username, password: PASSWORD }));
+    await client.nextMessage();
+
+    client.ws.send(JSON.stringify({ type: "getMyStats" }));
+    const stats = await client.nextMessage();
+    expect(stats).toEqual({
+      type: "myStats",
+      username,
+      wins: 0,
+      gamesPlayed: 0,
+    });
+  });
+
   it("rejects createLobby before authentication", async () => {
     const client = await openClient(server.port);
     clients.push(client);

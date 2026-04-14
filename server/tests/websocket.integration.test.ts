@@ -11,6 +11,11 @@ const recordOutcomeMock = vi.fn(async (username: string, didWin: boolean) => ({
   wins: didWin ? 4 : 3,
   gamesPlayed: 11,
 }));
+const getAccountStatsMock = vi.fn(async (username: string) => ({
+  username,
+  wins: 7,
+  gamesPlayed: 21,
+}));
 
 describe("WebSocket server integration", () => {
   let server: RunningServer;
@@ -20,12 +25,14 @@ describe("WebSocket server integration", () => {
     registerMock.mockClear();
     loginMock.mockClear();
     recordOutcomeMock.mockClear();
+    getAccountStatsMock.mockClear();
     server = await startServer({
       port: 0,
       enableDevRecordOutcome: false,
       accounts: {
         registerAccount: registerMock,
         loginAccount: loginMock,
+        getAccountStats: getAccountStatsMock,
         recordGameOutcome: recordOutcomeMock,
       },
     });
@@ -49,6 +56,45 @@ describe("WebSocket server integration", () => {
       type: "welcome",
       protocol: PROTOCOL_VERSION,
     });
+  });
+
+  it("rejects getMyStats before authentication", async () => {
+    const client = await openClient(server.port);
+    clients.push(client);
+    await client.nextMessage();
+
+    client.ws.send(JSON.stringify({ type: "getMyStats" }));
+    const response = await client.nextMessage();
+
+    expect(response.type).toBe("error");
+    expect(response.code).toBe("NOT_AUTHENTICATED");
+    expect(getAccountStatsMock).not.toHaveBeenCalled();
+  });
+
+  it("returns myStats after authentication", async () => {
+    const client = await openClient(server.port);
+    clients.push(client);
+    await client.nextMessage();
+
+    client.ws.send(
+      JSON.stringify({
+        type: "register",
+        username: "Alice",
+        password: "secret123",
+      }),
+    );
+    await client.nextMessage();
+
+    client.ws.send(JSON.stringify({ type: "getMyStats" }));
+    const stats = await client.nextMessage();
+
+    expect(stats).toEqual({
+      type: "myStats",
+      username: "Alice",
+      wins: 7,
+      gamesPlayed: 21,
+    });
+    expect(getAccountStatsMock).toHaveBeenCalledWith("Alice");
   });
 
   it("rejects lobby actions before authentication", async () => {
