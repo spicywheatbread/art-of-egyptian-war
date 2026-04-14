@@ -43,7 +43,7 @@ region = Rect2(93, 419, 56, 11)
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_4c0xn"]
 bg_color = Color(0.9262043, 0.9160181, 0.8847256, 1)
 
-[node name="Lobby" type="Node2D" unique_id=1115395009 node_paths=PackedStringArray("QuoteDisplay", "HostConfirmGame", "JoinConfirmGame", "Profile", "WelcomeMessage", "StatsDisplay", "JoinCodeInput")]
+[node name="Lobby" type="Node2D" unique_id=1115395009 node_paths=PackedStringArray("QuoteDisplay", "HostConfirmGame", "JoinConfirmGame", "Profile", "WelcomeMessage", "StatsDisplay", "JoinCodeInput", "InvalidCodeMessage")]
 script = ExtResource("1_3afsy")
 QuoteDisplay = NodePath("CanvasLayer/MarginContainer/MainScreen/Cloud/QuoteDisplay")
 HostConfirmGame = NodePath("CanvasLayer/MarginContainer/HostConfirmGame")
@@ -51,7 +51,8 @@ JoinConfirmGame = NodePath("CanvasLayer/MarginContainer/JoinConfirmGame")
 Profile = NodePath("CanvasLayer/MarginContainer/Profile")
 WelcomeMessage = NodePath("CanvasLayer/MarginContainer/Profile/ProfilePopup/VBoxContainer/WelcomeMessage")
 StatsDisplay = NodePath("CanvasLayer/MarginContainer/Profile/ProfilePopup/VBoxContainer/StatsDisplay")
-JoinCodeInput = NodePath("CanvasLayer/MarginContainer/JoinConfirmGame/JoinConfirmPopup/VBoxContainer/JoinCodeInput")
+JoinCodeInput = NodePath("CanvasLayer/MarginContainer/JoinConfirmGame/JoinConfirmPopup/VBoxContainer/VBoxContainer/JoinCodeInput")
+InvalidCodeMessage = NodePath("CanvasLayer/MarginContainer/JoinConfirmGame/JoinConfirmPopup/VBoxContainer/VBoxContainer/InvalidCodeMessage")
 
 [node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=792386771]
 
@@ -290,7 +291,11 @@ text = "JOIN A WAR?"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="JoinCodeInput" type="LineEdit" parent="CanvasLayer/MarginContainer/JoinConfirmGame/JoinConfirmPopup/VBoxContainer" unique_id=1289528622]
+[node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer/MarginContainer/JoinConfirmGame/JoinConfirmPopup/VBoxContainer" unique_id=1930561544]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="JoinCodeInput" type="LineEdit" parent="CanvasLayer/MarginContainer/JoinConfirmGame/JoinConfirmPopup/VBoxContainer/VBoxContainer" unique_id=1289528622]
 layout_mode = 2
 theme_override_colors/caret_color = Color(0, 0, 0, 1)
 theme_override_fonts/font = ExtResource("2_dvqbj")
@@ -299,7 +304,16 @@ theme_override_styles/normal = SubResource("StyleBoxFlat_4c0xn")
 placeholder_text = "XXXX"
 alignment = 1
 max_length = 4
+virtual_keyboard_type = 2
 caret_blink = true
+
+[node name="InvalidCodeMessage" type="Label" parent="CanvasLayer/MarginContainer/JoinConfirmGame/JoinConfirmPopup/VBoxContainer/VBoxContainer" unique_id=452618065]
+custom_minimum_size = Vector2(0, 30)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0, 0, 1)
+theme_override_font_sizes/font_size = 20
+text = "Invalid Code!"
+horizontal_alignment = 1
 
 [node name="JoinConfirmButton" type="TextureButton" parent="CanvasLayer/MarginContainer/JoinConfirmGame/JoinConfirmPopup/VBoxContainer" unique_id=1383340584]
 custom_minimum_size = Vector2(250, 75)
@@ -342,6 +356,7 @@ offset_bottom = 64.0
 grow_horizontal = 0
 
 [node name="Profile" type="TextureRect" parent="CanvasLayer/MarginContainer" unique_id=1963351535]
+visible = false
 layout_mode = 2
 
 [node name="ProfilePopup" type="TextureRect" parent="CanvasLayer/MarginContainer/Profile" unique_id=910770982]
@@ -405,7 +420,7 @@ grow_horizontal = 0
 [connection signal="pressed" from="CanvasLayer/MarginContainer/SettingsButton" to="." method="_on_profile_button_pressed"]
 [connection signal="pressed" from="CanvasLayer/MarginContainer/HostConfirmGame/HostConfirmPopup/VBoxContainer/HostConfirmButton" to="." method="_on_host_game_confirm_button_pressed"]
 [connection signal="pressed" from="CanvasLayer/MarginContainer/HostConfirmGame/HostConfirmPopup/Button" to="." method="_close_popup"]
-[connection signal="text_changed" from="CanvasLayer/MarginContainer/JoinConfirmGame/JoinConfirmPopup/VBoxContainer/JoinCodeInput" to="." method="_on_join_code_input_text_changed"]
+[connection signal="text_changed" from="CanvasLayer/MarginContainer/JoinConfirmGame/JoinConfirmPopup/VBoxContainer/VBoxContainer/JoinCodeInput" to="." method="_on_join_code_input_text_changed"]
 [connection signal="pressed" from="CanvasLayer/MarginContainer/JoinConfirmGame/JoinConfirmPopup/VBoxContainer/JoinConfirmButton" to="." method="_on_join_game_confirm_button_pressed"]
 [connection signal="pressed" from="CanvasLayer/MarginContainer/JoinConfirmGame/JoinConfirmPopup/Button" to="." method="_close_popup"]
 [connection signal="pressed" from="CanvasLayer/MarginContainer/Profile/ProfilePopup/Button" to="." method="_on_profile_close_button_pressed"]
