@@ -76,6 +76,10 @@ func _on_host_game_confirm_button_pressed() -> void:
 	NetworkClient.create_lobby()
 	
 func _on_join_game_confirm_button_pressed() -> void:
+	if len(JoinCodeInput.text) != 4:
+		InvalidCodeMessage.visible = true
+		return
+		
 	InvalidCodeMessage.visible = false
 	var success = await NetworkClient.join_lobby(JoinCodeInput.text)
 	if !success:

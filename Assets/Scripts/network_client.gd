@@ -45,11 +45,17 @@ func register_user (username: String, password: String):
 	send_json({"type": "register", "username": username, "password": password})
 	var response = await auth_ok
 	
+	if response == null:
+		return "Invalid"
+		
 	complete_login(response)
 
 func login_user (username: String, password: String):
 	send_json({"type": "login", "username": username, "password": password})
 	var response = await auth_ok
+	
+	if response == null:
+		return "Invalid Credentials"
 	
 	complete_login(response)
 	
@@ -63,21 +69,22 @@ func complete_login(response):
 
 func create_lobby (): 
 	send_json({ "type": "createLobby", "username": Globals.username })
-	var data = await lobby_state
-	if data["type"] != "error":
-		# Set lobby codeand go to game
-		Globals.lobby_code = data["lobby"]["gameCode"]
-		get_tree().change_scene_to_file("res://Assets/Scenes/GameObjects/test.tscn")
+	var response = await lobby_state
+		
+	# Set lobby codeand go to game
+	Globals.lobby_code = response["lobby"]["gameCode"]
+	get_tree().change_scene_to_file("res://Assets/Scenes/GameObjects/test.tscn")
 
 func join_lobby (game_code: String):
 	send_json({ "type": "joinLobby", "gameCode": game_code })
-	var data = await lobby_state
-	if data["code"] == "ROOM_NOT_FOUND":
+	var response = await lobby_state
+
+	if response == null:
 		return false
-	elif data["type"] != "error":
-		# Set lobby code and go to game
-		Globals.lobby_code = data["lobby"]["gameCode"]
-		get_tree().change_scene_to_file("res://Assets/Scenes/GameObjects/test.tscn")
+		
+	# Set lobby code and go to game
+	Globals.lobby_code = response["lobby"]["gameCode"]
+	get_tree().change_scene_to_file("res://Assets/Scenes/GameObjects/test.tscn")
 	
 func leave_lobby ():
 	send_json({ "type": "leaveLobby" })
@@ -106,6 +113,7 @@ func _poll_socket ():
 			if _socket.was_string_packet():
 				var packet_text = packet.get_string_from_utf8()
 				var response = JSON.parse_string(packet_text)
+				print(response)
 				
 				# Emit signal based on type received
 				match response["type"]:
@@ -113,6 +121,12 @@ func _poll_socket ():
 						auth_ok.emit(response)
 					"lobbyState":
 						lobby_state.emit(response)
+					"error":
+						match response["code"]:
+							"INVALID_USERNAME", "INVALID_PASSWORD":
+								auth_ok.emit(null)
+							"ROOM_NOT_FOUND":
+								lobby_state.emit(null)
 						
 			else:
 				print("< Got binary data from server: %d bytes" % packet.size())

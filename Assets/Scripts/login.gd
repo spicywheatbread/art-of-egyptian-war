@@ -24,6 +24,8 @@ func _on_close_pressed() -> void:
 	popupContainer.visible = false
 
 func _on_login_button_pressed() -> void: 
+	LoginError.text = ""
+	
 	var username = userNameInput.text.strip_edges()
 	var password = passwordInput.text.strip_edges()
 	if username == "":
