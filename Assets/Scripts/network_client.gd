@@ -127,7 +127,7 @@ func _poll_socket ():
 						lobby_state.emit(response)
 					"error":
 						match response["code"]:
-							"INVALID_USERNAME", "INVALID_PASSWORD":
+							"INVALID_USERNAME", "INVALID_PASSWORD", "INVALID_CREDENTIALS":
 								auth_ok.emit(null)
 							"ROOM_NOT_FOUND", "INVALID_GAME_CODE":
 								lobby_state.emit(null)
