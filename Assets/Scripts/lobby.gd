@@ -32,13 +32,16 @@ func _ready() -> void:
 	Profile.visible = false
 	InvalidCodeMessage.visible = false
 	
-	# Display welcome and stats on start
-	WelcomeMessage.text = "WELCOME,\n" + Globals.username.to_upper() + "!"
-	StatsDisplay.text = "GAMES PLAYED: " + str(int(Globals.games_played)) + "\n\nGAMES WON: " + str(int(Globals.games_won))
-	
 	# Choose random quote
 	var random_int = randi() % quotes.size()
 	QuoteDisplay.text = quotes[random_int].to_upper()
+
+	# Display welcome and stats on start
+	var stats = await NetworkClient.get_stats()
+	print("stats")
+	print(stats)
+	WelcomeMessage.text = "WELCOME,\n" + stats["username"].to_upper() + "!"
+	StatsDisplay.text = "GAMES PLAYED: " + str(int(stats["gamesPlayed"])) + "\n\nGAMES WON: " + str(int(stats["wins"]))
 
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
