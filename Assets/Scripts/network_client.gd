@@ -91,7 +91,9 @@ func leave_lobby ():
 	send_json({ "type": "leaveLobby" })
 	get_tree().change_scene_to_file("res://Assets/Scenes/Lobby.tscn")
 
-
+func start_game():
+	send_json({"type": "startGame"})
+	
 func play_card ():
 	pass 
 

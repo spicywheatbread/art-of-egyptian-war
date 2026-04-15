@@ -85,9 +85,18 @@ process_mode = 4
 visible = false
 position = Vector2(266, 327)
 
-[node name="Button" type="Button" parent="." unique_id=1269849149]
+[node name="Init Game" type="Button" parent="." unique_id=1269849149]
 offset_right = 185.0
 offset_bottom = 76.0
-text = "Fake Game"
+text = "Login & Init Game"
 
-[connection signal="pressed" from="Button" to="." method="_on_button_pressed"]
+[node name="Start Game" type="Button" parent="." unique_id=198225173]
+offset_left = 13.0
+offset_top = 576.0
+offset_right = 130.0
+offset_bottom = 630.0
+disabled = true
+text = "Start Game"
+
+[connection signal="pressed" from="Init Game" to="." method="_on_button_pressed"]
+[connection signal="pressed" from="Start Game" to="." method="_on_start_game_pressed"]
