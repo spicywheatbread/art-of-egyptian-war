@@ -1,7 +1,13 @@
 extends Node2D
 
+signal game_state (payload: Dictionary)
+
 func _ready() -> void:
 	pass
+	
+func _process (delta: float): 
+	var state = await game_state
+	_on_game_state(state) 
 
 func _exit_tree() -> void:
 	pass

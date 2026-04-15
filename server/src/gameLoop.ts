@@ -18,6 +18,7 @@ import {
 // the main socket makes one of these
 // the last index is the top of the deck
 // TODO if there's extra cards after dealing, they go into the cetner
+// TODO seems like this conflicts with the existing lobby stuff 
 
 interface InGamePlayer extends UserProfile {
     hand: Card[];

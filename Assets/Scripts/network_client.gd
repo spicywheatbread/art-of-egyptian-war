@@ -12,7 +12,6 @@ signal game_state (payload: Dictionary)
 var _socket: WebSocketPeer = WebSocketPeer.new()
 var _is_connected: bool = false
 
-
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
 	set_process(true) 
@@ -121,6 +120,8 @@ func _poll_socket ():
 						auth_ok.emit(response)
 					"lobbyState":
 						lobby_state.emit(response)
+					"gameState":
+						game_state.emit (response) 
 					"error":
 						match response["code"]:
 							"INVALID_USERNAME", "INVALID_PASSWORD":
