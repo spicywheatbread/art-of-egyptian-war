@@ -315,6 +315,9 @@ offset_top = 500.0
 offset_right = 285.0
 offset_bottom = 523.0
 theme_override_colors/font_color = Color(0.014738689, 0.17609957, 0.12825811, 1)
+theme_override_colors/font_focus_color = Color(0, 0, 0, 1)
+theme_override_colors/font_pressed_color = Color(0, 0, 0, 1)
+theme_override_colors/font_hover_color = Color(0, 0, 0, 1)
 text = "FORGOT PASSWORD?"
 
 [connection signal="pressed" from="CanvasLayer/LoginContainer/VBoxContainer/PlayButton" to="." method="_toggle_login"]
