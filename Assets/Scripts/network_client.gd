@@ -5,6 +5,7 @@ signal disconnected()
 signal auth_ok (username: String)
 signal lobby_state(payload: Dictionary)
 signal game_state (payload: Dictionary)
+signal stats_state(payload: Dictionary)
 
 @export var websocket_url: String = "ws://127.0.0.1:8080" 
 #@export var auto_reconnect: bool = false 
@@ -47,7 +48,9 @@ func register_user (username: String, password: String):
 	if response == null:
 		return "Invalid"
 		
-	complete_login(response)
+	# Set username and go to lobby
+	Globals.username = response["username"]
+	get_tree().change_scene_to_file("res://Assets/Scenes/Lobby.tscn")
 
 func login_user (username: String, password: String):
 	send_json({"type": "login", "username": username, "password": password})
@@ -55,16 +58,15 @@ func login_user (username: String, password: String):
 	
 	if response == null:
 		return "Invalid Credentials"
-	
-	complete_login(response)
-	
-func complete_login(response):
+		
 	# Set username and go to lobby
 	Globals.username = response["username"]
-	Globals.games_played = response["gamesPlayed"]
-	Globals.games_won = response["wins"]
 	get_tree().change_scene_to_file("res://Assets/Scenes/Lobby.tscn")
 
+func get_stats():
+	send_json({ "type": "getMyStats" })
+	return await stats_state
+	
 
 func create_lobby (): 
 	send_json({ "type": "createLobby", "username": Globals.username })
@@ -118,15 +120,17 @@ func _poll_socket ():
 				match response["type"]:
 					"authOk":
 						auth_ok.emit(response)
+					"myStats":
+						stats_state.emit(response)
 					"lobbyState":
 						lobby_state.emit(response)
 					"gameState":
 						game_state.emit (response) 
 					"error":
 						match response["code"]:
-							"INVALID_USERNAME", "INVALID_PASSWORD":
+							"INVALID_USERNAME", "INVALID_PASSWORD", "INVALID_CREDENTIALS":
 								auth_ok.emit(null)
-							"ROOM_NOT_FOUND":
+							"ROOM_NOT_FOUND", "INVALID_GAME_CODE":
 								lobby_state.emit(null)
 						
 			else:

@@ -168,9 +168,9 @@ horizontal_alignment = 1
 [node name="UsernameLabel" type="Label" parent="CanvasLayer/PopupContainer/LoginPopup" unique_id=1165944320]
 layout_mode = 0
 offset_left = 54.0
-offset_top = 163.0
+offset_top = 146.0
 offset_right = 154.0
-offset_bottom = 186.0
+offset_bottom = 169.0
 theme_override_fonts/font = ExtResource("1_qok2h")
 text = "USERNAME"
 
@@ -182,20 +182,20 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -145.0
-offset_top = -83.0
-offset_right = 155.0
-offset_bottom = -31.0
+offset_left = -147.0
+offset_top = -102.0
+offset_right = 153.0
+offset_bottom = -50.0
 grow_horizontal = 2
 grow_vertical = 2
 placeholder_text = "Username"
 
 [node name="PasswordLabel" type="Label" parent="CanvasLayer/PopupContainer/LoginPopup" unique_id=336471332]
 layout_mode = 0
-offset_left = 57.0
-offset_top = 283.0
-offset_right = 157.0
-offset_bottom = 306.0
+offset_left = 54.0
+offset_top = 251.0
+offset_right = 154.0
+offset_bottom = 274.0
 theme_override_fonts/font = ExtResource("1_qok2h")
 text = "PASSWORD"
 
@@ -207,10 +207,10 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -144.0
-offset_top = 35.0
-offset_right = 156.0
-offset_bottom = 87.0
+offset_left = -148.0
+offset_top = 2.0
+offset_right = 152.0
+offset_bottom = 54.0
 grow_horizontal = 2
 grow_vertical = 2
 placeholder_text = "Password"
@@ -219,20 +219,20 @@ secret = true
 [node name="LoginError" type="Label" parent="CanvasLayer/PopupContainer/LoginPopup" unique_id=174835581]
 custom_minimum_size = Vector2(0, 25)
 layout_mode = 0
-offset_left = 57.0
-offset_top = 384.0
-offset_right = 359.0
-offset_bottom = 407.0
+offset_left = 52.0
+offset_top = 335.0
+offset_right = 354.0
+offset_bottom = 360.0
 theme_override_colors/font_color = Color(1, 0, 0, 1)
 horizontal_alignment = 1
 
 [node name="LoginButton" type="TextureButton" parent="CanvasLayer/PopupContainer/LoginPopup" unique_id=1604393145]
 custom_minimum_size = Vector2(100, 50)
 layout_mode = 0
-offset_left = 94.0
-offset_top = 415.0
-offset_right = 308.0
-offset_bottom = 472.0
+offset_left = 95.0
+offset_top = 369.0
+offset_right = 310.0
+offset_bottom = 426.0
 size_flags_horizontal = 4
 size_flags_vertical = 4
 mouse_default_cursor_shape = 2
@@ -255,7 +255,7 @@ grow_horizontal = 2
 grow_vertical = 2
 theme_override_constants/margin_bottom = 15
 
-[node name="SubmitText" type="Label" parent="CanvasLayer/PopupContainer/LoginPopup/LoginButton" unique_id=786744114]
+[node name="LoginText" type="Label" parent="CanvasLayer/PopupContainer/LoginPopup/LoginButton" unique_id=786744114]
 layout_mode = 0
 offset_left = 9.0
 offset_top = 11.0
@@ -264,7 +264,48 @@ offset_bottom = 61.0
 theme_override_constants/line_spacing = 3
 theme_override_fonts/font = ExtResource("1_qok2h")
 theme_override_font_sizes/font_size = 25
-text = "SUBMIT"
+text = "LOGIN"
+horizontal_alignment = 1
+
+[node name="RegisterButton" type="TextureButton" parent="CanvasLayer/PopupContainer/LoginPopup" unique_id=1688796999]
+custom_minimum_size = Vector2(100, 50)
+layout_mode = 0
+offset_left = 95.0
+offset_top = 436.0
+offset_right = 309.0
+offset_bottom = 493.0
+size_flags_horizontal = 4
+size_flags_vertical = 4
+mouse_default_cursor_shape = 2
+texture_normal = SubResource("AtlasTexture_qduus")
+texture_pressed = SubResource("AtlasTexture_nclou")
+stretch_mode = 0
+
+[node name="MarginContainer" type="MarginContainer" parent="CanvasLayer/PopupContainer/LoginPopup/RegisterButton" unique_id=1961565447]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -97.5
+offset_top = -25.0
+offset_right = 97.5
+offset_bottom = 25.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_bottom = 15
+
+[node name="RegisterText" type="Label" parent="CanvasLayer/PopupContainer/LoginPopup/RegisterButton" unique_id=1086798280]
+layout_mode = 0
+offset_left = 9.0
+offset_top = 11.0
+offset_right = 204.0
+offset_bottom = 61.0
+theme_override_constants/line_spacing = 3
+theme_override_fonts/font = ExtResource("1_qok2h")
+theme_override_font_sizes/font_size = 25
+text = "REGISTER"
 horizontal_alignment = 1
 
 [node name="forgot_button" type="LinkButton" parent="CanvasLayer/PopupContainer/LoginPopup" unique_id=807943178]
@@ -274,9 +315,13 @@ offset_top = 500.0
 offset_right = 285.0
 offset_bottom = 523.0
 theme_override_colors/font_color = Color(0.014738689, 0.17609957, 0.12825811, 1)
+theme_override_colors/font_focus_color = Color(0, 0, 0, 1)
+theme_override_colors/font_pressed_color = Color(0, 0, 0, 1)
+theme_override_colors/font_hover_color = Color(0, 0, 0, 1)
 text = "FORGOT PASSWORD?"
 
 [connection signal="pressed" from="CanvasLayer/LoginContainer/VBoxContainer/PlayButton" to="." method="_toggle_login"]
 [connection signal="pressed" from="CanvasLayer/PopupContainer/LoginPopup/close" to="." method="_on_close_pressed"]
 [connection signal="pressed" from="CanvasLayer/PopupContainer/LoginPopup/LoginButton" to="." method="_on_login_button_pressed"]
+[connection signal="pressed" from="CanvasLayer/PopupContainer/LoginPopup/RegisterButton" to="." method="_on_register_button_pressed"]
 [connection signal="pressed" from="CanvasLayer/PopupContainer/LoginPopup/forgot_button" to="." method="_on_forgot_button_pressed"]

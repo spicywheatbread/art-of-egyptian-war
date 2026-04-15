@@ -23,6 +23,7 @@ func _toggle_login() -> void:
 func _on_close_pressed() -> void:
 	popupContainer.visible = false
 
+
 func _on_login_button_pressed() -> void: 
 	LoginError.text = ""
 	
@@ -38,7 +39,25 @@ func _on_login_button_pressed() -> void:
 	var msg = await NetworkClient.login_user(username, password)
 	if msg:
 		LoginError.text = msg
+
+
+func _on_register_button_pressed() -> void:
+	LoginError.text = ""
 	
+	var username = userNameInput.text.strip_edges()
+	var password = passwordInput.text.strip_edges()
+	if username == "":
+		LoginError.text = "Username field is empty."
+		return
+	if password == "":
+		LoginError.text = "Password field is empty."
+		return
+		
+	var msg = await NetworkClient.register_user(username, password)
+	if msg:
+		LoginError.text = msg
+
+
 func _on_forgot_button_pressed() -> void:
 	var popup = AcceptDialog.new()
 	popup.dialog_text = "too badd" 
