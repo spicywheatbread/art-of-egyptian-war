@@ -5,6 +5,7 @@ import { parseClientMessage, ParseError } from "./lobby/messages";
 import { GameLoop } from "./gameLoop";
 import {
   AccountServiceError,
+  getAccountStats,
   loginAccount,
   recordGameOutcome,
   registerAccount,
@@ -18,6 +19,7 @@ export const PROTOCOL_VERSION = 2;
 interface AccountHandlers {
   registerAccount(username: string, password: string): Promise<AccountStats>;
   loginAccount(username: string, password: string): Promise<AccountStats>;
+  getAccountStats(username: string): Promise<AccountStats>;
   recordGameOutcome(username: string, didWin: boolean): Promise<AccountStats>;
 }
 
@@ -56,6 +58,7 @@ export async function startServer(options: StartServerOptions = {}): Promise<Run
   const accounts: AccountHandlers = options.accounts ?? {
     registerAccount,
     loginAccount,
+    getAccountStats,
     recordGameOutcome,
   };
   const wss = new WebSocketServer({ port });
@@ -122,6 +125,30 @@ export async function startServer(options: StartServerOptions = {}): Promise<Run
               sendError(store, socket, err.code, err.message);
             } else {
               sendError(store, socket, "AUTH_FAILED", "Login failed");
+            }
+          }
+          break;
+        }
+
+        case "getMyStats": {
+          const authenticatedUsername = getAuthenticatedUsername(authenticatedBySocket, socket);
+          if (!authenticatedUsername) {
+            sendError(
+              store,
+              socket,
+              "NOT_AUTHENTICATED",
+              "Login or register before viewing stats",
+            );
+            return;
+          }
+          try {
+            const stats = await accounts.getAccountStats(authenticatedUsername);
+            store.send(socket, { type: "myStats", ...stats });
+          } catch (err) {
+            if (err instanceof AccountServiceError) {
+              sendError(store, socket, err.code, err.message);
+            } else {
+              sendError(store, socket, "STATS_FETCH_FAILED", "Could not load account stats");
             }
           }
           break;
