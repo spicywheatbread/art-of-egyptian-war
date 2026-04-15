@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://dsqmyrt7yxj4c"]
 
-[ext_resource type="Script" uid="uid://cetk40n3ry0ow" path="res://Assets/Scenes/main_game.gd" id="1_cycvv"]
+[ext_resource type="Script" uid="uid://cetk40n3ry0ow" path="res://Assets/Scripts/main_game.gd" id="1_owchf"]
 [ext_resource type="Script" path="res://Assets/Scripts/center_pile.gd" id="2_owchf"]
 [ext_resource type="PackedScene" uid="uid://bixoatsoqg66h" path="res://Assets/Scenes/GameObjects/card.tscn" id="3_ltsxh"]
 [ext_resource type="PackedScene" uid="uid://rg70vbowntkn" path="res://Assets/Scenes/GameObjects/player.tscn" id="4_jqtiv"]
@@ -17,8 +17,7 @@ fill_to = Vector2(1, 1)
 size = Vector2(106, 166)
 
 [node name="Game" type="Node2D" unique_id=156695613]
-<<<<<<< HEAD
-script = ExtResource("1_cycvv")
+script = ExtResource("1_owchf")
 
 [node name="Reset Button" type="Button" parent="." unique_id=809785790]
 offset_left = 1031.0

@@ -11,12 +11,13 @@ config_version=5
 [application]
 
 config/name="EgyptianWar"
-run/main_scene="uid://byayv1v10y3ck"
+run/main_scene="uid://dqryd53k7p17l"
 config/features=PackedStringArray("4.6", "Forward Plus")
 config/icon="res://Assets/Images/icon.svg"
 
 [autoload]
 
+NetworkClient="*uid://bxojecquvvo3l"
 Globals="*uid://eqdn7hh8se5r"
 
 [input]

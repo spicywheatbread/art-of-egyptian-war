@@ -5,6 +5,7 @@ extends Node2D
 @export var popupContainer : Node  
 @export var userNameInput : LineEdit
 @export var passwordInput : LineEdit 
+@export var LoginError : Label 
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
@@ -22,22 +23,21 @@ func _toggle_login() -> void:
 func _on_close_pressed() -> void:
 	popupContainer.visible = false
 
-func _on_submit_button_pressed() -> void: 
+func _on_login_button_pressed() -> void: 
+	LoginError.text = ""
+	
 	var username = userNameInput.text.strip_edges()
 	var password = passwordInput.text.strip_edges()
-	if username == null:
-		print ("username is null.. ")
+	if username == "":
+		LoginError.text = "Username field is empty."
 		return
-	if password == null:
-		print ("password is null.. ")
+	if password == "":
+		LoginError.text = "Password field is empty."
 		return
 		
-	var login_data = {
-		"username" : username, 
-		"password" : password 
-	}
-	
-	print (JSON.stringify(login_data)) # TODO actually do something with this 
+	var msg = await NetworkClient.login_user(username, password)
+	if msg:
+		LoginError.text = msg
 	
 func _on_forgot_button_pressed() -> void:
 	var popup = AcceptDialog.new()
