@@ -1,6 +1,7 @@
 class_name Player extends Pile
 
 @export var card_tscn: PackedScene
+var player_username : String = "uninitialized"
 var cards = []
 
 #const OFFSET = Vector2(0, -0.5) # vertical pile look
@@ -43,6 +44,4 @@ func give_all_cards():
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
-	give_all_cards() # temporary, haven't made card dealing yet
-	shuffle(cards)
-	set_card_positions()
+	pass

@@ -12,6 +12,8 @@ signal game_state (payload: Dictionary)
 var _socket: WebSocketPeer = WebSocketPeer.new()
 var _is_connected: bool = false
 
+var last_lobby_state = null
+
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
 	set_process(true) 
@@ -72,7 +74,7 @@ func create_lobby ():
 		
 	# Set lobby codeand go to game
 	Globals.lobby_code = response["lobby"]["gameCode"]
-	get_tree().change_scene_to_file("res://Assets/Scenes/GameObjects/test.tscn")
+	get_tree().change_scene_to_file("res://Assets/Scenes/Game.tscn")
 
 func join_lobby (game_code: String):
 	send_json({ "type": "joinLobby", "gameCode": game_code })
@@ -83,7 +85,7 @@ func join_lobby (game_code: String):
 		
 	# Set lobby code and go to game
 	Globals.lobby_code = response["lobby"]["gameCode"]
-	get_tree().change_scene_to_file("res://Assets/Scenes/GameObjects/test.tscn")
+	get_tree().change_scene_to_file("res://Assets/Scenes/Game.tscn")
 	
 func leave_lobby ():
 	send_json({ "type": "leaveLobby" })
@@ -119,6 +121,7 @@ func _poll_socket ():
 					"authOk":
 						auth_ok.emit(response)
 					"lobbyState":
+						last_lobby_state = response
 						lobby_state.emit(response)
 					"gameState":
 						game_state.emit (response) 

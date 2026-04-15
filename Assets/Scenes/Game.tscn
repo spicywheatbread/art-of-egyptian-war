@@ -84,3 +84,10 @@ position = Vector2(587, 113)
 process_mode = 4
 visible = false
 position = Vector2(266, 327)
+
+[node name="Button" type="Button" parent="." unique_id=1269849149]
+offset_right = 185.0
+offset_bottom = 76.0
+text = "Fake Game"
+
+[connection signal="pressed" from="Button" to="." method="_on_button_pressed"]
