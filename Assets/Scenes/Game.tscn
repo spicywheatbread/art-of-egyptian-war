@@ -3,6 +3,7 @@
 [ext_resource type="Script" uid="uid://cetk40n3ry0ow" path="res://Assets/Scripts/main_game.gd" id="1_owchf"]
 [ext_resource type="Script" uid="uid://cvat275xsp4qw" path="res://Assets/Scripts/center_pile.gd" id="2_owchf"]
 [ext_resource type="PackedScene" uid="uid://bixoatsoqg66h" path="res://Assets/Scenes/GameObjects/card.tscn" id="3_ltsxh"]
+[ext_resource type="PackedScene" uid="uid://rg70vbowntkn" path="res://Assets/Scenes/GameObjects/player.tscn" id="4_owchf"]
 
 [sub_resource type="Gradient" id="Gradient_3fuio"]
 offsets = PackedFloat32Array(0.089201875)
@@ -64,5 +65,22 @@ metadata/_edit_group_ = true
 
 [node name="Players" type="Node" parent="." unique_id=690337538]
 
-[node name="Node2D" type="Node2D" parent="." unique_id=1576107835]
-position = Vector2(803, 334)
+[node name="P1" parent="Players" unique_id=1284586332 instance=ExtResource("4_owchf")]
+process_mode = 4
+visible = false
+position = Vector2(588, 552)
+
+[node name="P2" parent="Players" unique_id=942831778 instance=ExtResource("4_owchf")]
+process_mode = 4
+visible = false
+position = Vector2(916, 328)
+
+[node name="P3" parent="Players" unique_id=1362231068 instance=ExtResource("4_owchf")]
+process_mode = 4
+visible = false
+position = Vector2(587, 113)
+
+[node name="P4" parent="Players" unique_id=1454291071 instance=ExtResource("4_owchf")]
+process_mode = 4
+visible = false
+position = Vector2(266, 327)
