@@ -30,6 +30,10 @@ export interface LoginMessage {
   password: string;
 }
 
+export interface GetMyStatsMessage {
+  type: "getMyStats";
+}
+
 export interface RecordOutcomeMessage {
   type: "recordOutcome";
   didWin: boolean;
@@ -56,6 +60,7 @@ export type ClientMessage =
   | LeaveLobbyMessage
   | RegisterMessage
   | LoginMessage
+  | GetMyStatsMessage
   | RecordOutcomeMessage
   | StartGameMessage
   | PlayCardMessage
@@ -86,6 +91,13 @@ export interface AuthOkMessage {
   gamesPlayed: number;
 }
 
+export interface MyStatsMessage {
+  type: "myStats";
+  username: string;
+  wins: number;
+  gamesPlayed: number;
+}
+
 export interface GameStateMessage {
   type: "gameState";
   room: RoomSnapshotForPlayer;
@@ -96,6 +108,7 @@ export type ServerMessage =
   | LobbyStateMessage
   | ErrorMessage
   | AuthOkMessage
+  | MyStatsMessage
   | GameStateMessage;
 
 // --- Parsing ---
@@ -106,6 +119,7 @@ const CLIENT_TYPES = new Set<string>([
   "leaveLobby",
   "register",
   "login",
+  "getMyStats",
   "recordOutcome",
 
   "startGame", // TODO mention i added this 
