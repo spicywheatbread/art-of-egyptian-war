@@ -27,7 +27,6 @@ func _on_game_state (payload: Dictionary):
 	pass
 	
 func _on_lobby_state(payload: Dictionary):
-	print("called")
 	var l = payload["lobby"]
 	if not lobby or lobby != l:
 		lobby = l
