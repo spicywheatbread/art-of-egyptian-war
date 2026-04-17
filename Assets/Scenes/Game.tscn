@@ -98,5 +98,7 @@ offset_bottom = 630.0
 disabled = true
 text = "Start Game"
 
+[node name="Cards" type="Node2D" parent="." unique_id=1574369884]
+
 [connection signal="pressed" from="Init Game" to="." method="_on_button_pressed"]
 [connection signal="pressed" from="Start Game" to="." method="_on_start_game_pressed"]

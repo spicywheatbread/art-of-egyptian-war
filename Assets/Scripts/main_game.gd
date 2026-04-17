@@ -2,13 +2,8 @@ extends Node2D
 
 var lobby : Dictionary
 var player_count = 1
-@export var player_tscn : PackedScene
-var player_offsets = [
-	Vector2(0, -100),
-	Vector2(0, 100),
-	Vector2(200, 0),
-	Vector2(-200, 0),
-]
+@export var card_tscn : PackedScene
+
 
 func _ready() -> void:
 	NetworkClient.game_state.connect(_on_game_state)
