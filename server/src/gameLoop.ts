@@ -10,6 +10,7 @@ import {
     type RoomId,
     type RoomSnapshotForPlayer,
     type InGamePlayer,
+    type LastActionEvent,
     MAX_PLAYERS_PER_GAME,
     MIN_PLAYERS_PER_GAME,
 } from "./protocol";
@@ -31,6 +32,7 @@ interface GameSession {
     centerPile: Card[];
     winnerId: PlayerId | null;
     remainingChancesToFlipRoyal: number; // -1 if N/A 
+    lastAction?: LastActionEvent;
 }
 
 export class GameLoop {
@@ -129,6 +131,7 @@ export class GameLoop {
             burnedCardsOnBadSlapCount: 0,
             gameStartedAtMs: null,
             remainingChancesToFlipRoyal: -1,
+            lastAction: session.lastAction
         };
 
         return {
@@ -216,6 +219,11 @@ export class GameLoop {
         s.status = "gameStarted";
         s.turnIndex = 0;
         s.centerPile = [];
+        s.lastAction = {
+            "type": "startGame",
+            "atMs": Date.now(),
+            "byPlayerId": requestedByPlayerId
+        }
         return { ok: true };
     }
 
@@ -254,6 +262,12 @@ export class GameLoop {
             s.remainingChancesToFlipRoyal -= 1;
         }
 
+        s.lastAction = {
+            "type": "playCard",
+            "atMs": Date.now(),
+            "byPlayerId": playerId,
+            "card": card
+        }
         this.checkForWin (s); 
         return { ok: true };
     } 
@@ -272,6 +286,13 @@ export class GameLoop {
             s.centerPile = [];
         } 
 
+        s.lastAction = {
+            "type": "slap",
+            "atMs": Date.now(),
+            "byPlayerId": playerId,
+            "wasSuccessful": goodSlap,
+            "burnedCount": 0, // Temporary? I don't think we acutally burn any cards?
+        }
         this.checkForWin (s);
         return { ok: true };
     } 

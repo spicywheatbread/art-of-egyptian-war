@@ -1,6 +1,6 @@
 import { WebSocketServer, type WebSocket } from "ws";
 import { LobbyStore, LobbyStoreError } from "./lobby/store";
-import { InvalidGameSettingsError } from "./protocol";
+import { InvalidGameSettingsError, LastActionEvent} from "./protocol";
 import { parseClientMessage, ParseError } from "./lobby/messages";
 import { GameLoop } from "./gameLoop";
 import {
@@ -81,7 +81,7 @@ export async function startServer(options: StartServerOptions = {}): Promise<Run
       if (!snapshot) {
         continue;
       }
-      store.send(ws, { type: "gameState", room: snapshot });
+      store.send(ws, { type: "gameState", room: snapshot});
     }
   };
 

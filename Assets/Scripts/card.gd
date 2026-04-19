@@ -62,7 +62,7 @@ func setup_blank() -> void:
 	self.rank = Rank.ACE
 	self.suit = Suit.SPADES
 	self.card_name = "Uninitialized Card"
-	$Sprite2d.texture = load("res://Assets/Images/Cards/card_back.png")
+	$Sprite2D.texture = load("res://Assets/Images/Cards/card_back.png")
 	
 func setup(suit: Suit, rank: Rank) -> void:
 	self.rank = rank

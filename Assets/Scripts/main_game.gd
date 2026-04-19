@@ -8,7 +8,7 @@ var player_count = 1
 func _ready() -> void:
 	NetworkClient.game_state.connect(_on_game_state)
 	NetworkClient.lobby_state.connect(_on_lobby_state)
-	
+		
 	if NetworkClient.last_lobby_state != null:
 		_on_lobby_state(NetworkClient.last_lobby_state)
 	
@@ -19,7 +19,9 @@ func _exit_tree() -> void:
 	pass
 
 func _on_game_state (payload: Dictionary):
-	pass
+	var state = payload["room"]["public"]
+	var last_action = state["lastAction"]
+	var players = state["players"]
 	
 func _on_lobby_state(payload: Dictionary):
 	var l = payload["lobby"]
@@ -59,7 +61,13 @@ func init_fake_game():
 	NetworkClient.leave_lobby()
 	NetworkClient.create_lobby()
 
-
+func create_cards():
+	for suit in Card.Suit.values():
+		for rank in Card.Rank.values():
+			var new_card = card_tscn.instantiate()
+			new_card.setup_blank()
+			$"Center Pile".add_child(new_card)
+			
 func _on_start_game_pressed() -> void:
 	NetworkClient.start_game()
 	$"Start Game".visible = false

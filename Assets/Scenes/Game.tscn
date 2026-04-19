@@ -18,13 +18,7 @@ size = Vector2(106, 166)
 
 [node name="Game" type="Node2D" unique_id=156695613]
 script = ExtResource("1_owchf")
-
-[node name="Add2 Button" type="Button" parent="." unique_id=809785790]
-offset_left = 1031.0
-offset_top = 580.0
-offset_right = 1125.0
-offset_bottom = 611.0
-text = "Add a 2 :P"
+card_tscn = ExtResource("3_ltsxh")
 
 [node name="Background" type="Sprite2D" parent="." unique_id=1555052404]
 z_index = -5
@@ -97,8 +91,6 @@ offset_right = 130.0
 offset_bottom = 630.0
 disabled = true
 text = "Start Game"
-
-[node name="Cards" type="Node2D" parent="." unique_id=1574369884]
 
 [connection signal="pressed" from="Init Game" to="." method="_on_button_pressed"]
 [connection signal="pressed" from="Start Game" to="." method="_on_start_game_pressed"]

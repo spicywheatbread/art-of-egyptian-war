@@ -39,7 +39,13 @@ export interface SlapEvent {
   burnedCount: number;
 }
 
-export type LastActionEvent = PlayedCardEvent | SlapEvent;
+export interface StartGameEvent {
+    type: "startGame";
+    atMs: TimestampMs;
+    byPlayerId: PlayerId;
+}
+
+export type LastActionEvent = PlayedCardEvent | SlapEvent | StartGameEvent;
 
 export interface PublicGameRoomState {
   status: "InGame";
