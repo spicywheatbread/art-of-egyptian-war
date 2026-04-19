@@ -4,6 +4,7 @@ var lobby : Dictionary
 var player_count = 1
 @export var card_tscn : PackedScene
 
+var username2node : Dictionary
 
 func _ready() -> void:
 	NetworkClient.game_state.connect(_on_game_state)
@@ -23,6 +24,15 @@ func _on_game_state (payload: Dictionary):
 	var last_action = state["lastAction"]
 	var players = state["players"]
 	
+	if last_action["type"] == "startGame":
+		for player in players:
+			for i in range(player["hand_count"]):
+				var new_card = card_tscn.instantiate()
+				new_card.setup_blank()
+				var node = username2node[player["username"]] as Player
+				node.add_card(new_card)
+				node.set_card_positions()
+				
 func _on_lobby_state(payload: Dictionary):
 	var l = payload["lobby"]
 	if not lobby or lobby != l:
@@ -36,14 +46,17 @@ func configure_lobby():
 		
 	player_count = 1
 	for player in lobby["players"]:
-		if player["username"] == Globals.username:
-			$Players/P1.player_username = player["username"]
-			$Players/P1.visible = true
-			$Players/P1.process_mode = Node.PROCESS_MODE_ALWAYS
+		var username = player["username"]
+		if username == Globals.username:
+			username2node[username] = $Players/P1
+			username2node[username].player_username = player["username"]
+			username2node[username].visible = true
+			username2node[username].process_mode = Node.PROCESS_MODE_ALWAYS
 		else:
-			$Players.get_child(player_count).player_username = player["username"]
-			$Players.get_child(player_count).visible = true
-			$Players.get_child(player_count).process_mode = Node.PROCESS_MODE_ALWAYS
+			username2node[username] = $Players.get_child(player_count)
+			username2node[username].player_username = player["username"]
+			username2node[username].visible = true
+			username2node[username].process_mode = Node.PROCESS_MODE_ALWAYS
 			player_count += 1
 	$"Start Game".disabled = lobby["players"].size() < 2
 	
