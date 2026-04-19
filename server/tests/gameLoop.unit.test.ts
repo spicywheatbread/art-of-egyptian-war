@@ -113,7 +113,7 @@ describe("GameLoop", () => {
 
       const snap = gameLoop.getSnapshotForRoom(roomId, hostPlayerId);
       expect(snap?.public.status).toBe("InGame");
-      expect(snap?.private?.handCards.length).toBe(26);
+      expect(snap?.public.players[0].hand_count).toBe(26);
     });
 
     it("rejects non-host", () => {
@@ -183,6 +183,11 @@ describe("GameLoop", () => {
   });
 
   describe("getSnapshotForRoom / getSnapshotsForRoom", () => {
+    /* 
+
+    Why would we send each player only their own hand? You're not supposed to know your own hand in egyptian war, just your hand count.
+    Also, how would the game view know how many cards to draw for the other players? 
+
     it("sends each player only their own hand in InGame", () => {
       const { gameLoop, roomId, hostPlayerId, guestPlayerId } = createTwoPlayerLobbyWithGameLoop();
       gameLoop.startGame(roomId, hostPlayerId);
@@ -197,6 +202,7 @@ describe("GameLoop", () => {
       expect(guestSnap.private?.playerId).toBe(guestPlayerId);
       expect(hostSnap.private?.handCards).not.toEqual(guestSnap.private?.handCards);
     });
+    */
 
     it("getSnapshotsForRoom returns one entry per player", () => {
       const { gameLoop, roomId, hostPlayerId, guestPlayerId } = createTwoPlayerLobbyWithGameLoop();
