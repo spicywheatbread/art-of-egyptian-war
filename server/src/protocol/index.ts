@@ -9,7 +9,7 @@ export {
   MIN_PLAYERS_PER_GAME,
   MAX_PLAYERS_PER_GAME,
 } from "./gameSettings";
-export type { UserProfile, PlayerStats, GameStatistics } from "./user";
+export type { InGamePlayer, UserProfile, PlayerStats, GameStatistics } from "./user";
 export type {
   RoomStatus,
   LobbyRoomState,
@@ -18,7 +18,6 @@ export type {
   SlapEvent,
   LastActionEvent,
   PublicGameRoomState,
-  PrivatePlayerState,
   GameOverRoomState,
   RoomState,
   RoomSnapshotForPlayer,

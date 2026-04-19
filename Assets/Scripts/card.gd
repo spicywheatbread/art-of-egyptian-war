@@ -58,6 +58,12 @@ func set_texture() -> void:
 		texture = load("res://Assets/Images/Cards/Spades/1.png")
 	$Sprite2D.texture = texture
 		
+func setup_blank() -> void:
+	self.rank = Rank.ACE
+	self.suit = Suit.SPADES
+	self.card_name = "Uninitialized Card"
+	$Sprite2D.texture = load("res://Assets/Images/Cards/card_back.png")
+	
 func setup(suit: Suit, rank: Rank) -> void:
 	self.rank = rank
 	self.suit = suit

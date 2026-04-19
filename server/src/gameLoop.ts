@@ -9,7 +9,8 @@ import {
     type PublicGameRoomState,
     type RoomId,
     type RoomSnapshotForPlayer,
-    type UserProfile,
+    type InGamePlayer,
+    type LastActionEvent,
     MAX_PLAYERS_PER_GAME,
     MIN_PLAYERS_PER_GAME,
 } from "./protocol";
@@ -20,9 +21,6 @@ import {
 // TODO if there's extra cards after dealing, they go into the cetner
 // TODO seems like this conflicts with the existing lobby stuff 
 
-interface InGamePlayer extends UserProfile {
-    hand: Card[];
-}
 
 interface GameSession {
     roomId: RoomId;
@@ -34,6 +32,7 @@ interface GameSession {
     centerPile: Card[];
     winnerId: PlayerId | null;
     remainingChancesToFlipRoyal: number; // -1 if N/A 
+    lastAction?: LastActionEvent;
 }
 
 export class GameLoop {
@@ -59,8 +58,7 @@ export class GameLoop {
         if (!session) {
             return null;
         }
-
-        const publicPlayers = session.players.map((player) => ({
+        const playerProfiles = session.players.map((player) => ({
             playerId: player.playerId,
             username: player.username,
         }));
@@ -71,14 +69,13 @@ export class GameLoop {
                 roomId: session.roomId,
                 gameCode: "", 
                 hostPlayerId: session.hostPlayerId,
-                players: publicPlayers,
+                players: playerProfiles,
                 settings: session.settings,
                 createdAtMs: Date.now(), // TODO
             };
 
             return {
                 public: lobby,
-                private: null,
             };
         }
 
@@ -86,7 +83,7 @@ export class GameLoop {
             const gameOver: GameOverRoomState = {
                 status: "GameOver",
                 roomId: session.roomId,
-                players: publicPlayers,
+                players: playerProfiles,
                 hostPlayerId: session.hostPlayerId,
                 settings: session.settings,
                 endedAtMs: Date.now(),
@@ -109,11 +106,15 @@ export class GameLoop {
 
             return {
                 public: gameOver,
-                private: null,
             };
         }
 
-        const currentPlayer = session.players.find((player) => player.playerId === forPlayerId);
+        const publicPlayers = session.players.map((player) => ({
+            playerId: player.playerId,
+            username: player.username,
+            hand_count: player.hand.length
+        }));
+
         const publicGame: PublicGameRoomState = {
             status: "InGame",
             roomId: session.roomId,
@@ -130,16 +131,11 @@ export class GameLoop {
             burnedCardsOnBadSlapCount: 0,
             gameStartedAtMs: null,
             remainingChancesToFlipRoyal: -1,
+            lastAction: session.lastAction
         };
 
         return {
             public: publicGame,
-            private: currentPlayer
-                ? {
-                      playerId: currentPlayer.playerId,
-                      handCards: [...currentPlayer.hand],
-                  }
-                : null,
         };
     }
 
@@ -223,6 +219,11 @@ export class GameLoop {
         s.status = "gameStarted";
         s.turnIndex = 0;
         s.centerPile = [];
+        s.lastAction = {
+            "type": "startGame",
+            "atMs": Date.now(),
+            "byPlayerId": requestedByPlayerId
+        }
         return { ok: true };
     }
 
@@ -261,6 +262,12 @@ export class GameLoop {
             s.remainingChancesToFlipRoyal -= 1;
         }
 
+        s.lastAction = {
+            "type": "playCard",
+            "atMs": Date.now(),
+            "byPlayerId": playerId,
+            "card": card
+        }
         this.checkForWin (s); 
         return { ok: true };
     } 
@@ -279,6 +286,13 @@ export class GameLoop {
             s.centerPile = [];
         } 
 
+        s.lastAction = {
+            "type": "slap",
+            "atMs": Date.now(),
+            "byPlayerId": playerId,
+            "wasSuccessful": goodSlap,
+            "burnedCount": 0, // Temporary? I don't think we acutally burn any cards?
+        }
         this.checkForWin (s);
         return { ok: true };
     } 
