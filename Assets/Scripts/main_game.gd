@@ -1,15 +1,19 @@
 extends Node2D
 
+# Variable definition
 var lobby : Dictionary
 var player_count = 1
-@export var card_tscn : PackedScene
-
 var username2node : Dictionary
 
+# Node references
+@export var card_tscn : PackedScene
+
 func _ready() -> void:
+	# Connect signals
 	NetworkClient.game_state.connect(_on_game_state)
 	NetworkClient.lobby_state.connect(_on_lobby_state)
-		
+	
+	# Fetch most recent lobby state
 	if NetworkClient.last_lobby_state != null:
 		_on_lobby_state(NetworkClient.last_lobby_state)
 	
@@ -19,6 +23,7 @@ func _process (delta: float):
 func _exit_tree() -> void:
 	pass
 
+# Load game state
 func _on_game_state (payload: Dictionary):
 	var state = payload["room"]["public"]
 	var last_action = state["lastAction"]
@@ -32,7 +37,8 @@ func _on_game_state (payload: Dictionary):
 				var node = username2node[player["username"]] as Player
 				node.add_card(new_card)
 				node.set_card_positions()
-				
+
+# Load lobby state
 func _on_lobby_state(payload: Dictionary):
 	var l = payload["lobby"]
 	if not lobby or lobby != l:
@@ -40,10 +46,14 @@ func _on_lobby_state(payload: Dictionary):
 		configure_lobby()
 
 func configure_lobby():
+	# Display join code
+	$JoinCode/JoinCodeLabel.text = "CODE: " + lobby["gameCode"]
+
+	# Hide then redisplay players according to new lobby state
 	for child in $Players.get_children():
 		child.visible = false
 		child.process_mode = Node.PROCESS_MODE_DISABLED
-		
+
 	player_count = 1
 	for player in lobby["players"]:
 		var username = player["username"]
@@ -58,6 +68,8 @@ func configure_lobby():
 			username2node[username].visible = true
 			username2node[username].process_mode = Node.PROCESS_MODE_ALWAYS
 			player_count += 1
+			
+	# Enable start button with enough players (>2)
 	$"Start Game".disabled = lobby["players"].size() < 2
 	
 func _on_play_button_pressed():
@@ -84,6 +96,7 @@ func create_cards():
 func _on_start_game_pressed() -> void:
 	NetworkClient.start_game()
 	$"Start Game".visible = false
+	$JoinCode.visible = false
 
 
 func _on_settings_changed(color: Color, volume: int) -> void:
