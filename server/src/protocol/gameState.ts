@@ -2,6 +2,7 @@ import type { Card } from "./card";
 import type { GameSettings } from "./gameSettings";
 import type { PlayerId, RoomId, TimestampMs } from "./ids";
 import type { GameStatistics, UserProfile } from "./user";
+import type { PublicInGamePlayer } from "./user"
 
 export type RoomStatus = "Lobby" | "InGame" | "GameOver";
 
@@ -38,12 +39,18 @@ export interface SlapEvent {
   burnedCount: number;
 }
 
-export type LastActionEvent = PlayedCardEvent | SlapEvent;
+export interface StartGameEvent {
+    type: "startGame";
+    atMs: TimestampMs;
+    byPlayerId: PlayerId;
+}
+
+export type LastActionEvent = PlayedCardEvent | SlapEvent | StartGameEvent;
 
 export interface PublicGameRoomState {
   status: "InGame";
   roomId: RoomId;
-  players: UserProfile[];
+  players: PublicInGamePlayer[];
   hostPlayerId: PlayerId;
   settings: GameSettings;
 
@@ -60,12 +67,6 @@ export interface PublicGameRoomState {
 
   lastAction?: LastActionEvent;
   gameStartedAtMs: TimestampMs | null;
-}
-
-export interface PrivatePlayerState {
-  playerId: PlayerId;
-  // Exact cards in the player's hand. Sent only to that player.
-  handCards: Card[];
 }
 
 export interface GameOverRoomState {
@@ -85,6 +86,5 @@ export type RoomState = LobbyRoomState | PublicGameRoomState | GameOverRoomState
 // Convenience snapshot shape for "send to a given player".
 export interface RoomSnapshotForPlayer {
   public: PublicGameRoomState | LobbyRoomState | GameOverRoomState;
-  private: PrivatePlayerState | null;
 }
 

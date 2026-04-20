@@ -24,4 +24,6 @@ offset_right = 48.845
 offset_bottom = 9.84
 text = "Player Deck"
 
+[node name="Cards" type="Node2D" parent="." unique_id=1155625537]
+
 [connection signal="input_event" from="Area2D" to="." method="_on_area_2d_input_event"]

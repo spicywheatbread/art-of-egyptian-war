@@ -1,9 +1,9 @@
 [gd_scene format=3 uid="uid://dsqmyrt7yxj4c"]
 
 [ext_resource type="Script" uid="uid://cetk40n3ry0ow" path="res://Assets/Scripts/main_game.gd" id="1_owchf"]
-[ext_resource type="Script" path="res://Assets/Scripts/center_pile.gd" id="2_owchf"]
+[ext_resource type="Script" uid="uid://cvat275xsp4qw" path="res://Assets/Scripts/center_pile.gd" id="2_owchf"]
 [ext_resource type="PackedScene" uid="uid://bixoatsoqg66h" path="res://Assets/Scenes/GameObjects/card.tscn" id="3_ltsxh"]
-[ext_resource type="PackedScene" uid="uid://rg70vbowntkn" path="res://Assets/Scenes/GameObjects/player.tscn" id="4_jqtiv"]
+[ext_resource type="PackedScene" uid="uid://rg70vbowntkn" path="res://Assets/Scenes/GameObjects/player.tscn" id="4_owchf"]
 
 [sub_resource type="Gradient" id="Gradient_3fuio"]
 offsets = PackedFloat32Array(0.089201875)
@@ -18,13 +18,7 @@ size = Vector2(106, 166)
 
 [node name="Game" type="Node2D" unique_id=156695613]
 script = ExtResource("1_owchf")
-
-[node name="Reset Button" type="Button" parent="." unique_id=809785790]
-offset_left = 1031.0
-offset_top = 580.0
-offset_right = 1125.0
-offset_bottom = 611.0
-text = "Add a 2 :P"
+card_tscn = ExtResource("3_ltsxh")
 
 [node name="Background" type="Sprite2D" parent="." unique_id=1555052404]
 z_index = -5
@@ -34,42 +28,69 @@ texture = SubResource("GradientTexture2D_53qdw")
 metadata/_edit_lock_ = true
 
 [node name="Center Pile" type="Node2D" parent="." unique_id=628171694]
-position = Vector2(510, 313)
+position = Vector2(581, 332)
 script = ExtResource("2_owchf")
 card_tscn = ExtResource("3_ltsxh")
 metadata/_edit_group_ = true
 
 [node name="Label" type="Label" parent="Center Pile" unique_id=100345153]
-offset_right = 40.0
-offset_bottom = 23.0
+offset_left = -44.0
+offset_top = -11.9
+offset_right = 45.0
+offset_bottom = 11.1
+pivot_offset = Vector2(47, 7)
 text = "Central Pile"
 
 [node name="Area2D" type="Area2D" parent="Center Pile" unique_id=929304964]
+position = Vector2(-45, -16)
 
 [node name="Polygon2D" type="Polygon2D" parent="Center Pile/Area2D" unique_id=128942285]
-position = Vector2(1.9999695, -67)
+position = Vector2(-59, -17)
 scale = Vector2(2.3555555, 5.187501)
 color = Color(0, 0, 0, 0.3372549)
+offset = Vector2(25.896214, -9.638553)
 polygon = PackedVector2Array(-4, 0, -4, 32, 41, 32, 41, 0, 18.254715, 0)
 metadata/_edit_group_ = true
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Center Pile/Area2D" unique_id=409399114]
 position = Vector2(45, 16)
 shape = SubResource("RectangleShape2D_4iy6t")
-
-[node name="Random Position" type="Node2D" parent="." unique_id=2120777151]
-position = Vector2(911, 70)
 metadata/_edit_group_ = true
-
-[node name="Label" type="Label" parent="Random Position" unique_id=917952826]
-offset_right = 40.0
-offset_bottom = 23.0
-text = "Random Position"
 
 [node name="Players" type="Node" parent="." unique_id=690337538]
 
-[node name="Test Player" parent="Players" unique_id=1284586332 instance=ExtResource("4_jqtiv")]
-position = Vector2(189, 308)
-script = null
+[node name="P1" parent="Players" unique_id=1284586332 instance=ExtResource("4_owchf")]
+process_mode = 4
+visible = false
+position = Vector2(588, 552)
 
-[node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=1307791960]
+[node name="P2" parent="Players" unique_id=942831778 instance=ExtResource("4_owchf")]
+process_mode = 4
+visible = false
+position = Vector2(916, 328)
+
+[node name="P3" parent="Players" unique_id=1362231068 instance=ExtResource("4_owchf")]
+process_mode = 4
+visible = false
+position = Vector2(587, 113)
+
+[node name="P4" parent="Players" unique_id=1454291071 instance=ExtResource("4_owchf")]
+process_mode = 4
+visible = false
+position = Vector2(266, 327)
+
+[node name="Init Game" type="Button" parent="." unique_id=1269849149]
+offset_right = 185.0
+offset_bottom = 76.0
+text = "Login & Init Game"
+
+[node name="Start Game" type="Button" parent="." unique_id=198225173]
+offset_left = 13.0
+offset_top = 576.0
+offset_right = 130.0
+offset_bottom = 630.0
+disabled = true
+text = "Start Game"
+
+[connection signal="pressed" from="Init Game" to="." method="_on_button_pressed"]
+[connection signal="pressed" from="Start Game" to="." method="_on_start_game_pressed"]
