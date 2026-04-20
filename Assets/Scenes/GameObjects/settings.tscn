@@ -1,0 +1,194 @@
+[gd_scene format=3 uid="uid://llyeweeqjoc5"]
+
+[ext_resource type="Script" uid="uid://bd38gl5ieekx7" path="res://Assets/Scripts/settings.gd" id="1_44sy6"]
+[ext_resource type="Texture2D" uid="uid://b43kgykuic00e" path="res://Assets/Images/UI/Settings.png" id="1_jrldb"]
+[ext_resource type="Texture2D" uid="uid://dmg1jup6jxrus" path="res://Assets/Images/UI/Icons.png" id="1_sslyg"]
+[ext_resource type="FontFile" uid="uid://6303at6snnwr" path="res://Assets/Font/Font1.png" id="2_ouevh"]
+[ext_resource type="Texture2D" uid="uid://ct3ttysfdqk34" path="res://Assets/Images/UI/Buttons.png" id="4_44sy6"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_5ec6b"]
+atlas = ExtResource("1_sslyg")
+region = Rect2(81, 49, 14, 14)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_sslyg"]
+atlas = ExtResource("1_jrldb")
+region = Rect2(7, 0, 98, 149)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_sslyg"]
+bg_color = Color(0.3137255, 0.6627451, 0.47058824, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_44sy6"]
+bg_color = Color(0.3137255, 0.6627451, 0.47058824, 1)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_t86ax"]
+atlas = ExtResource("4_44sy6")
+region = Rect2(13, 418, 56, 12)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_jevw3"]
+atlas = ExtResource("4_44sy6")
+region = Rect2(93, 419, 56, 11)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_44sy6"]
+atlas = ExtResource("1_jrldb")
+region = Rect2(7, 0, 98, 149)
+
+[node name="Settings" type="Node2D" unique_id=671792383 node_paths=PackedStringArray("SettingsPopup", "ColorPickerPreview", "ColorPickerPopup", "VolumeSlider")]
+script = ExtResource("1_44sy6")
+SettingsPopup = NodePath("Popup")
+ColorPickerPreview = NodePath("Popup/ColorPickerButton")
+ColorPickerPopup = NodePath("Popup/ColorPickerPopup")
+VolumeSlider = NodePath("Popup/VolumeSlider")
+
+[node name="SettingsButton" type="TextureButton" parent="." unique_id=330899135]
+offset_left = 1089.0
+offset_top = 22.0
+offset_right = 1129.0
+offset_bottom = 62.0
+texture_normal = SubResource("AtlasTexture_5ec6b")
+stretch_mode = 0
+
+[node name="Popup" type="TextureRect" parent="." unique_id=1676164011]
+offset_left = 416.0
+offset_top = 65.0
+offset_right = 738.0
+offset_bottom = 554.5714
+texture = SubResource("AtlasTexture_sslyg")
+
+[node name="Title" type="Label" parent="Popup" unique_id=1815396602]
+layout_mode = 0
+offset_left = 14.0
+offset_top = 68.0
+offset_right = 288.0
+offset_bottom = 126.0
+theme_override_fonts/font = ExtResource("2_ouevh")
+theme_override_font_sizes/font_size = 30
+text = "SETTINGS"
+horizontal_alignment = 1
+
+[node name="Background" type="Label" parent="Popup" unique_id=741195010]
+layout_mode = 0
+offset_left = 36.0
+offset_top = 145.0
+offset_right = 198.0
+offset_bottom = 168.0
+theme_override_fonts/font = ExtResource("2_ouevh")
+text = "BACKGROUND"
+
+[node name="ColorPickerButton" type="Button" parent="Popup" unique_id=515395930]
+layout_mode = 0
+offset_left = 240.0
+offset_top = 145.0
+offset_right = 262.0
+offset_bottom = 166.0
+
+[node name="Volume" type="Label" parent="Popup" unique_id=1276121818]
+layout_mode = 0
+offset_left = 37.0
+offset_top = 217.0
+offset_right = 199.0
+offset_bottom = 240.0
+theme_override_fonts/font = ExtResource("2_ouevh")
+text = "VOLUME"
+
+[node name="VolumeSlider" type="HSlider" parent="Popup" unique_id=1021719348]
+layout_mode = 0
+offset_left = 39.0
+offset_top = 254.0
+offset_right = 262.0
+offset_bottom = 270.0
+theme_override_styles/grabber_area = SubResource("StyleBoxFlat_sslyg")
+theme_override_styles/grabber_area_highlight = SubResource("StyleBoxFlat_44sy6")
+step = 10.0
+value = 50.0
+tick_count = 11
+ticks_on_borders = true
+
+[node name="ApplyButton" type="TextureButton" parent="Popup" unique_id=817829729]
+custom_minimum_size = Vector2(100, 50)
+layout_mode = 0
+offset_left = 95.0
+offset_top = 360.0
+offset_right = 214.0
+offset_bottom = 410.0
+size_flags_horizontal = 4
+size_flags_vertical = 4
+mouse_default_cursor_shape = 2
+texture_normal = SubResource("AtlasTexture_t86ax")
+texture_pressed = SubResource("AtlasTexture_jevw3")
+stretch_mode = 0
+
+[node name="MarginContainer" type="MarginContainer" parent="Popup/ApplyButton" unique_id=1070750578]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_bottom = 15
+
+[node name="ApplyText" type="Label" parent="Popup/ApplyButton" unique_id=786434498]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -29.5
+offset_top = -11.0
+offset_right = 33.5
+offset_bottom = 5.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/line_spacing = 3
+theme_override_fonts/font = ExtResource("2_ouevh")
+theme_override_font_sizes/font_size = 16
+text = "APPLY"
+horizontal_alignment = 1
+
+[node name="ColorPickerPopup" type="TextureRect" parent="Popup" unique_id=1526121335]
+layout_mode = 0
+offset_left = 342.0
+offset_right = 664.0
+offset_bottom = 489.571
+texture = SubResource("AtlasTexture_44sy6")
+
+[node name="ColorPicker" type="ColorPicker" parent="Popup/ColorPickerPopup" unique_id=977738469]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -150.0
+offset_top = -443.571
+offset_right = 148.0
+offset_bottom = -4.5710144
+grow_horizontal = 2
+grow_vertical = 0
+edit_alpha = false
+edit_intensity = false
+color_modes_visible = false
+presets_visible = false
+
+[node name="CloseColorPopup" type="Button" parent="Popup/ColorPickerPopup" unique_id=897986204]
+modulate = Color(1, 1, 1, 0)
+layout_mode = 0
+offset_left = 276.0
+offset_top = 3.0
+offset_right = 306.0
+offset_bottom = 28.0
+
+[node name="ClosePopup" type="Button" parent="Popup" unique_id=269463602]
+modulate = Color(1, 1, 1, 0)
+layout_mode = 0
+offset_left = 266.0
+offset_top = 6.0
+offset_right = 299.0
+offset_bottom = 36.0
+
+[connection signal="pressed" from="SettingsButton" to="." method="_on_settings_button_pressed"]
+[connection signal="pressed" from="Popup/ColorPickerButton" to="." method="_on_color_picker_button_pressed"]
+[connection signal="pressed" from="Popup/ApplyButton" to="." method="_on_apply_button_pressed"]
+[connection signal="color_changed" from="Popup/ColorPickerPopup/ColorPicker" to="." method="_on_color_picker_color_changed"]
+[connection signal="pressed" from="Popup/ColorPickerPopup/CloseColorPopup" to="." method="_on_close_color_popup_pressed"]
+[connection signal="pressed" from="Popup/ClosePopup" to="." method="_on_close_popup_pressed"]

@@ -84,3 +84,13 @@ func create_cards():
 func _on_start_game_pressed() -> void:
 	NetworkClient.start_game()
 	$"Start Game".visible = false
+
+
+func _on_settings_changed(color: Color, volume: int) -> void:
+	# Set color
+	var tex = $Background.texture as GradientTexture2D
+	var gradient = tex.gradient
+	gradient.set_color(0, color)
+	gradient.set_color(1, color)
+	
+	# Set volume
