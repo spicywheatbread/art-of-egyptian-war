@@ -29,14 +29,18 @@ func _on_game_state (payload: Dictionary):
 	var last_action = state["lastAction"]
 	var players = state["players"]
 	
+	# Setup game and cards
 	if last_action["type"] == "startGame":
-		for player in players:
-			for i in range(player["hand_count"]):
-				var new_card = card_tscn.instantiate()
-				new_card.setup_blank()
-				var node = username2node[player["username"]] as Player
-				node.add_card(new_card)
-				node.set_card_positions()
+		shuffle_on_start(players)
+	
+func shuffle_on_start(players):
+	for player in players:
+		for i in range(player["hand_count"]):
+			var new_card = card_tscn.instantiate()
+			new_card.setup_blank()
+			var node = username2node[player["username"]] as Player
+			node.add_card(new_card)
+			node.set_card_positions()
 
 # Load lobby state
 func _on_lobby_state(payload: Dictionary):
@@ -59,18 +63,20 @@ func configure_lobby():
 		var username = player["username"]
 		if username == Globals.username:
 			username2node[username] = $Players/P1
-			username2node[username].player_username = player["username"]
-			username2node[username].visible = true
-			username2node[username].process_mode = Node.PROCESS_MODE_ALWAYS
+			setup_player(username)
 		else:
 			username2node[username] = $Players.get_child(player_count)
-			username2node[username].player_username = player["username"]
-			username2node[username].visible = true
-			username2node[username].process_mode = Node.PROCESS_MODE_ALWAYS
+			setup_player(username)
 			player_count += 1
 			
 	# Enable start button with enough players (>2)
 	$"Start Game".disabled = lobby["players"].size() < 2
+	
+# Sets up and displays the player node
+func setup_player(username : String) -> void:
+	username2node[username].set_player_username(username)
+	username2node[username].visible = true
+	username2node[username].process_mode = Node.PROCESS_MODE_ALWAYS
 	
 func _on_play_button_pressed():
 	NetworkClient.play_card()

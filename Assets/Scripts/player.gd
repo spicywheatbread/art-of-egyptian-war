@@ -1,7 +1,7 @@
 class_name Player extends Pile
 
 @export var card_tscn: PackedScene
-var player_username : String = "uninitialized"
+var player_username : String = "Player"
 var cards = []
 
 #const OFFSET = Vector2(0, -0.5) # vertical pile look
@@ -25,3 +25,7 @@ func set_card_positions() -> void:
 		
 func get_top_position():
 	return ($Cards.get_child_count() - 1) * OFFSET
+
+func set_player_username(username : String) -> void:
+	player_username = username
+	$Label.text = username
