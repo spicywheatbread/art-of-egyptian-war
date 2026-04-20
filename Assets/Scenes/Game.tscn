@@ -4,6 +4,7 @@
 [ext_resource type="Script" uid="uid://cvat275xsp4qw" path="res://Assets/Scripts/center_pile.gd" id="2_owchf"]
 [ext_resource type="PackedScene" uid="uid://bixoatsoqg66h" path="res://Assets/Scenes/GameObjects/card.tscn" id="3_ltsxh"]
 [ext_resource type="PackedScene" uid="uid://rg70vbowntkn" path="res://Assets/Scenes/GameObjects/player.tscn" id="4_owchf"]
+[ext_resource type="PackedScene" uid="uid://llyeweeqjoc5" path="res://Assets/Scenes/GameObjects/settings.tscn" id="5_ltsxh"]
 
 [sub_resource type="Gradient" id="Gradient_3fuio"]
 offsets = PackedFloat32Array(0.089201875)
@@ -92,5 +93,8 @@ offset_bottom = 630.0
 disabled = true
 text = "Start Game"
 
+[node name="Settings" parent="." unique_id=671792383 instance=ExtResource("5_ltsxh")]
+
 [connection signal="pressed" from="Init Game" to="." method="_on_button_pressed"]
 [connection signal="pressed" from="Start Game" to="." method="_on_start_game_pressed"]
+[connection signal="settings_changed" from="Settings" to="." method="_on_settings_changed"]
