@@ -108,7 +108,7 @@ Fields the server uses today (others may be added):
 | `includeJokers` | boolean | |
 | `enableTopSlaps` | boolean | |
 | `enableBottomSlaps` | boolean | |
-| `burnCardsOnBadSlap` | number | |
+| `burnCardsOnBadSlap` | number \| `"ENTIRE_HAND"` | |
 | `turnTimeLimitMs` | number \| null | |
 | `maxPlayers` | number | 2–4, default 4 |
 

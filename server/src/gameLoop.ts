@@ -30,6 +30,7 @@ interface GameSession {
     status: "Lobby" | "gameStarted" | "gameOver"; 
     turnIndex: number; 
     centerPile: Card[];
+    burnedCardsOnBadSlapCount: number;
     winnerId: PlayerId | null;
     remainingChancesToFlipRoyal: number; // -1 if N/A 
     lastAction?: LastActionEvent;
@@ -126,11 +127,16 @@ export class GameLoop {
                 turnStartedAtMs: null,
                 turnEndsAtMs: null,
             },
-            pileCards: [],
-            drawPileRemainingCount: 0,
-            burnedCardsOnBadSlapCount: 0,
+            pileCards: session.centerPile,
+            pileTopCard:
+                session.centerPile.length > 0
+                    ? session.centerPile[session.centerPile.length - 1]
+                    : undefined,
+            pileBottomCard: session.centerPile.length > 0 ? session.centerPile[0] : undefined,
+            drawPileRemainingCount: session.players.reduce((n, p) => n + p.hand.length, 0),
+            burnedCardsOnBadSlapCount: session.burnedCardsOnBadSlapCount,
             gameStartedAtMs: null,
-            remainingChancesToFlipRoyal: -1,
+            remainingChancesToFlipRoyal: session.remainingChancesToFlipRoyal,
             lastAction: session.lastAction
         };
 
@@ -164,6 +170,7 @@ export class GameLoop {
             status: "Lobby",
             turnIndex: 0, 
             centerPile: [],
+            burnedCardsOnBadSlapCount: 0,
             winnerId: null,
             remainingChancesToFlipRoyal: -1,
         })
@@ -219,6 +226,7 @@ export class GameLoop {
         s.status = "gameStarted";
         s.turnIndex = 0;
         s.centerPile = [];
+        s.burnedCardsOnBadSlapCount = 0;
         s.lastAction = {
             "type": "startGame",
             "atMs": Date.now(),
@@ -281,9 +289,16 @@ export class GameLoop {
         if (!player) return { ok: false, code: "PLAYER_NOT_FOUND", message: "Player not found" };
 
         const goodSlap = this.isGoodSlap (s); 
+        let burnedCount = 0;
         if (goodSlap) {
             player.hand.push (...s.centerPile); 
             s.centerPile = [];
+        } else {
+            const requestedBurnCount =
+                s.settings.burnCardsOnBadSlap === "ENTIRE_HAND"
+                    ? player.hand.length
+                    : s.settings.burnCardsOnBadSlap;
+            burnedCount = this.burnFromPlayerToCenterBottom(s, player, requestedBurnCount);
         } 
 
         s.lastAction = {
@@ -291,7 +306,7 @@ export class GameLoop {
             "atMs": Date.now(),
             "byPlayerId": playerId,
             "wasSuccessful": goodSlap,
-            "burnedCount": 0, // Temporary? I don't think we acutally burn any cards?
+            "burnedCount": burnedCount,
         }
         this.checkForWin (s);
         return { ok: true };
@@ -320,6 +335,29 @@ export class GameLoop {
 
     private isGoodSlap (s: GameSession): boolean {
         return s.centerPile.length > 2 && s.centerPile[s.centerPile.length - 1] == s.centerPile[s.centerPile.length - 3]; 
+    }
+
+    private burnFromPlayerToCenterBottom(s: GameSession, player: InGamePlayer, requestedCount: number): number {
+        const count = Math.max(0, Math.min(requestedCount, player.hand.length));
+        if (count === 0) {
+            return 0;
+        }
+
+        const burned: Card[] = [];
+        for (let i = 0; i < count; i++) {
+            const c = player.hand.pop();
+            if (!c) break;
+            burned.push(c);
+        }
+
+        if (burned.length > 0) {
+            // Bottom of center pile is index 0.
+            // We must keep pop() order so the first burned card becomes the true bottom-most card.
+            s.centerPile.unshift(...burned);
+            s.burnedCardsOnBadSlapCount += burned.length;
+        }
+
+        return burned.length;
     }
 
     private checkForWin (s: GameSession): void {
