@@ -4,6 +4,7 @@
 [ext_resource type="Script" uid="uid://cvat275xsp4qw" path="res://Assets/Scripts/center_pile.gd" id="2_wg47v"]
 [ext_resource type="PackedScene" uid="uid://bixoatsoqg66h" path="res://Assets/Scenes/GameObjects/card.tscn" id="3_7og6b"]
 [ext_resource type="PackedScene" uid="uid://rg70vbowntkn" path="res://Assets/Scenes/GameObjects/player.tscn" id="3_u224g"]
+[ext_resource type="PackedScene" uid="uid://llyeweeqjoc5" path="res://Assets/Scenes/GameObjects/settings.tscn" id="5_jxrll"]
 
 [sub_resource type="Gradient" id="Gradient_jxrll"]
 offsets = PackedFloat32Array(0.089201875)
@@ -71,5 +72,9 @@ text = "Random Position"
 [node name="Test Player" parent="Players" unique_id=1284586332 instance=ExtResource("3_u224g")]
 position = Vector2(189, 308)
 
+[node name="Settings" parent="." unique_id=671792383 instance=ExtResource("5_jxrll")]
+visible = false
+
 [connection signal="pressed" from="Reset Button" to="Center Pile" method="_on_two_button_pressed"]
 [connection signal="input_event" from="Center Pile/Area2D" to="." method="_on_center_input_event"]
+[connection signal="settings_changed" from="Settings" to="." method="_on_settings_changed"]
