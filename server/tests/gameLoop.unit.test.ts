@@ -15,6 +15,8 @@ interface TestSession {
   players: { playerId: PlayerId; hand: Card[]; username: string }[];
   winnerId: PlayerId | null;
   remainingChancesToFlipRoyal: number;
+  burnedCardsOnBadSlapCount: number;
+  settings: { burnCardsOnBadSlap: number | "ENTIRE_HAND" };
 }
 
 function getTestSession(gameLoop: GameLoop, roomId: RoomId): TestSession | undefined {
@@ -36,8 +38,9 @@ describe("GameLoop", () => {
       const { gameLoop, lobby, roomId, hostPlayerId } = createTwoPlayerLobbyWithGameLoop();
       const snap = gameLoop.getSnapshotForRoom(roomId, hostPlayerId);
       expect(snap).not.toBeNull();
-      expect(snap!.public.status).toBe("Lobby");
-      if (snap!.public.status !== "Lobby") throw new Error("expected Lobby");
+      if (!snap) throw new Error("expected snapshot");
+      expect(snap.public.status).toBe("Lobby");
+      if (snap.public.status !== "Lobby") throw new Error("expected Lobby");
       expect(snap.public.players.map((p) => p.username)).toEqual(["Alice", "Bob"]);
     });
 
@@ -113,7 +116,8 @@ describe("GameLoop", () => {
 
       const snap = gameLoop.getSnapshotForRoom(roomId, hostPlayerId);
       expect(snap?.public.status).toBe("InGame");
-      expect(snap?.public.players[0].hand_count).toBe(26);
+      if (snap?.public.status !== "InGame") throw new Error("expected InGame");
+      expect(snap.public.players[0].hand_count).toBe(26);
     });
 
     it("rejects non-host", () => {
@@ -324,6 +328,7 @@ describe("GameLoop", () => {
       const { gameLoop, roomId, hostPlayerId, guestPlayerId } = createTwoPlayerLobbyWithGameLoop();
       gameLoop.startGame(roomId, hostPlayerId);
       const session = getTestSession(gameLoop, roomId)!;
+      session.settings.burnCardsOnBadSlap = 0;
       const a = card(Rank.EIGHT, Suit.HEARTS);
       const b = card(Rank.FIVE, Suit.CLUBS);
       const c = card(Rank.EIGHT, Suit.DIAMONDS);
@@ -345,6 +350,7 @@ describe("GameLoop", () => {
       const { gameLoop, roomId, hostPlayerId, guestPlayerId } = createTwoPlayerLobbyWithGameLoop();
       gameLoop.startGame(roomId, hostPlayerId);
       const session = getTestSession(gameLoop, roomId)!;
+      session.settings.burnCardsOnBadSlap = 0;
       const sandwichTop = card(Rank.KING, Suit.HEARTS);
       session.centerPile = [sandwichTop, card(Rank.THREE, Suit.CLUBS), sandwichTop];
 
@@ -360,6 +366,64 @@ describe("GameLoop", () => {
       expect(gameLoop.slap(roomId, hostPlayerId).ok).toBe(true);
       expect(session.players[0].hand.length).toBe(hostHandBefore);
       expect(session.players[1].hand.length).toBe(guestHandBefore + 3);
+    });
+
+    it("on a false slap, burns configured cards from slapper to bottom of center pile", () => {
+      const { gameLoop, roomId, hostPlayerId, guestPlayerId } = createTwoPlayerLobbyWithGameLoop();
+      gameLoop.startGame(roomId, hostPlayerId);
+      const session = getTestSession(gameLoop, roomId)!;
+
+      session.settings.burnCardsOnBadSlap = 2;
+      const centerBottom = card(Rank.TWO, Suit.HEARTS);
+      const centerTop = card(Rank.THREE, Suit.CLUBS);
+      session.centerPile = [centerBottom, centerTop];
+
+      const burn1 = card(Rank.ACE, Suit.SPADES);
+      const burn2 = card(Rank.KING, Suit.DIAMONDS);
+      session.players[1].hand = [card(Rank.SIX), burn2, burn1]; // burn1 is top
+
+      expect(gameLoop.slap(roomId, guestPlayerId).ok).toBe(true);
+
+      expect(session.centerPile).toEqual([burn1, burn2, centerBottom, centerTop]);
+      expect(session.burnedCardsOnBadSlapCount).toBe(2);
+
+      const snap = gameLoop.getSnapshotForRoom(roomId, guestPlayerId);
+      if (snap?.public.status !== "InGame") throw new Error("expected InGame");
+      expect(snap.public.pileCards).toEqual(session.centerPile);
+      expect(snap.public.pileBottomCard).toEqual(burn1);
+      expect(snap.public.pileTopCard).toEqual(centerTop);
+      expect(snap.public.burnedCardsOnBadSlapCount).toBe(2);
+      expect(snap.public.lastAction).toMatchObject({
+        type: "slap",
+        byPlayerId: guestPlayerId,
+        wasSuccessful: false,
+        burnedCount: 2,
+      });
+    });
+
+    it("on a false slap, burns only as many cards as the slapper has", () => {
+      const { gameLoop, roomId, hostPlayerId, guestPlayerId } = createTwoPlayerLobbyWithGameLoop();
+      gameLoop.startGame(roomId, hostPlayerId);
+      const session = getTestSession(gameLoop, roomId)!;
+
+      session.settings.burnCardsOnBadSlap = 5;
+      const existing = card(Rank.FOUR);
+      session.centerPile = [existing];
+      const onlyCard = card(Rank.NINE, Suit.HEARTS);
+      session.players[1].hand = [onlyCard];
+
+      expect(gameLoop.slap(roomId, guestPlayerId).ok).toBe(true);
+      expect(session.centerPile).toEqual([onlyCard, existing]);
+      expect(session.burnedCardsOnBadSlapCount).toBe(1);
+
+      const snap = gameLoop.getSnapshotForRoom(roomId, hostPlayerId);
+      if (snap?.public.status !== "InGame") throw new Error("expected InGame");
+      expect(snap.public.lastAction).toMatchObject({
+        type: "slap",
+        byPlayerId: guestPlayerId,
+        wasSuccessful: false,
+        burnedCount: 1,
+      });
     });
   });
 
