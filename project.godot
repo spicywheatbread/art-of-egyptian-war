@@ -11,7 +11,7 @@ config_version=5
 [application]
 
 config/name="EgyptianWar"
-run/main_scene="uid://cvm5e3rsawxhi"
+run/main_scene="uid://dsqmyrt7yxj4c"
 config/features=PackedStringArray("4.6", "Forward Plus")
 config/icon="res://Assets/Images/icon.svg"
 
