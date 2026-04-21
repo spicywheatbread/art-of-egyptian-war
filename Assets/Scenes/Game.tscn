@@ -39,10 +39,9 @@ card_tscn = ExtResource("3_ltsxh")
 
 [node name="Background" type="Sprite2D" parent="." unique_id=1555052404]
 z_index = -5
-position = Vector2(572, 322.5)
-scale = Vector2(18, 9.921875)
+position = Vector2(574, 324.00003)
+scale = Vector2(18.0625, 10.125001)
 texture = SubResource("GradientTexture2D_53qdw")
-metadata/_edit_lock_ = true
 
 [node name="Center Pile" type="Node2D" parent="." unique_id=628171694]
 position = Vector2(581, 332)
@@ -150,6 +149,7 @@ visible = false
 position = Vector2(266, 327)
 
 [node name="Settings" parent="." unique_id=671792383 instance=ExtResource("5_ltsxh")]
+z_index = 100
 
 [connection signal="pressed" from="Init Game" to="." method="_on_button_pressed"]
 [connection signal="pressed" from="Start Game" to="." method="_on_start_game_pressed"]
