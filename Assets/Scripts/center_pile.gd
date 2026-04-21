@@ -1,15 +1,21 @@
 class_name Center_Pile extends Pile
 
+# Define variables
 var cards = []
 var rules: Array[Callable] = []
+const OFFSET = Vector2(0.05, -0.5) # slight diagonal pile look
+
+# Define references
 @export var card_tscn: PackedScene
 
 func get_card(index: int):
 	return cards[index]
 	
 func add_card(card) -> void:
-	card.z_index = cards.size()
+	add_child(card)
 	cards.append(card)
+	card.z_index = cards.size()
+	card.position = Vector2.ZERO + cards.size() * OFFSET
 
 func pop() -> Card:
 	return cards.pop_back()
@@ -44,5 +50,4 @@ func _add_two() -> void:
 	var new_card = card_tscn.instantiate()
 	new_card.setup(Card.Suit.SPADES, Card.Rank.TWO)
 	add_card(new_card)
-	add_child(new_card)
 	

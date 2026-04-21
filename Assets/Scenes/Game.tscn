@@ -3,10 +3,12 @@
 [ext_resource type="Script" uid="uid://cetk40n3ry0ow" path="res://Assets/Scripts/main_game.gd" id="1_owchf"]
 [ext_resource type="Script" uid="uid://cvat275xsp4qw" path="res://Assets/Scripts/center_pile.gd" id="2_owchf"]
 [ext_resource type="PackedScene" uid="uid://bixoatsoqg66h" path="res://Assets/Scenes/GameObjects/card.tscn" id="3_ltsxh"]
+[ext_resource type="Texture2D" uid="uid://b2knxufqq0w27" path="res://Assets/Images/UI/spade.png" id="4_4e1g7"]
 [ext_resource type="Texture2D" uid="uid://bs6k0o4gr84gp" path="res://Assets/Images/UI/Backgrounds/Cloud.png" id="4_53qdw"]
 [ext_resource type="PackedScene" uid="uid://rg70vbowntkn" path="res://Assets/Scenes/GameObjects/player.tscn" id="4_owchf"]
 [ext_resource type="FontFile" uid="uid://6303at6snnwr" path="res://Assets/Font/Font1.png" id="5_4iy6t"]
 [ext_resource type="PackedScene" uid="uid://llyeweeqjoc5" path="res://Assets/Scenes/GameObjects/settings.tscn" id="5_ltsxh"]
+[ext_resource type="Texture2D" uid="uid://ct3ttysfdqk34" path="res://Assets/Images/UI/Buttons.png" id="6_4iy6t"]
 
 [sub_resource type="Gradient" id="Gradient_3fuio"]
 offsets = PackedFloat32Array(0.089201875)
@@ -16,8 +18,20 @@ colors = PackedColorArray(0.1122, 0.33, 0.21384001, 1)
 gradient = SubResource("Gradient_3fuio")
 fill_to = Vector2(1, 1)
 
+[sub_resource type="AtlasTexture" id="AtlasTexture_g3py7"]
+atlas = ExtResource("4_4e1g7")
+region = Rect2(0, 0, 1088, 1280)
+
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_4iy6t"]
 size = Vector2(106, 166)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_4e1g7"]
+atlas = ExtResource("6_4iy6t")
+region = Rect2(13, 418, 56, 12)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_e0nf8"]
+atlas = ExtResource("6_4iy6t")
+region = Rect2(93, 419, 56, 11)
 
 [node name="Game" type="Node2D" unique_id=156695613]
 script = ExtResource("1_owchf")
@@ -36,23 +50,14 @@ script = ExtResource("2_owchf")
 card_tscn = ExtResource("3_ltsxh")
 metadata/_edit_group_ = true
 
-[node name="Label" type="Label" parent="Center Pile" unique_id=100345153]
-offset_left = -44.0
-offset_top = -11.9
-offset_right = 45.0
-offset_bottom = 11.1
-pivot_offset = Vector2(47, 7)
-text = "Central Pile"
-
-[node name="Area2D" type="Area2D" parent="Center Pile" unique_id=929304964]
+[node name="Area2D" type="Area2D" parent="Center Pile" unique_id=929304964 groups=["drop_zones"]]
 position = Vector2(-45, -16)
 
-[node name="Polygon2D" type="Polygon2D" parent="Center Pile/Area2D" unique_id=128942285]
-position = Vector2(-59, -17)
-scale = Vector2(2.3555555, 5.187501)
-color = Color(0, 0, 0, 0.3372549)
+[node name="Sprite2D" type="Sprite2D" parent="Center Pile/Area2D" unique_id=1482261129]
+position = Vector2(44, 20)
+scale = Vector2(0.075, 0.075)
+texture = SubResource("AtlasTexture_g3py7")
 offset = Vector2(25.896214, -9.638553)
-polygon = PackedVector2Array(-4, 0, -4, 32, 41, 32, 41, 0, 18.254715, 0)
 metadata/_edit_group_ = true
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Center Pile/Area2D" unique_id=409399114]
@@ -90,13 +95,37 @@ theme_override_fonts/font = ExtResource("5_4iy6t")
 theme_override_font_sizes/font_size = 20
 text = "CODE: XXXX"
 
-[node name="Start Game" type="Button" parent="." unique_id=198225173]
-offset_left = 13.0
-offset_top = 576.0
-offset_right = 130.0
-offset_bottom = 630.0
-disabled = true
-text = "Start Game"
+[node name="Start Game" type="TextureButton" parent="." unique_id=1833425393]
+custom_minimum_size = Vector2(100, 50)
+offset_left = 520.0
+offset_top = 112.0
+offset_right = 646.0
+offset_bottom = 162.0
+size_flags_horizontal = 4
+size_flags_vertical = 4
+mouse_default_cursor_shape = 2
+texture_normal = SubResource("AtlasTexture_4e1g7")
+texture_pressed = SubResource("AtlasTexture_e0nf8")
+stretch_mode = 0
+
+[node name="MarginContainer" type="MarginContainer" parent="Start Game" unique_id=752061306]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_bottom = 10
+
+[node name="StartGameText" type="RichTextLabel" parent="Start Game/MarginContainer" unique_id=2063691585]
+layout_mode = 2
+mouse_filter = 2
+theme_override_fonts/normal_font = ExtResource("5_4iy6t")
+theme_override_font_sizes/normal_font_size = 20
+text = "START"
+fit_content = true
+horizontal_alignment = 1
+vertical_alignment = 1
 
 [node name="Players" type="Node" parent="." unique_id=690337538]
 
@@ -121,7 +150,6 @@ visible = false
 position = Vector2(266, 327)
 
 [node name="Settings" parent="." unique_id=671792383 instance=ExtResource("5_ltsxh")]
-visible = false
 
 [connection signal="pressed" from="Init Game" to="." method="_on_button_pressed"]
 [connection signal="pressed" from="Start Game" to="." method="_on_start_game_pressed"]

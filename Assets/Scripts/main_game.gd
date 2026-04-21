@@ -31,9 +31,9 @@ func _on_game_state (payload: Dictionary):
 	
 	# Setup game and cards
 	if last_action["type"] == "startGame":
-		shuffle_on_start(players)
+		deal_cards(players)
 	
-func shuffle_on_start(players):
+func deal_cards(players):
 	for player in players:
 		for i in range(player["hand_count"]):
 			var new_card = card_tscn.instantiate()
@@ -70,7 +70,7 @@ func configure_lobby():
 			player_count += 1
 			
 	# Enable start button with enough players (>2)
-	$"Start Game".disabled = lobby["players"].size() < 2
+	$"Start Game".visible = lobby["players"].size() >= 2
 	
 # Sets up and displays the player node
 func setup_player(username : String) -> void:

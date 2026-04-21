@@ -26,4 +26,6 @@ horizontal_alignment = 1
 
 [node name="Cards" type="Node2D" parent="." unique_id=1155625537]
 
-[connection signal="input_event" from="Area2D" to="." method="_on_area_2d_input_event"]
+[connection signal="input_event" from="Area2D" to="." method="_start_card_drag"]
+[connection signal="mouse_entered" from="Area2D" to="." method="_on_mouse_entered_deck"]
+[connection signal="mouse_exited" from="Area2D" to="." method="_on_mouse_exited_deck"]

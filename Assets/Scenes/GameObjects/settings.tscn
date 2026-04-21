@@ -48,6 +48,7 @@ texture_normal = SubResource("AtlasTexture_5ec6b")
 stretch_mode = 0
 
 [node name="Popup" type="TextureRect" parent="." unique_id=1676164011]
+visible = false
 offset_left = 416.0
 offset_top = 65.0
 offset_right = 738.0
