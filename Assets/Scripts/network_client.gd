@@ -7,7 +7,7 @@ signal lobby_state(payload: Dictionary)
 signal game_state (payload: Dictionary)
 signal stats_state(payload: Dictionary)
 
-@export var websocket_url: String = "ws://127.0.0.1:8080" 
+@export var websocket_url: String = "wss://truthful-nature-production-1b37.up.railway.app"
 #@export var auto_reconnect: bool = false 
 
 var _socket: WebSocketPeer = WebSocketPeer.new()
@@ -97,11 +97,10 @@ func start_game():
 	send_json({"type": "startGame"})
 	
 func play_card ():
-	pass 
+	send_json ({"type": "playCard"}) 
 
 func slap ():
-	pass 
-
+	send_json ({"type":"slap"}) 
 
 func _poll_socket ():
 	# Data transfer and state updates will only happen when calling this function.
@@ -152,4 +151,6 @@ func _poll_socket ():
 		# The code will be `-1` if the disconnection was not properly notified by the remote peer.
 		var code = _socket.get_close_code()
 		print("WebSocket closed with code: %d. Clean: %s" % [code, code != -1])
-		set_process(false) # Stop processing.
+		if _is_connected:
+			_is_connected = false
+			disconnected.emit()
