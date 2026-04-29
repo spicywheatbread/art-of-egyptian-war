@@ -2,7 +2,7 @@ class_name Player extends Pile
 
 # Define variables
 var player_username : String = "Player"
-const OFFSET = Vector2(0.05, -0.5) # slight diagonal pile look
+const OFFSET = Vector2(0.1, -0.5) # slight diagonal pile look
 
 # Define references
 @export var card_tscn: PackedScene
