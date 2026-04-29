@@ -250,24 +250,22 @@ export class GameLoop {
             return { ok: false, code: "NO_CARDS_LEFT", message: "Player has no cards left" }; // TODO 
         }
 
-        if (s.remainingChancesToFlipRoyal == 0) {
-            if (s.turnIndex == 0) {
-                s.players[s.players.length - 1].hand.push (...s.centerPile); 
-            } else {
-                s.players [s.turnIndex -1].hand.push (...s.centerPile); 
-            }
-            s.centerPile = [];
-        }
-
         const card = currPlayer.hand.pop()!;
         s.centerPile.push (card);
 
         if (card.rank >= Rank.JACK || card.rank == Rank.ACE) {
             s.remainingChancesToFlipRoyal = this.rankToChances[card.rank];
             this.setNextPlayerIndex (s); 
-
         } else if (s.remainingChancesToFlipRoyal > 0) {
             s.remainingChancesToFlipRoyal -= 1;
+        } else {
+            if (s.turnIndex == 0) {
+                s.players[s.players.length - 1].hand.push (...s.centerPile); 
+            } else {
+                s.players [s.turnIndex -1].hand.push (...s.centerPile); 
+            }
+            s.centerPile = [];
+            this.setPreviousPlayerIndex (s); 
         }
 
         s.lastAction = {
@@ -333,6 +331,10 @@ export class GameLoop {
         s.turnIndex = (s.turnIndex + 1) % s.players.length; 
     }
 
+    private setPreviousPlayerIndex (s: GameSession): void {
+        s.turnIndex = (s.turnIndex - 1) % s.players.length; 
+    }
+
     private isGoodSlap (s: GameSession): boolean {
         return s.centerPile.length > 2 && s.centerPile[s.centerPile.length - 1] == s.centerPile[s.centerPile.length - 3]; 
     }
@@ -361,6 +363,13 @@ export class GameLoop {
     }
 
     private checkForWin (s: GameSession): void {
+        // Check if only one player remaining
+        if (s.players.length == 1) {
+            s.status = "gameOver";
+            s.winnerId = s.players[0].playerId;
+            return;
+        }
+        
         const winner = s.players.find ((p) => p.hand.length == 52); 
         if (winner) {
             s.status = "gameOver"; 
