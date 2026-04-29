@@ -169,7 +169,7 @@ offset_right = 580.0
 offset_bottom = 564.0
 theme_override_fonts/font = ExtResource("5_4iy6t")
 theme_override_font_sizes/font_size = 18
-text = "Play Card (Space)"
+text = "PLAY CARD"
 
 [node name="Slap" type="Button" parent="." unique_id=698695917]
 visible = false
@@ -179,7 +179,7 @@ offset_right = 760.0
 offset_bottom = 564.0
 theme_override_fonts/font = ExtResource("5_4iy6t")
 theme_override_font_sizes/font_size = 18
-text = "Slap (S)"
+text = "SLAP"
 
 [connection signal="pressed" from="Init Game" to="." method="_on_button_pressed"]
 [connection signal="pressed" from="Start Game" to="." method="_on_start_game_pressed"]

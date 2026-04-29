@@ -112,8 +112,8 @@ func _apply_in_game_state(state: Dictionary) -> void:
 
 	_rebuild_center_pile_from_server(state.get("pileCards", []))
 
-	var turn_line = _format_turn_line(state)
-	var last_line = _format_last_action_line(state.get("lastAction"))
+	var turn_line = _format_turn_line(state).to_upper()
+	var last_line = _format_last_action_line(state.get("lastAction")).to_upper()
 	var status = get_node_or_null("GameStatus") as Label
 	if status:
 		status.text = turn_line + ("" if last_line.is_empty() else "\n" + last_line)
@@ -131,7 +131,7 @@ func _apply_game_over_state(state: Dictionary) -> void:
 	var status = get_node_or_null("GameStatus") as Label
 	if status:
 		status.visible = true
-		status.text = line
+		status.text = line.to_upper()
 
 
 func _username_for_player_id(state: Dictionary, pid: String) -> String:
@@ -149,7 +149,7 @@ func _format_turn_line(state: Dictionary) -> String:
 		return ""
 	var tid = str((turn_any as Dictionary).get("currentPlayerId", ""))
 	if tid.is_empty():
-		return "Turn: —"
+		return "Turn: X"
 	var name = ""
 	for p in state.get("players", []):
 		if typeof(p) != TYPE_DICTIONARY:
@@ -178,7 +178,7 @@ func _format_last_action_line(last_any: Variant) -> String:
 			if ok:
 				return "Good slap!"
 			var burned = str(la.get("burnedCount", 0))
-			return "Bad slap — burned %s card(s)." % burned
+			return "Bad slap: burned %s card(s)." % burned
 		_:
 			return ""
 
