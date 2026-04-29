@@ -7,6 +7,9 @@ const OFFSET = Vector2(0.05, -0.5) # slight diagonal pile look
 # Define references
 @export var card_tscn: PackedScene
 
+## When true, hand is driven by the server snapshot (no local drag-to-play).
+var network_sync_hand: bool = false
+
 
 func _process(_delta):
 	# Animation for card dragging
@@ -39,6 +42,8 @@ func _on_mouse_exited_deck() -> void:
 	Input.set_default_cursor_shape(Input.CURSOR_ARROW)
 
 func _start_card_drag(_viewport, event, _shape_idx):
+	if network_sync_hand:
+		return
 	# Only allow if current user pile
 	if player_username != Globals.username:
 		return
@@ -69,6 +74,8 @@ func _on_card_exited_area(area):
 		current_drop_zone = null
 
 func _input(event):
+	if network_sync_hand:
+		return
 	# Global input function to drop card on left click release
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
 		if not event.pressed and dragged_card:
@@ -114,3 +121,17 @@ func get_top_position():
 func set_player_username(username : String) -> void:
 	player_username = username
 	$Label.text = username
+
+
+## Matches visible card backs to the server's hand_count for this seat.
+func set_hand_card_count(count: int) -> void:
+	count = clampi(count, 0, 52)
+	while $Cards.get_child_count() < count:
+		var new_card = card_tscn.instantiate()
+		new_card.setup_blank()
+		add_card(new_card)
+	while $Cards.get_child_count() > count:
+		var last = $Cards.get_child(-1)
+		$Cards.remove_child(last)
+		last.queue_free()
+	set_card_positions()

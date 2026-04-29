@@ -151,6 +151,38 @@ position = Vector2(266, 327)
 [node name="Settings" parent="." unique_id=671792383 instance=ExtResource("5_ltsxh")]
 z_index = 100
 
+[node name="GameStatus" type="Label" parent="." unique_id=1742659268]
+visible = false
+offset_left = 32.0
+offset_top = 120.0
+offset_right = 720.0
+offset_bottom = 210.0
+theme_override_fonts/font = ExtResource("5_4iy6t")
+theme_override_font_sizes/font_size = 18
+vertical_alignment = 1
+
+[node name="Play Card" type="Button" parent="." unique_id=1751675900]
+visible = false
+offset_left = 420.0
+offset_top = 520.0
+offset_right = 580.0
+offset_bottom = 564.0
+theme_override_fonts/font = ExtResource("5_4iy6t")
+theme_override_font_sizes/font_size = 18
+text = "Play Card (Space)"
+
+[node name="Slap" type="Button" parent="." unique_id=698695917]
+visible = false
+offset_left = 600.0
+offset_top = 520.0
+offset_right = 760.0
+offset_bottom = 564.0
+theme_override_fonts/font = ExtResource("5_4iy6t")
+theme_override_font_sizes/font_size = 18
+text = "Slap (S)"
+
 [connection signal="pressed" from="Init Game" to="." method="_on_button_pressed"]
 [connection signal="pressed" from="Start Game" to="." method="_on_start_game_pressed"]
 [connection signal="settings_changed" from="Settings" to="." method="_on_settings_changed"]
+[connection signal="pressed" from="Play Card" to="." method="_on_play_button_pressed"]
+[connection signal="pressed" from="Slap" to="." method="_on_slap_button_pressed"]
