@@ -109,6 +109,7 @@ export async function startServer(options: StartServerOptions = {}): Promise<Run
             if (err instanceof AccountServiceError) {
               sendError(store, socket, err.code, err.message);
             } else {
+              console.error ("reg failed, ", err); 
               sendError(store, socket, "AUTH_FAILED", "Registration failed");
             }
           }
@@ -124,6 +125,7 @@ export async function startServer(options: StartServerOptions = {}): Promise<Run
             if (err instanceof AccountServiceError) {
               sendError(store, socket, err.code, err.message);
             } else {
+              console.error ("login failed, ", err); 
               sendError(store, socket, "AUTH_FAILED", "Login failed");
             }
           }

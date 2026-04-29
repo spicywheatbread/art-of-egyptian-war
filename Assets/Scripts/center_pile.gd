@@ -17,6 +17,13 @@ func add_card(card) -> void:
 	card.z_index = cards.size()
 	card.position = Vector2.ZERO + cards.size() * OFFSET
 
+## Clears authoritative stack (used when syncing from server).
+func clear_pile() -> void:
+	cards.clear()
+	for child in get_children():
+		if child is Card:
+			child.queue_free()
+
 func pop() -> Card:
 	return cards.pop_back()
 
