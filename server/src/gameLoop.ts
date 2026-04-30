@@ -258,14 +258,22 @@ export class GameLoop {
             this.setNextPlayerIndex (s); 
         } else if (s.remainingChancesToFlipRoyal > 0) {
             s.remainingChancesToFlipRoyal -= 1;
-        } else {
-            if (s.turnIndex == 0) {
-                s.players[s.players.length - 1].hand.push (...s.centerPile); 
-            } else {
-                s.players [s.turnIndex -1].hand.push (...s.centerPile); 
+
+            if (currPlayer.hand.length == 0) {
+                s.remainingChancesToFlipRoyal = 0;
             }
-            s.centerPile = [];
-            this.setPreviousPlayerIndex (s); 
+
+            if (s.remainingChancesToFlipRoyal == 0) {
+                if (s.turnIndex == 0) {
+                    s.players[s.players.length - 1].hand.unshift (...s.centerPile); 
+                } else {
+                    s.players [s.turnIndex -1].hand.unshift (...s.centerPile); 
+                }
+                s.centerPile = [];
+                this.setPreviousPlayerIndex (s); 
+            }
+        } else {
+            this.setNextPlayerIndex (s); 
         }
 
         s.lastAction = {
@@ -289,8 +297,15 @@ export class GameLoop {
         const goodSlap = this.isGoodSlap (s); 
         let burnedCount = 0;
         if (goodSlap) {
-            player.hand.push (...s.centerPile); 
+            player.hand.unshift(...s.centerPile);
             s.centerPile = [];
+            // Reset
+            s.remainingChancesToFlipRoyal = -1;
+            // The player who won the slap goes next
+            const winnerIndex = s.players.findIndex((p) => p.playerId === playerId);
+            if (winnerIndex !== -1) {
+                s.turnIndex = winnerIndex;
+            }
         } else {
             const requestedBurnCount =
                 s.settings.burnCardsOnBadSlap === "ENTIRE_HAND"
@@ -328,15 +343,30 @@ export class GameLoop {
     }
 
     private setNextPlayerIndex (s: GameSession): void {
-        s.turnIndex = (s.turnIndex + 1) % s.players.length; 
+        // Set next player index in a circular manner and skip over those with zero cards
+        s.turnIndex = (s.turnIndex + 1) % s.players.length;
+        while (s.players[s.turnIndex].hand.length == 0) {
+            s.turnIndex = (s.turnIndex + 1) % s.players.length;
+        }
     }
 
     private setPreviousPlayerIndex (s: GameSession): void {
-        s.turnIndex = (s.turnIndex - 1) % s.players.length; 
+        s.turnIndex = s.turnIndex == 0 ? s.players.length - 1 : s.turnIndex - 1;
+        while (s.players[s.turnIndex].hand.length == 0) {
+            s.turnIndex = s.turnIndex == 0 ? s.players.length - 1 : s.turnIndex - 1;
+        }
     }
 
     private isGoodSlap (s: GameSession): boolean {
-        return s.centerPile.length > 2 && s.centerPile[s.centerPile.length - 1] == s.centerPile[s.centerPile.length - 3]; 
+        return (this.isPair(s) || this.isSandwich(s));
+    }
+
+    private isPair (s: GameSession): boolean {
+        return s.centerPile.length >= 2 && s.centerPile[s.centerPile.length - 1].rank == s.centerPile[s.centerPile.length - 2].rank;
+    }
+
+    private isSandwich (s: GameSession): boolean {
+        return s.centerPile.length >= 3 && s.centerPile[s.centerPile.length - 1].rank == s.centerPile[s.centerPile.length - 3].rank;
     }
 
     private burnFromPlayerToCenterBottom(s: GameSession, player: InGamePlayer, requestedCount: number): number {
@@ -369,7 +399,16 @@ export class GameLoop {
             s.winnerId = s.players[0].playerId;
             return;
         }
-        
+
+        // Check if one player is the only one holding cards
+        const playersWithCards = s.players.filter((p) => p.hand.length > 0);
+        if (playersWithCards.length == 1) {
+            s.status = "gameOver";
+            s.winnerId = playersWithCards[0].playerId;
+            return;
+        }
+
+        // Check if one player has all the cards
         const winner = s.players.find ((p) => p.hand.length == 52); 
         if (winner) {
             s.status = "gameOver"; 
