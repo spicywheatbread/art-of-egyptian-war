@@ -12,6 +12,10 @@ var _in_online_match: bool = false
 
 
 func _ready() -> void:
+	# Handle game over
+	$GameOver.visible = false
+	$GameOver/Popup/Button.pressed.connect(NetworkClient.leave_lobby)
+	
 	if not NetworkClient.game_state.is_connected(_on_game_state):
 		NetworkClient.game_state.connect(_on_game_state)
 	if not NetworkClient.lobby_state.is_connected(_on_lobby_state):
@@ -28,7 +32,6 @@ func _ready() -> void:
 	var st = get_node_or_null("GameStatus") as Label
 	if st:
 		st.visible = false
-
 
 func _unhandled_input(event: InputEvent) -> void:
 	if not _in_online_match:
@@ -128,10 +131,27 @@ func _apply_game_over_state(state: Dictionary) -> void:
 		if winner_id != "":
 			line = _username_for_player_id(state, winner_id)
 			line = ("Winner: %s" % line) if line.length() > 0 else "Game over."
+			
+			# Show the game over panel
+			$GameOver.visible = true
+			if _username_for_player_id(state, winner_id) == Globals.username:
+				# Change to winning screen
+				$GameOver/Popup/Label.text = "YOU WIN!"
+				$GameOver/Popup/LosingIcon.visible = false
+				$GameOver/Popup/WinningIcon.visible = true
+			
+			# Make game components invisible
+			$Players/P1.visible = false
+			$Players/P2.visible = false
+			$Players/P3.visible = false
+			$Players/P4.visible = false
+			$"Center Pile".visible = false
+			
 	var status = get_node_or_null("GameStatus") as Label
 	if status:
 		status.visible = true
 		status.text = line.to_upper()
+	
 
 
 func _username_for_player_id(state: Dictionary, pid: String) -> String:
