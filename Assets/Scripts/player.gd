@@ -83,15 +83,7 @@ func _input(event):
 
 func _handle_drop():	
 	if current_drop_zone:
-		var central_deck = current_drop_zone.get_parent()
-		
-		# Move card to central deck position
-		dragged_card.global_position = current_drop_zone.global_position
-		
-		# Remove card from player hand and add to central deck
-		dragged_card.get_parent().remove_child(dragged_card)
-		central_deck.add_card(dragged_card)
-		
+		NetworkClient.play_card()
 		# Remove connections
 		dragged_card.area_entered.disconnect(_on_card_entered_area)
 		dragged_card.area_entered.disconnect(_on_card_exited_area)

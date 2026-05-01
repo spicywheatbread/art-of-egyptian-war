@@ -59,7 +59,7 @@ texture = SubResource("AtlasTexture_g3py7")
 offset = Vector2(25.896214, -9.638553)
 metadata/_edit_group_ = true
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Center Pile/Area2D" unique_id=409399114]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Center Pile/Area2D" unique_id=409399114 groups=["drop_zones"]]
 position = Vector2(45, 16)
 shape = SubResource("RectangleShape2D_4iy6t")
 metadata/_edit_group_ = true

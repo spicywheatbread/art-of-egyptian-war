@@ -98,8 +98,6 @@ func _on_game_state(payload: Variant) -> void:
 
 
 func _apply_in_game_state(state: Dictionary) -> void:
-	_set_player_network_drag(true)
-
 	var players: Array = state.get("players", [])
 	for p in players:
 		if typeof(p) != TYPE_DICTIONARY:
