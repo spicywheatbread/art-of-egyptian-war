@@ -2,6 +2,9 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { deleteAccountForTesting, loginAccount, registerAccount } from "../src/accounts/service";
 import { PROTOCOL_VERSION, type RunningServer, startServer } from "../src/index";
 import { closeClient, type TestClient, openClient } from "./helpers/wsClient";
+import { GameLoop } from "../src/gameLoop";
+import type { Card, PlayerId, RoomId } from "../src/protocol";
+import { Rank, Suit } from "../src/protocol";
 
 const PASSWORD = "pass12345";
 const shouldRun = process.env.RUN_FIRESTORE_INTEGRATION === "1";
@@ -61,9 +64,25 @@ describe.skipIf(!shouldRun)("WebSocket with real accounts", () => {
   let server: RunningServer;
   const clients: TestClient[] = [];
   const accountsToDelete: string[] = [];
+  let gameLoop: GameLoop;
+
+  interface TestSession {
+    status: "Lobby" | "gameStarted" | "gameOver";
+    players: { playerId: PlayerId; hand: Card[]; username: string }[];
+  }
+
+  function getTestSession(gl: GameLoop, roomId: RoomId): TestSession | undefined {
+    const sessions = (gl as unknown as { sessions: Map<RoomId, TestSession> }).sessions;
+    return sessions.get(roomId);
+  }
+
+  function card(rank: Rank, suit: Suit = Suit.SPADES): Card {
+    return { suit, rank };
+  }
 
   beforeEach(async () => {
-    server = await startServer({ port: 0, enableDevRecordOutcome: false });
+    gameLoop = new GameLoop();
+    server = await startServer({ port: 0, enableDevRecordOutcome: false, gameLoop });
   });
 
   afterEach(async () => {
@@ -268,5 +287,69 @@ describe.skipIf(!shouldRun)("WebSocket with real accounts", () => {
     expect(h.type).toBe("gameState");
     expect(g.type).toBe("gameState");
     expect((h.room as { public: { status: string } }).public.status).toBe("InGame");
+  });
+
+  it("auto-records wins/gamesPlayed on GameOver (server-side)", async () => {
+    const hostName = uniqueUsername();
+    const guestName = uniqueUsername();
+    trackAccount(hostName);
+    trackAccount(guestName);
+
+    const host = await openClient(server.port);
+    const guest = await openClient(server.port);
+    clients.push(host, guest);
+
+    await host.nextMessage();
+    await guest.nextMessage();
+
+    host.ws.send(JSON.stringify({ type: "register", username: hostName, password: PASSWORD }));
+    await host.nextMessage();
+    host.ws.send(JSON.stringify({ type: "createLobby" }));
+    const created = await host.nextMessage();
+    const lobby = created.lobby as {
+      roomId: RoomId;
+      gameCode: string;
+      hostPlayerId: PlayerId;
+      players: Array<{ playerId: PlayerId; username: string }>;
+    };
+
+    guest.ws.send(JSON.stringify({ type: "register", username: guestName, password: PASSWORD }));
+    await guest.nextMessage();
+    guest.ws.send(JSON.stringify({ type: "joinLobby", gameCode: lobby.gameCode }));
+    await Promise.all([host.nextMessage(), guest.nextMessage()]);
+
+    host.ws.send(JSON.stringify({ type: "startGame" }));
+    await Promise.all([host.nextMessage(), guest.nextMessage()]);
+
+    const session = getTestSession(gameLoop, lobby.roomId);
+    expect(session?.status).toBe("gameStarted");
+    if (!session) throw new Error("expected session");
+
+    // Force a deterministic win for the host.
+    const hostIdx = session.players.findIndex((p) => p.playerId === lobby.hostPlayerId);
+    const guestIdx = session.players.findIndex((p) => p.playerId !== lobby.hostPlayerId);
+    expect(hostIdx).toBeGreaterThanOrEqual(0);
+    expect(guestIdx).toBeGreaterThanOrEqual(0);
+    session.players[hostIdx].hand = Array.from({ length: 52 }, () => card(Rank.ACE));
+    session.players[guestIdx].hand = [];
+
+    // Trigger checkForWin on the next action.
+    guest.ws.send(JSON.stringify({ type: "slap" }));
+    const [h, g] = await Promise.all([host.nextMessage(), guest.nextMessage()]);
+    expect((h.room as { public: { status: string } }).public.status).toBe("GameOver");
+    expect((g.room as { public: { status: string } }).public.status).toBe("GameOver");
+
+    host.ws.send(JSON.stringify({ type: "getMyStats" }));
+    guest.ws.send(JSON.stringify({ type: "getMyStats" }));
+    const [hostStats, guestStats] = await Promise.all([host.nextMessage(), guest.nextMessage()]);
+
+    const hs = hostStats as { type: string; wins: number; gamesPlayed: number };
+    const gs = guestStats as { type: string; wins: number; gamesPlayed: number };
+    expect(hs.type).toBe("myStats");
+    expect(gs.type).toBe("myStats");
+    expect(hs.gamesPlayed).toBe(1);
+    expect(gs.gamesPlayed).toBe(1);
+    expect(hs.wins).toBe(1);
+    expect(gs.wins).toBe(0);
   });
 });

@@ -28,6 +28,8 @@ interface StartServerOptions {
   protocolVersion?: number;
   enableDevRecordOutcome?: boolean;
   accounts?: AccountHandlers;
+  /** For tests / dependency injection. */
+  gameLoop?: GameLoop;
 }
 
 export interface RunningServer {
@@ -63,8 +65,9 @@ export async function startServer(options: StartServerOptions = {}): Promise<Run
   };
   const wss = new WebSocketServer({ port });
   const store = new LobbyStore();
-  const gameLoop = new GameLoop();
+  const gameLoop = options.gameLoop ?? new GameLoop();
   const authenticatedBySocket = new Map<WebSocket, string>();
+  const recordedOutcomesByRoomId = new Set<RoomId>();
 
   const sendGameSnapshotsForRoom = (roomId: RoomId): void => {
     const snapshots = gameLoop.getSnapshotsForRoom(roomId);
@@ -82,6 +85,48 @@ export async function startServer(options: StartServerOptions = {}): Promise<Run
         continue;
       }
       store.send(ws, { type: "gameState", room: snapshot});
+    }
+  };
+
+  const recordOutcomeIfGameOver = async (roomId: RoomId): Promise<void> => {
+    if (recordedOutcomesByRoomId.has(roomId)) {
+      return;
+    }
+
+    const snapshots = gameLoop.getSnapshotsForRoom(roomId);
+    if (!snapshots || snapshots.size === 0) {
+      return;
+    }
+
+    const first = snapshots.values().next().value as { public: { status: string } } | undefined;
+    if (!first || first.public.status !== "GameOver") {
+      return;
+    }
+
+    const winnerPlayerId = (first as unknown as { public: { finalStats: { winnerPlayerId: string | null } } })
+      .public.finalStats.winnerPlayerId;
+    if (!winnerPlayerId) {
+      recordedOutcomesByRoomId.add(roomId);
+      return;
+    }
+
+    const updates: Array<Promise<unknown>> = [];
+    for (const ws of store.getSocketsInRoom(roomId)) {
+      const socketInfo = store.getSocketInfo(ws);
+      if (!socketInfo) continue;
+      const username = authenticatedBySocket.get(ws);
+      if (!username) continue;
+      const didWin = socketInfo.playerId === winnerPlayerId;
+      updates.push(
+        accounts.recordGameOutcome(username, didWin).catch((err: unknown) => {
+          console.error("Failed to record game outcome", { roomId, username, err });
+        }),
+      );
+    }
+
+    recordedOutcomesByRoomId.add(roomId);
+    if (updates.length > 0) {
+      await Promise.all(updates);
     }
   };
 
@@ -335,6 +380,7 @@ export async function startServer(options: StartServerOptions = {}): Promise<Run
             return;
           }
 
+          await recordOutcomeIfGameOver(socketInfo.roomId);
           sendGameSnapshotsForRoom(socketInfo.roomId);
           break;
         }
@@ -371,6 +417,7 @@ export async function startServer(options: StartServerOptions = {}): Promise<Run
             return;
           }
 
+          await recordOutcomeIfGameOver(socketInfo.roomId);
           sendGameSnapshotsForRoom(socketInfo.roomId);
           break;
         }
