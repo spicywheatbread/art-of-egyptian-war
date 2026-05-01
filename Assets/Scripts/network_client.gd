@@ -145,7 +145,7 @@ func _poll_socket ():
 			if _socket.was_string_packet():
 				var packet_text = packet.get_string_from_utf8()
 				var response = JSON.parse_string(packet_text)
-				print(response)
+				print(JSON.stringify(response, "\t"))
 				
 				# Emit signal based on type received
 				match response["type"]:
