@@ -14,7 +14,7 @@ var network_sync_hand: bool = false
 func _process(_delta):
 	# Animation for card dragging
 	if dragged_card and Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT):
-		dragged_card.global_position = get_global_mouse_position() + card_offset
+		dragged_card.global_position = get_global_mouse_position()
 
 
 # Deck creation
@@ -61,7 +61,7 @@ func _start_card_drag(_viewport, event, _shape_idx):
 				# Positioning
 				original_position = dragged_card.global_position 
 				original_zindex = dragged_card.z_index
-				card_offset = dragged_card.global_position - get_global_mouse_position()
+				card_offset = dragged_card.global_position
 				dragged_card.z_index = 100
 
 func _on_card_entered_area(area):
