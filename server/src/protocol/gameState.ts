@@ -39,6 +39,10 @@ export interface SlapEvent {
   burnedCount: number;
 }
 
+export interface Vec2 {
+    x: number;
+    y: number;
+}
 export interface StartGameEvent {
     type: "startGame";
     atMs: TimestampMs;
@@ -66,6 +70,7 @@ export interface PublicGameRoomState {
   remainingChancesToFlipRoyal: number; // -1 if N/A
 
   lastAction?: LastActionEvent;
+  dragPosition?: Vec2;
   gameStartedAtMs: TimestampMs | null;
 }
 
