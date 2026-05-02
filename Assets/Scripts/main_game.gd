@@ -7,7 +7,7 @@ var username2node: Dictionary = {}
 var _in_online_match: bool = false
 
 @export var card_tscn: PackedScene
-
+@onready var card_flip_sound = $AudioStreamPlayer2D
 @onready var _center_pile: Center_Pile = $"Center Pile"
 
 
@@ -214,6 +214,7 @@ func _to_int_safe(v: Variant) -> int:
 
 
 func _rebuild_center_pile_from_server(pile_any: Variant) -> void:
+	card_flip_sound.play()
 	_center_pile.clear_pile()
 	if typeof(pile_any) != TYPE_ARRAY:
 		return
