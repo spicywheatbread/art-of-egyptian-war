@@ -303,6 +303,10 @@ export class GameLoop {
         const player = s.players.find ((p) => p.playerId == playerId);
         if (!player) return { ok: false, code: "PLAYER_NOT_FOUND", message: "Player not found" };
 
+        if (s.centerPile.length == 0) {
+            return { ok: false, code: "NO_CARDS_IN_PILE", message: "There are no cards in the center pile to slap" };
+        }
+
         const goodSlap = this.isGoodSlap (s); 
         let burnedCount = 0;
         if (goodSlap) {
