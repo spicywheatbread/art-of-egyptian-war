@@ -116,10 +116,10 @@ func _apply_in_game_state(state: Dictionary) -> void:
 	_rebuild_center_pile_from_server(state.get("pileCards", []))
 
 	var turn_line = _format_turn_line(state).to_upper()
-	var last_line = _format_last_action_line(state.get("lastAction")).to_upper()
+	var last_line = _format_last_action_line(state.get("lastAction"), players).to_upper()
 	var status = get_node_or_null("GameStatus") as Label
 	if status:
-		status.text = turn_line + ("" if last_line.is_empty() else "\n" + last_line)
+		status.text = ("" if last_line.is_empty() else last_line + "\n") + turn_line
 
 
 func _apply_game_over_state(state: Dictionary) -> void:
@@ -180,25 +180,36 @@ func _format_turn_line(state: Dictionary) -> String:
 	if name.is_empty():
 		return "Turn: (unknown)"
 	if name == Globals.username:
-		return "Turn: YOUR TURN (%s)" % name
+		return "Turn: You (%s)" % name
 	return "Turn: %s" % name
 
 
-func _format_last_action_line(last_any: Variant) -> String:
+func _format_last_action_line(last_any: Variant, players: Variant) -> String:
 	if typeof(last_any) != TYPE_DICTIONARY:
 		return ""
 	var la: Dictionary = last_any
+	
+	# Player who acted
+	var name = "?"
+	var playerId = la.get("byPlayerId")
+	for player in players:
+		if str(player.get("playerId", "")) == playerId:
+			name = str(player.get("username", ""))
+			break
+					
 	match String(la.get("type", "")):
 		"startGame":
 			return "Started."
 		"playCard":
-			return "Card played."
+			return "Card played by " + name
 		"slap":
 			var ok = la.get("wasSuccessful", false)
+			
 			if ok:
-				return "Good slap!"
-			var burned = str(la.get("burnedCount", 0))
-			return "Bad slap: burned %s card(s)." % burned
+				return "Good slap by " + name + "!"
+			
+			var burned = str(int(la.get("burnedCount", 0)))
+			return "Bad slap! " + name + " burned %s cards" % burned
 		_:
 			return ""
 
