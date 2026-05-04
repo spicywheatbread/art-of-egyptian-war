@@ -305,3 +305,5 @@ func _on_settings_changed(color: Color, volume: int) -> void:
 	var gradient = tex.gradient
 	gradient.set_color(0, color)
 	gradient.set_color(1, color)
+	
+	$AudioStreamPlayer2D.volume_db = linear_to_db(volume / 100)
