@@ -1,7 +1,6 @@
 extends Node2D
 
 var lobby: Dictionary = {}
-var player_count: int = 1
 var username2node: Dictionary = {}
 
 var _in_online_match: bool = false
@@ -116,10 +115,10 @@ func _apply_in_game_state(state: Dictionary) -> void:
 	_rebuild_center_pile_from_server(state.get("pileCards", []))
 
 	var turn_line = _format_turn_line(state).to_upper()
-	var last_line = _format_last_action_line(state.get("lastAction")).to_upper()
+	var last_line = _format_last_action_line(state.get("lastAction"), players).to_upper()
 	var status = get_node_or_null("GameStatus") as Label
 	if status:
-		status.text = turn_line + ("" if last_line.is_empty() else "\n" + last_line)
+		status.text = ("" if last_line.is_empty() else last_line + "\n") + turn_line
 
 
 func _apply_game_over_state(state: Dictionary) -> void:
@@ -180,25 +179,37 @@ func _format_turn_line(state: Dictionary) -> String:
 	if name.is_empty():
 		return "Turn: (unknown)"
 	if name == Globals.username:
-		return "Turn: YOUR TURN (%s)" % name
+		return "Turn: You (%s)" % name
 	return "Turn: %s" % name
 
 
-func _format_last_action_line(last_any: Variant) -> String:
+func _format_last_action_line(last_any: Variant, players: Variant) -> String:
 	if typeof(last_any) != TYPE_DICTIONARY:
 		return ""
 	var la: Dictionary = last_any
+	
+	# Player who acted
+	var name = "?"
+	var playerId = la.get("byPlayerId")
+	for player in players:
+		if str(player.get("playerId", "")) == playerId:
+			name = str(player.get("username", ""))
+			break
+					
 	match String(la.get("type", "")):
 		"startGame":
+			$JoinCode.visible = false
 			return "Started."
 		"playCard":
-			return "Card played."
+			return "Card played by " + name
 		"slap":
 			var ok = la.get("wasSuccessful", false)
+			
 			if ok:
-				return "Good slap!"
-			var burned = str(la.get("burnedCount", 0))
-			return "Bad slap: burned %s card(s)." % burned
+				return "Good slap by " + name + "!"
+			
+			var burned = str(int(la.get("burnedCount", 0)))
+			return "Bad slap! " + name + " burned %s cards" % burned
 		_:
 			return ""
 
@@ -254,19 +265,39 @@ func configure_lobby() -> void:
 		child.visible = false
 		child.process_mode = Node.PROCESS_MODE_DISABLED
 
-	player_count = 1
 	username2node.clear()
-	for player in lobby["players"]:
+	
+	# Find host and current player
+	var player_count = lobby["players"].size()
+	var is_host = false
+	var curr_player_index
+	for i in range(player_count):
+		var player = lobby["players"][i]
+		
 		var username = player["username"]
 		if username == Globals.username:
 			username2node[username] = $Players/P1
 			setup_player(username)
-		else:
-			username2node[username] = $Players.get_child(player_count)
-			setup_player(username)
-			player_count += 1
+			
+			curr_player_index = i
+			
+			# Find host
+			if player["playerId"] == lobby["hostPlayerId"]:
+				is_host = true
 
-	$"Start Game".visible = lobby["players"].size() >= 2
+	# Render the rest of players
+	for i in range(player_count):
+		if i != curr_player_index:
+			var player = lobby["players"][i]
+			
+			var username = player["username"]
+			if i < curr_player_index:
+				username2node[username] = $Players.get_child((i + player_count - curr_player_index))
+			else:
+				username2node[username] = $Players.get_child(i - curr_player_index)
+			setup_player(username)
+				
+	$"Start Game".visible = is_host && player_count >= 2
 
 
 func setup_player(username: String) -> void:
@@ -295,9 +326,9 @@ func init_fake_game() -> void:
 
 
 func _on_start_game_pressed() -> void:
-	NetworkClient.start_game()
 	$"Start Game".visible = false
 	$JoinCode.visible = false
+	NetworkClient.start_game()
 
 
 func _on_settings_changed(color: Color, volume: int) -> void:
@@ -305,3 +336,5 @@ func _on_settings_changed(color: Color, volume: int) -> void:
 	var gradient = tex.gradient
 	gradient.set_color(0, color)
 	gradient.set_color(1, color)
+	
+	$AudioStreamPlayer2D.volume_linear = volume / 100.0
