@@ -1,7 +1,6 @@
 extends Node2D
 
 var lobby: Dictionary = {}
-var player_count: int = 1
 var username2node: Dictionary = {}
 
 var _in_online_match: bool = false
@@ -199,6 +198,7 @@ func _format_last_action_line(last_any: Variant, players: Variant) -> String:
 					
 	match String(la.get("type", "")):
 		"startGame":
+			$JoinCode.visible = false
 			return "Started."
 		"playCard":
 			return "Card played by " + name
@@ -265,19 +265,39 @@ func configure_lobby() -> void:
 		child.visible = false
 		child.process_mode = Node.PROCESS_MODE_DISABLED
 
-	player_count = 1
 	username2node.clear()
-	for player in lobby["players"]:
+	
+	# Find host and current player
+	var player_count = lobby["players"].size()
+	var is_host = false
+	var curr_player_index
+	for i in range(player_count):
+		var player = lobby["players"][i]
+		
 		var username = player["username"]
 		if username == Globals.username:
 			username2node[username] = $Players/P1
 			setup_player(username)
-		else:
-			username2node[username] = $Players.get_child(player_count)
-			setup_player(username)
-			player_count += 1
+			
+			curr_player_index = i
+			
+			# Find host
+			if player["playerId"] == lobby["hostPlayerId"]:
+				is_host = true
 
-	$"Start Game".visible = lobby["players"].size() >= 2
+	# Render the rest of players
+	for i in range(player_count):
+		if i != curr_player_index:
+			var player = lobby["players"][i]
+			
+			var username = player["username"]
+			if i < curr_player_index:
+				username2node[username] = $Players.get_child((i + player_count - curr_player_index))
+			else:
+				username2node[username] = $Players.get_child(i - curr_player_index)
+			setup_player(username)
+				
+	$"Start Game".visible = is_host && player_count >= 2
 
 
 func setup_player(username: String) -> void:
@@ -306,9 +326,9 @@ func init_fake_game() -> void:
 
 
 func _on_start_game_pressed() -> void:
-	NetworkClient.start_game()
 	$"Start Game".visible = false
 	$JoinCode.visible = false
+	NetworkClient.start_game()
 
 
 func _on_settings_changed(color: Color, volume: int) -> void:

@@ -33,6 +33,7 @@ interface GameSession {
     burnedCardsOnBadSlapCount: number;
     winnerId: PlayerId | null;
     remainingChancesToFlipRoyal: number; // -1 if N/A 
+    royalWinnerTurnIndex: number | null; // index of the player who played the royal card, or null if N/A
     lastAction?: LastActionEvent;
 }
 
@@ -173,6 +174,7 @@ export class GameLoop {
             burnedCardsOnBadSlapCount: 0,
             winnerId: null,
             remainingChancesToFlipRoyal: -1,
+            royalWinnerTurnIndex: null,
         })
     }
 
@@ -227,6 +229,7 @@ export class GameLoop {
         s.turnIndex = 0;
         s.centerPile = [];
         s.burnedCardsOnBadSlapCount = 0;
+        s.royalWinnerTurnIndex = null;
         s.lastAction = {
             "type": "startGame",
             "atMs": Date.now(),
@@ -255,6 +258,7 @@ export class GameLoop {
 
         if (card.rank >= Rank.JACK || card.rank == Rank.ACE) {
             s.remainingChancesToFlipRoyal = this.rankToChances[card.rank];
+            s.royalWinnerTurnIndex = s.turnIndex;
             this.setNextPlayerIndex (s); 
         } else if (s.remainingChancesToFlipRoyal > 0) {
             s.remainingChancesToFlipRoyal -= 1;
@@ -264,13 +268,18 @@ export class GameLoop {
             }
 
             if (s.remainingChancesToFlipRoyal == 0) {
-                if (s.turnIndex == 0) {
-                    s.players[s.players.length - 1].hand.unshift (...s.centerPile); 
+                if (s.royalWinnerTurnIndex !== null) {
+                    s.players[s.royalWinnerTurnIndex].hand.unshift (...s.centerPile);
                 } else {
-                    s.players [s.turnIndex -1].hand.unshift (...s.centerPile); 
+                    // Default to previous player if for some reason royalWinnerTurnIndex is null
+                    if (s.turnIndex == 0) {
+                        s.players[s.players.length - 1].hand.unshift (...s.centerPile); 
+                    } else {
+                        s.players [s.turnIndex -1].hand.unshift (...s.centerPile); 
+                    }
                 }
                 s.centerPile = [];
-                this.setPreviousPlayerIndex (s); 
+                s.turnIndex = s.royalWinnerTurnIndex !== null ? s.royalWinnerTurnIndex : s.turnIndex;
             }
         } else {
             this.setNextPlayerIndex (s); 

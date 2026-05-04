@@ -66,11 +66,6 @@ position = Vector2(45, 16)
 shape = SubResource("RectangleShape2D_4iy6t")
 metadata/_edit_group_ = true
 
-[node name="Init Game" type="Button" parent="." unique_id=1269849149]
-offset_right = 185.0
-offset_bottom = 76.0
-text = "Login & Init Game"
-
 [node name="JoinCode" type="TextureRect" parent="." unique_id=678569724]
 offset_left = 453.0
 offset_top = 1.0
@@ -169,6 +164,7 @@ offset_left = 544.0
 offset_top = 495.0
 offset_right = 629.0
 offset_bottom = 611.0
+mouse_default_cursor_shape = 2
 theme_override_fonts/font = ExtResource("5_4iy6t")
 theme_override_font_sizes/font_size = 18
 
@@ -178,7 +174,6 @@ visible = false
 [node name="AudioStreamPlayer2D" type="AudioStreamPlayer2D" parent="." unique_id=447241635]
 stream = ExtResource("11_g3py7")
 
-[connection signal="pressed" from="Init Game" to="." method="_on_button_pressed"]
 [connection signal="pressed" from="Start Game" to="." method="_on_start_game_pressed"]
 [connection signal="settings_changed" from="Settings" to="." method="_on_settings_changed"]
 [connection signal="pressed" from="Play Card" to="." method="_on_play_button_pressed"]
