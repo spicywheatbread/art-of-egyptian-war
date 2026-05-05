@@ -376,36 +376,13 @@ export async function startServer(options: StartServerOptions = {}): Promise<Run
         }
 
         case "drag": {
-          const authenticatedUsername = getAuthenticatedUsername(authenticatedBySocket, socket);
-          if (!authenticatedUsername) {
-            sendError(store, socket, "NOT_AUTHENTICATED", "Login or register before slapping");
-            return;
-          }
-          if (
-            msg.username !== undefined &&
-            normalizeUsernameForCompare(msg.username) !==
-              normalizeUsernameForCompare(authenticatedUsername)
-          ) {
-            sendError(
-              store,
-              socket,
-              "AUTH_USERNAME_MISMATCH",
-              "username must match the authenticated account",
-            );
-            return;
-          }
-
           const socketInfo = store.getSocketInfo(socket);
           if (!socketInfo) {
-            sendError(store, socket, "NOT_IN_ROOM", "Join a lobby before slapping");
+            sendError(store, socket, "NOT_IN_ROOM", "Somehow dragging a card while not in room?");
             return;
           }
 
-          const result = gameLoop.slap(socketInfo.roomId, socketInfo.playerId);
-          if (!result.ok) {
-            sendError(store, socket, result.code ?? "SLAP_FAILED", result.message ?? "");
-            return;
-          }
+          gameLoop.drag(socketInfo.roomId, msg.global_position)
 
           sendGameSnapshotsForRoom(socketInfo.roomId);
           break;

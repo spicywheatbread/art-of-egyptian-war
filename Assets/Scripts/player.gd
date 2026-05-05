@@ -84,15 +84,16 @@ func _input(event):
 func _handle_drop():	
 	if current_drop_zone:
 		NetworkClient.play_card()
-		# Remove connections
-		dragged_card.area_entered.disconnect(_on_card_entered_area)
-		dragged_card.area_entered.disconnect(_on_card_exited_area)
+
 	else:
 		# Return to the starting spot in the deck
 		dragged_card.global_position = original_position
 		dragged_card.z_index = original_zindex
+		NetworkClient.drag_card(dragged_card.global_position)
 	
 	# Clear the references
+	dragged_card.area_entered.disconnect(_on_card_entered_area)
+	dragged_card.area_entered.disconnect(_on_card_exited_area)
 	dragged_card = null
 	current_drop_zone = null
 
