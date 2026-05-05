@@ -77,10 +77,11 @@ Host-only; sender must be in the lobby and authenticated. Optional `username` (w
 
 ### playCard
 
-Optional `username` (when present) must match the authenticated account.
-
+Position field is used to display where the card is dropped on the center pile.
 ```json
-{ "type": "playCard" }
+{ "type": "playCard",
+  "global_position": Vec2 
+}
 ```
 
 ### slap

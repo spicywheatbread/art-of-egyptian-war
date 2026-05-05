@@ -9,7 +9,7 @@
 [ext_resource type="FontFile" uid="uid://6303at6snnwr" path="res://Assets/Font/Font1.png" id="5_4iy6t"]
 [ext_resource type="PackedScene" uid="uid://llyeweeqjoc5" path="res://Assets/Scenes/GameObjects/settings.tscn" id="5_ltsxh"]
 [ext_resource type="Texture2D" uid="uid://ct3ttysfdqk34" path="res://Assets/Images/UI/Buttons.png" id="6_4iy6t"]
-[ext_resource type="PackedScene" path="res://Assets/Scenes/GameObjects/gameover.tscn" id="10_e0nf8"]
+[ext_resource type="PackedScene" uid="uid://uip3jpt00mk6" path="res://Assets/Scenes/GameObjects/gameover.tscn" id="10_e0nf8"]
 [ext_resource type="AudioStream" uid="uid://cbgsni7tsyibx" path="res://Assets/card_flip.mp3" id="11_g3py7"]
 
 [sub_resource type="Gradient" id="Gradient_3fuio"]

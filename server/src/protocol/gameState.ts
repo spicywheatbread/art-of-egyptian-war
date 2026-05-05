@@ -66,6 +66,7 @@ export interface PublicGameRoomState {
   turn: TurnState;
 
   pileCards: Card[];
+  pileCardsPositions: Vec2[];
   // Optional explicit top/bottom for client convenience.
   pileTopCard?: Card;
   pileBottomCard?: Card;

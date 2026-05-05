@@ -46,7 +46,8 @@ export interface StartGameMessage {
 
 export interface PlayCardMessage {
   type: "playCard";
-  username: string; 
+  username: string;
+  global_position: Vec2;
 }
 
 export interface SlapMessage {
