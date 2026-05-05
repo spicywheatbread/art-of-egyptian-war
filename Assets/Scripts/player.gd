@@ -95,7 +95,7 @@ func _input(event):
 
 func _handle_drop():	
 	if current_drop_zone:
-		NetworkClient.play_card()
+		NetworkClient.play_card(dragged_card.global_position)
 
 	else:
 		# Return to the starting spot in the deck

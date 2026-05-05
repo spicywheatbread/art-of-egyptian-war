@@ -116,9 +116,14 @@ func start_game():
 		"type": "startGame"
 	})
 	
-func play_card ():
+func play_card (global_position: Vector2):
 	send_json ({
-		"type": "playCard"
+		"type": "playCard",
+		"username": Globals.username,
+		"global_position": {
+			"x": global_position.x,
+			"y": global_position.y
+		}
 	}) 
 
 func slap ():

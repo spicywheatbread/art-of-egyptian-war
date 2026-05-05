@@ -374,7 +374,7 @@ export async function startServer(options: StartServerOptions = {}): Promise<Run
             return;
           }
 
-          const result = gameLoop.playCard(socketInfo.roomId, socketInfo.playerId);
+          const result = gameLoop.playCard(socketInfo.roomId, socketInfo.playerId, msg.global_position);
           if (!result.ok) {
             sendError(store, socket, result.code ?? "PLAY_FAILED", result.message ?? "");
             return;

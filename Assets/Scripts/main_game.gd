@@ -38,7 +38,8 @@ func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed:
 		match event.physical_keycode:
 			KEY_SPACE:
-				NetworkClient.play_card()
+				var random_position = $"Center Pile".global_position + Vector2(randf_range(-10, 10), randf_range(-15, 15))
+				NetworkClient.play_card(random_position)
 			KEY_S:
 				NetworkClient.slap()
 
@@ -116,8 +117,7 @@ func _apply_in_game_state(state: Dictionary) -> void:
 		var pos = Vector2(float(pos_dict.get("x")), float(pos_dict.get("y")))
 		p.display_dragged(pos)
 		
-	# _display_dragged(state.get("dragPosition", Vector2(0, 0)))
-	_rebuild_center_pile_from_server(state.get("pileCards", []))
+	_rebuild_center_pile_from_server(state.get("pileCards", []), state.get("pileCardsPositions", []))
 
 	var turn_line = _format_turn_line(state).to_upper()
 	var last_line = _format_last_action_line(state.get("lastAction"), players).to_upper()
@@ -240,12 +240,13 @@ func _to_int_safe(v: Variant) -> int:
 	return int(v)
 
 
-func _rebuild_center_pile_from_server(pile_any: Variant) -> void:
+func _rebuild_center_pile_from_server(pile_any: Variant, pileCardPositions) -> void:
 	card_flip_sound.play()
 	_center_pile.clear_pile()
 	if typeof(pile_any) != TYPE_ARRAY:
 		return
 
+	var count = 0
 	for item in pile_any:
 		if typeof(item) != TYPE_DICTIONARY:
 			continue
@@ -257,6 +258,14 @@ func _rebuild_center_pile_from_server(pile_any: Variant) -> void:
 		var c = card_tscn.instantiate() as Card
 		c.setup(suit_i, rank_i)
 		_center_pile.add_card(c)
+		
+		var pos_dict = pileCardPositions[count]
+		var pos = Vector2(float(pos_dict.get("x")), float(pos_dict.get("y")))
+		if pos.is_equal_approx(Vector2(0, 0)):
+			c.global_position == $"Center Pile".global_position
+		else:
+			c.global_position = pos
+		count += 1
 
 
 func _process(_delta: float) -> void:
@@ -307,18 +316,12 @@ func setup_player(username: String) -> void:
 	node.visible = true
 	node.process_mode = Node.PROCESS_MODE_ALWAYS
 
-
-func _on_play_button_pressed() -> void:
-	NetworkClient.play_card()
-
-
 func _on_slap_button_pressed() -> void:
 	NetworkClient.slap()
 
 
 func _on_button_pressed() -> void:
 	init_fake_game()
-
 
 func init_fake_game() -> void:
 	NetworkClient.login_user("Alice", "secret123")

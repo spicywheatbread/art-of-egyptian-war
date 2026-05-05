@@ -31,6 +31,7 @@ interface GameSession {
     status: "Lobby" | "gameStarted" | "gameOver"; 
     turnIndex: number; 
     centerPile: Card[];
+    centerPilePositions: Vec2[];
     burnedCardsOnBadSlapCount: number;
     winnerId: PlayerId | null;
     remainingChancesToFlipRoyal: number; // -1 if N/A 
@@ -130,6 +131,7 @@ export class GameLoop {
                 turnEndsAtMs: null,
             },
             pileCards: session.centerPile,
+            pileCardsPositions: session.centerPilePositions,
             pileTopCard:
                 session.centerPile.length > 0
                     ? session.centerPile[session.centerPile.length - 1]
@@ -172,6 +174,7 @@ export class GameLoop {
             status: "Lobby",
             turnIndex: 0, 
             centerPile: [],
+            centerPilePositions: [],
             burnedCardsOnBadSlapCount: 0,
             winnerId: null,
             remainingChancesToFlipRoyal: -1,
@@ -239,7 +242,7 @@ export class GameLoop {
         return { ok: true };
     }
 
-    playCard (roomId: RoomId, playerId: PlayerId): { ok: boolean; code?: string; message?: string } {
+    playCard (roomId: RoomId, playerId: PlayerId, globalPosition: Vec2): { ok: boolean; code?: string; message?: string } {
         const s = this.sessions.get (roomId);
         if (!s) return { ok: false, code: "ROOM_NOT_FOUND", message: "Room not found" };
         if (s.status != "gameStarted") return { ok: false, code: "GAME_NOT_STARTED", message: "Game has not started" };
@@ -256,6 +259,7 @@ export class GameLoop {
 
         const card = currPlayer.hand.pop()!;
         s.centerPile.push (card);
+        s.centerPilePositions.push(globalPosition);
 
         if (card.rank >= Rank.JACK || card.rank == Rank.ACE) {
             s.remainingChancesToFlipRoyal = this.rankToChances[card.rank];
@@ -280,6 +284,7 @@ export class GameLoop {
                     }
                 }
                 s.centerPile = [];
+                s.centerPilePositions = [];
                 s.turnIndex = s.royalWinnerTurnIndex !== null ? s.royalWinnerTurnIndex : s.turnIndex;
             }
         } else {
@@ -314,6 +319,7 @@ export class GameLoop {
         if (goodSlap) {
             player.hand.unshift(...s.centerPile);
             s.centerPile = [];
+            s.centerPilePositions = [];
             // Reset
             s.remainingChancesToFlipRoyal = -1;
             // The player who won the slap goes next
@@ -415,7 +421,12 @@ export class GameLoop {
             s.centerPile.unshift(...burned);
             s.burnedCardsOnBadSlapCount += burned.length;
         }
+        const newPositions = Array.from(
+          { length: burned.length },
+          () => ({ x: 0, y: 0 })
+        );
 
+        s.centerPilePositions.unshift(...newPositions);
         return burned.length;
     }
 
