@@ -275,7 +275,6 @@ export class GameLoop {
             if (s.remainingChancesToFlipRoyal == 0) {
                 if (s.royalWinnerTurnIndex !== null) {
                     s.players[s.royalWinnerTurnIndex].hand.unshift (...s.centerPile);
-                    s.centerPilePositions = [];
                 } else {
                     // Default to previous player if for some reason royalWinnerTurnIndex is null
                     if (s.turnIndex == 0) {
