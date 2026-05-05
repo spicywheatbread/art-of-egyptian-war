@@ -6,14 +6,14 @@ var username2node: Dictionary = {}
 var _in_online_match: bool = false
 
 @export var card_tscn: PackedScene
-@onready var card_flip_sound = $AudioStreamPlayer2D
-@onready var _center_pile: Center_Pile = $"Center Pile"
+@onready var card_flip_sound = $CanvasLayer/AudioStreamPlayer2D
+@onready var _center_pile: Center_Pile = $CanvasLayer/"Center Pile"
 
 
 func _ready() -> void:
 	# Handle game over
-	$GameOver.visible = false
-	$GameOver/Popup/Button.pressed.connect(NetworkClient.leave_lobby)
+	$CanvasLayer/GameOver.visible = false
+	$CanvasLayer/GameOver/Popup/Button.pressed.connect(NetworkClient.leave_lobby)
 	
 	if not NetworkClient.game_state.is_connected(_on_game_state):
 		NetworkClient.game_state.connect(_on_game_state)
@@ -23,14 +23,10 @@ func _ready() -> void:
 	if NetworkClient.last_lobby_state != null:
 		_on_lobby_state(NetworkClient.last_lobby_state)
 
-	var center_area := _center_pile.get_node_or_null("Area2D") as Area2D
-	if center_area:
-		center_area.input_event.connect(_on_center_pile_input)
+	$"CanvasLayer/Center Pile/Area2D".input_event.connect(_on_center_pile_input)
 
 	_set_play_slap_visible(false)
-	var st = get_node_or_null("GameStatus") as Label
-	if st:
-		st.visible = false
+	$CanvasLayer/GameStatus.visible = false
 
 func _unhandled_input(event: InputEvent) -> void:
 	if not _in_online_match:
@@ -51,13 +47,7 @@ func _on_center_pile_input(_viewport: Node, event: InputEvent, _shape_idx: int) 
 
 
 func _set_play_slap_visible(show_play_slap: bool) -> void:
-	var play_btn = get_node_or_null("Play Card")
-	var slap_btn = get_node_or_null("Slap")
-	if play_btn:
-		play_btn.visible = show_play_slap
-	if slap_btn:
-		slap_btn.visible = show_play_slap
-
+	$"CanvasLayer/Play Card".visible = show_play_slap
 
 func _set_player_network_drag(enabled_network_sync: bool) -> void:
 	for uname in username2node:
@@ -82,9 +72,7 @@ func _on_game_state(payload: Variant) -> void:
 			_in_online_match = true
 			_apply_in_game_state(state)
 			_set_play_slap_visible(true)
-			var st_in = get_node_or_null("GameStatus") as Label
-			if st_in:
-				st_in.visible = true
+			$CanvasLayer/GameStatus.visible = true
 		"GameOver":
 			_in_online_match = false
 			_set_player_network_drag(false)
@@ -94,9 +82,7 @@ func _on_game_state(payload: Variant) -> void:
 			_in_online_match = false
 			_set_player_network_drag(false)
 			_set_play_slap_visible(false)
-			var st_lobby = get_node_or_null("GameStatus") as Label
-			if st_lobby:
-				st_lobby.visible = false
+			$CanvasLayer/GameStatus.visible = false
 
 
 func _apply_in_game_state(state: Dictionary) -> void:
@@ -116,9 +102,7 @@ func _apply_in_game_state(state: Dictionary) -> void:
 
 	var turn_line = _format_turn_line(state).to_upper()
 	var last_line = _format_last_action_line(state.get("lastAction"), players).to_upper()
-	var status = get_node_or_null("GameStatus") as Label
-	if status:
-		status.text = ("" if last_line.is_empty() else last_line + "\n") + turn_line
+	$CanvasLayer/GameStatus.text = ("" if last_line.is_empty() else last_line + "\n") + turn_line
 
 
 func _apply_game_over_state(state: Dictionary) -> void:
@@ -132,25 +116,22 @@ func _apply_game_over_state(state: Dictionary) -> void:
 			line = ("Winner: %s" % line) if line.length() > 0 else "Game over."
 			
 			# Show the game over panel
-			$GameOver.visible = true
+			$CanvasLayer/GameOver.visible = true
 			if _username_for_player_id(state, winner_id) == Globals.username:
 				# Change to winning screen
-				$GameOver/Popup/Label.text = "YOU WIN!"
-				$GameOver/Popup/LosingIcon.visible = false
-				$GameOver/Popup/WinningIcon.visible = true
+				$CanvasLayer/GameOver/Popup/Label.text = "YOU WIN!"
+				$CanvasLayer/GameOver/Popup/LosingIcon.visible = false
+				$CanvasLayer/GameOver/Popup/WinningIcon.visible = true
 			
 			# Make game components invisible
-			$Players/P1.visible = false
-			$Players/P2.visible = false
-			$Players/P3.visible = false
-			$Players/P4.visible = false
-			$"Center Pile".visible = false
+			$CanvasLayer/Players/P1.visible = false
+			$CanvasLayer/Players/P2.visible = false
+			$CanvasLayer/Players/P3.visible = false
+			$CanvasLayer/Players/P4.visible = false
+			$CanvasLayer/"Center Pile".visible = false
 			
-	var status = get_node_or_null("GameStatus") as Label
-	if status:
-		status.visible = true
-		status.text = line.to_upper()
-	
+	$CanvasLayer/GameStatus.visible = true
+	$CanvasLayer/GameStatus.text = line.to_upper()
 
 
 func _username_for_player_id(state: Dictionary, pid: String) -> String:
@@ -198,7 +179,7 @@ func _format_last_action_line(last_any: Variant, players: Variant) -> String:
 					
 	match String(la.get("type", "")):
 		"startGame":
-			$JoinCode.visible = false
+			$CanvasLayer/JoinCode.visible = false
 			return "Started."
 		"playCard":
 			return "Card played by " + name
@@ -259,9 +240,9 @@ func _on_lobby_state(payload: Dictionary) -> void:
 
 
 func configure_lobby() -> void:
-	$JoinCode/JoinCodeLabel.text = "CODE: " + lobby["gameCode"]
+	$CanvasLayer/JoinCode/JoinCodeLabel.text = "CODE: " + lobby["gameCode"]
 
-	for child in $Players.get_children():
+	for child in $CanvasLayer/Players.get_children():
 		child.visible = false
 		child.process_mode = Node.PROCESS_MODE_DISABLED
 
@@ -276,7 +257,7 @@ func configure_lobby() -> void:
 		
 		var username = player["username"]
 		if username == Globals.username:
-			username2node[username] = $Players/P1
+			username2node[username] = $CanvasLayer/Players/P1
 			setup_player(username)
 			
 			curr_player_index = i
@@ -292,12 +273,12 @@ func configure_lobby() -> void:
 			
 			var username = player["username"]
 			if i < curr_player_index:
-				username2node[username] = $Players.get_child((i + player_count - curr_player_index))
+				username2node[username] = $CanvasLayer/Players.get_child((i + player_count - curr_player_index))
 			else:
-				username2node[username] = $Players.get_child(i - curr_player_index)
+				username2node[username] = $CanvasLayer/Players.get_child(i - curr_player_index)
 			setup_player(username)
 				
-	$"Start Game".visible = is_host && player_count >= 2
+	$CanvasLayer/"Start Game".visible = is_host && player_count >= 2
 
 
 func setup_player(username: String) -> void:
@@ -326,15 +307,15 @@ func init_fake_game() -> void:
 
 
 func _on_start_game_pressed() -> void:
-	$"Start Game".visible = false
-	$JoinCode.visible = false
+	$CanvasLayer/"Start Game".visible = false
+	$CanvasLayer/JoinCode.visible = false
 	NetworkClient.start_game()
 
 
 func _on_settings_changed(color: Color, volume: int) -> void:
-	var tex = $Background.texture as GradientTexture2D
+	var tex = $CanvasLayer/Background.texture as GradientTexture2D
 	var gradient = tex.gradient
 	gradient.set_color(0, color)
 	gradient.set_color(1, color)
 	
-	$AudioStreamPlayer2D.volume_linear = volume / 100.0
+	$CanvasLayer/AudioStreamPlayer2D.volume_linear = volume / 100.0
