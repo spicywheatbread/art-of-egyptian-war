@@ -40,12 +40,13 @@ script = ExtResource("1_owchf")
 card_tscn = ExtResource("3_ltsxh")
 
 [node name="Background" type="Sprite2D" parent="." unique_id=1555052404]
-z_index = -5
+z_index = -1911
 position = Vector2(574, 324.00003)
 scale = Vector2(18.0625, 10.125001)
 texture = SubResource("GradientTexture2D_53qdw")
 
 [node name="Center Pile" type="Node2D" parent="." unique_id=628171694]
+z_index = -199
 position = Vector2(581, 332)
 script = ExtResource("2_owchf")
 card_tscn = ExtResource("3_ltsxh")
