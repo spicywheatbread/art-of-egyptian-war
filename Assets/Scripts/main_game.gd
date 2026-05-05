@@ -109,6 +109,13 @@ func _apply_in_game_state(state: Dictionary) -> void:
 		if node:
 			node.set_hand_card_count(hand_n)
 
+	var lastAction = state.get("lastAction")
+	if lastAction.get("type") == "dragCard":
+		var p = username2node[get_current_turn_username()]
+		var pos_dict = lastAction.get("globalPosition")
+		var pos = Vector2(float(pos_dict.get("x")), float(pos_dict.get("y")))
+		p.display_dragged(pos)
+		
 	# _display_dragged(state.get("dragPosition", Vector2(0, 0)))
 	_rebuild_center_pile_from_server(state.get("pileCards", []))
 
@@ -149,8 +156,6 @@ func _apply_game_over_state(state: Dictionary) -> void:
 		status.visible = true
 		status.text = line.to_upper()
 	
-
-
 func _username_for_player_id(state: Dictionary, pid: String) -> String:
 	for p in state.get("players", []):
 		if typeof(p) != TYPE_DICTIONARY:

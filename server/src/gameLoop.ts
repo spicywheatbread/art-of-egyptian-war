@@ -36,7 +36,6 @@ interface GameSession {
     remainingChancesToFlipRoyal: number; // -1 if N/A 
     royalWinnerTurnIndex: number | null; // index of the player who played the royal card, or null if N/A
     lastAction?: LastActionEvent;
-    dragPosition?: Vec2;
 }
 
 export class GameLoop {
@@ -141,7 +140,6 @@ export class GameLoop {
             gameStartedAtMs: null,
             remainingChancesToFlipRoyal: session.remainingChancesToFlipRoyal,
             lastAction: session.lastAction,
-            dragPosition: session.dragPosition
         };
 
         return {
@@ -295,7 +293,6 @@ export class GameLoop {
             "card": card
         }
 
-        s.dragPosition = undefined;
         this.checkForWin (s); 
         return { ok: true };
     } 
@@ -348,7 +345,11 @@ export class GameLoop {
         if (!s) return { ok: false, code: "ROOM_NOT_FOUND", message: "Room not found" };
         if (s.status != "gameStarted") return { ok: false, code: "GAME_NOT_STARTED", message: "Game has not started" };
 
-       s.dragPosition = globalPosition;
+       s.lastAction = {
+            "type": "dragCard",
+            "atMs": Date.now(),
+            "globalPosition": globalPosition
+        }
     }
 
     private makeAndShuffleDeck (): Card[] {

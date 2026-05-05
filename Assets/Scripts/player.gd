@@ -15,7 +15,7 @@ func _process(_delta):
 	# Animation for card dragging
 	if dragged_card and Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT):
 		dragged_card.global_position = get_global_mouse_position()
-		# NetworkClient.drag_card(dragged_card.global_position)
+		NetworkClient.drag_card(dragged_card.global_position)
 
 
 # Deck creation
@@ -27,6 +27,9 @@ func set_card_positions() -> void:
 	for i in range($Cards.get_child_count()):
 		$Cards.get_child(i).position = i * OFFSET
 
+func display_dragged(pos: Vector2): 
+	$Cards.get_child(-1).global_position = pos
+	
 # Deck animation
 var dragged_card = null
 var card_offset = Vector2.ZERO

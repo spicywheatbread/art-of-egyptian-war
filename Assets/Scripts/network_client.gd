@@ -129,7 +129,10 @@ func slap ():
 func drag_card(global_position: Vector2):
 	send_json({
 		"type": "drag",
-		"global_position": global_position
+		"global_position": {
+			"x": global_position.x,
+			"y": global_position.y
+		}
 	})
 
 func _poll_socket ():
