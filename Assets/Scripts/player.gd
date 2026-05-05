@@ -15,6 +15,7 @@ func _process(_delta):
 	# Animation for card dragging
 	if dragged_card and Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT):
 		dragged_card.global_position = get_global_mouse_position()
+		#NetworkClient.drag_card(dragged_card.global_position)
 
 
 # Deck creation
@@ -93,7 +94,7 @@ func _handle_drop():
 	
 	# Clear the references
 	dragged_card.area_entered.disconnect(_on_card_entered_area)
-	dragged_card.area_entered.disconnect(_on_card_exited_area)
+	dragged_card.area_exited.disconnect(_on_card_exited_area)
 	dragged_card = null
 	current_drop_zone = null
 
