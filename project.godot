@@ -20,6 +20,11 @@ config/icon="res://Assets/Images/icon.svg"
 NetworkClient="*uid://bxojecquvvo3l"
 Globals="*uid://eqdn7hh8se5r"
 
+[display]
+
+window/stretch/mode="canvas_items"
+window/stretch/aspect="expand"
+
 [input]
 
 left_click={
