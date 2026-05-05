@@ -2,7 +2,7 @@ class_name Player extends Pile
 
 # Define variables
 var player_username : String = "Player"
-const OFFSET = Vector2(0.05, -0.5) # slight diagonal pile look
+const OFFSET = Vector2(0.1, -0.5) # slight diagonal pile look
 
 # Define references
 @export var card_tscn: PackedScene
@@ -14,7 +14,8 @@ var network_sync_hand: bool = false
 func _process(_delta):
 	# Animation for card dragging
 	if dragged_card and Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT):
-		dragged_card.global_position = get_global_mouse_position() + card_offset
+		dragged_card.global_position = get_global_mouse_position()
+		NetworkClient.drag_card(dragged_card.global_position)
 
 
 # Deck creation
@@ -26,16 +27,23 @@ func set_card_positions() -> void:
 	for i in range($Cards.get_child_count()):
 		$Cards.get_child(i).position = i * OFFSET
 
+func display_dragged(pos: Vector2): 
+	$Cards.get_child(-1).global_position = pos
+	
 # Deck animation
 var dragged_card = null
 var card_offset = Vector2.ZERO
 var original_position = Vector2.ZERO
 var original_zindex = 0
 var current_drop_zone = null # Tracks if over a valid zone
+@onready var main_game = get_node("/root/Game")
 
+func is_my_turn() -> bool:
+	return Globals.username == main_game.get_current_turn_username()
+	
 func _on_mouse_entered_deck() -> void:
 	# Only show playable on current user's deck
-	if player_username == Globals.username:
+	if player_username == Globals.username and is_my_turn():
 		Input.set_default_cursor_shape(Input.CURSOR_POINTING_HAND)
 
 func _on_mouse_exited_deck() -> void:
@@ -44,8 +52,12 @@ func _on_mouse_exited_deck() -> void:
 func _start_card_drag(_viewport, event, _shape_idx):
 	if network_sync_hand:
 		return
-	# Only allow if current user pile
+		
+	# Only allow a player to drag their own pile
 	if player_username != Globals.username:
+		return
+		
+	if player_username != main_game.get_current_turn_username():
 		return
 
 	# Start drag on left button click
@@ -61,7 +73,7 @@ func _start_card_drag(_viewport, event, _shape_idx):
 				# Positioning
 				original_position = dragged_card.global_position 
 				original_zindex = dragged_card.z_index
-				card_offset = dragged_card.global_position - get_global_mouse_position()
+				card_offset = dragged_card.global_position
 				dragged_card.z_index = 100
 
 func _on_card_entered_area(area):
@@ -83,24 +95,17 @@ func _input(event):
 
 func _handle_drop():	
 	if current_drop_zone:
-		var central_deck = current_drop_zone.get_parent()
-		
-		# Move card to central deck position
-		dragged_card.global_position = current_drop_zone.global_position
-		
-		# Remove card from player hand and add to central deck
-		dragged_card.get_parent().remove_child(dragged_card)
-		central_deck.add_card(dragged_card)
-		
-		# Remove connections
-		dragged_card.area_entered.disconnect(_on_card_entered_area)
-		dragged_card.area_entered.disconnect(_on_card_exited_area)
+		NetworkClient.play_card()
+
 	else:
 		# Return to the starting spot in the deck
 		dragged_card.global_position = original_position
 		dragged_card.z_index = original_zindex
+		NetworkClient.drag_card(dragged_card.global_position)
 	
 	# Clear the references
+	dragged_card.area_entered.disconnect(_on_card_entered_area)
+	dragged_card.area_exited.disconnect(_on_card_exited_area)
 	dragged_card = null
 	current_drop_zone = null
 

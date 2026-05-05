@@ -43,12 +43,13 @@ card_tscn = ExtResource("3_ltsxh")
 layer = -5
 
 [node name="Background" type="Sprite2D" parent="CanvasLayer" unique_id=1555052404]
-z_index = -5
+z_index = -1911
 position = Vector2(574, 324.00003)
 scale = Vector2(18.0625, 10.125001)
 texture = SubResource("GradientTexture2D_53qdw")
 
 [node name="Center Pile" type="Node2D" parent="CanvasLayer" unique_id=628171694]
+z_index = -199
 position = Vector2(581, 332)
 script = ExtResource("2_owchf")
 card_tscn = ExtResource("3_ltsxh")
@@ -64,7 +65,7 @@ texture = SubResource("AtlasTexture_g3py7")
 offset = Vector2(25.896214, -9.638553)
 metadata/_edit_group_ = true
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="CanvasLayer/Center Pile/Area2D" unique_id=409399114]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="CanvasLayer/Center Pile/Area2D" unique_id=409399114 groups=["drop_zones"]]
 position = Vector2(45, 16)
 shape = SubResource("RectangleShape2D_4iy6t")
 metadata/_edit_group_ = true
@@ -160,17 +161,6 @@ theme_override_fonts/font = ExtResource("5_4iy6t")
 theme_override_font_sizes/font_size = 18
 vertical_alignment = 1
 
-[node name="Play Card" type="Button" parent="CanvasLayer" unique_id=1751675900]
-visible = false
-modulate = Color(1, 1, 1, 0)
-offset_left = 544.0
-offset_top = 495.0
-offset_right = 629.0
-offset_bottom = 611.0
-mouse_default_cursor_shape = 2
-theme_override_fonts/font = ExtResource("5_4iy6t")
-theme_override_font_sizes/font_size = 18
-
 [node name="GameOver" parent="CanvasLayer" unique_id=1799306605 instance=ExtResource("10_e0nf8")]
 visible = false
 
@@ -179,4 +169,3 @@ stream = ExtResource("11_g3py7")
 
 [connection signal="pressed" from="CanvasLayer/Start Game" to="." method="_on_start_game_pressed"]
 [connection signal="settings_changed" from="CanvasLayer/Settings" to="." method="_on_settings_changed"]
-[connection signal="pressed" from="CanvasLayer/Play Card" to="." method="_on_play_button_pressed"]

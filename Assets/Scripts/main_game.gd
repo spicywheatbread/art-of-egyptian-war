@@ -8,7 +8,7 @@ var _in_online_match: bool = false
 @export var card_tscn: PackedScene
 @onready var card_flip_sound = $CanvasLayer/AudioStreamPlayer2D
 @onready var _center_pile: Center_Pile = $CanvasLayer/"Center Pile"
-
+var current_state = {}
 
 func _ready() -> void:
 	# Handle game over
@@ -25,7 +25,6 @@ func _ready() -> void:
 
 	$"CanvasLayer/Center Pile/Area2D".input_event.connect(_on_center_pile_input)
 
-	_set_play_slap_visible(false)
 	$CanvasLayer/GameStatus.visible = false
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -46,9 +45,6 @@ func _on_center_pile_input(_viewport: Node, event: InputEvent, _shape_idx: int) 
 		NetworkClient.slap()
 
 
-func _set_play_slap_visible(show_play_slap: bool) -> void:
-	$"CanvasLayer/Play Card".visible = show_play_slap
-
 func _set_player_network_drag(enabled_network_sync: bool) -> void:
 	for uname in username2node:
 		var p = username2node[uname] as Player
@@ -66,28 +62,24 @@ func _on_game_state(payload: Variant) -> void:
 	if typeof(public_any) != TYPE_DICTIONARY:
 		return
 
-	var state: Dictionary = public_any
-	match String(state.get("status", "")):
+	current_state = public_any
+	match String(current_state.get("status", "")):
 		"InGame":
 			_in_online_match = true
-			_apply_in_game_state(state)
-			_set_play_slap_visible(true)
+			_apply_in_game_state(current_state)
 			$CanvasLayer/GameStatus.visible = true
 		"GameOver":
 			_in_online_match = false
 			_set_player_network_drag(false)
-			_set_play_slap_visible(false)
-			_apply_game_over_state(state)
+			_apply_game_over_state(current_state)
 		"Lobby":
 			_in_online_match = false
 			_set_player_network_drag(false)
-			_set_play_slap_visible(false)
-			$CanvasLayer/GameStatus.visible = false
-
+			var st_lobby = get_node_or_null("GameStatus") as Label
+			if st_lobby:
+				st_lobby.visible = false
 
 func _apply_in_game_state(state: Dictionary) -> void:
-	_set_player_network_drag(true)
-
 	var players: Array = state.get("players", [])
 	for p in players:
 		if typeof(p) != TYPE_DICTIONARY:
@@ -98,6 +90,14 @@ func _apply_in_game_state(state: Dictionary) -> void:
 		if node:
 			node.set_hand_card_count(hand_n)
 
+	var lastAction = state.get("lastAction")
+	if lastAction.get("type") == "dragCard":
+		var p = username2node[get_current_turn_username()]
+		var pos_dict = lastAction.get("globalPosition")
+		var pos = Vector2(float(pos_dict.get("x")), float(pos_dict.get("y")))
+		p.display_dragged(pos)
+		
+	# _display_dragged(state.get("dragPosition", Vector2(0, 0)))
 	_rebuild_center_pile_from_server(state.get("pileCards", []))
 
 	var turn_line = _format_turn_line(state).to_upper()
@@ -142,7 +142,20 @@ func _username_for_player_id(state: Dictionary, pid: String) -> String:
 			return str(p.get("username", ""))
 	return ""
 
-
+func get_current_turn_username() -> String: 
+	var turn = current_state.get("turn")
+	if typeof(turn) != TYPE_DICTIONARY:
+		return ""
+	var tid = turn.get("currentPlayerId", "")
+	var players = current_state.get("players", [])
+	for p in players:
+		if p.get("playerId", "") == tid:
+			return p.get("username", "")
+			
+	# if we reach here, something is messed up
+	print("Can't match turn to player for id:", tid)
+	return ""
+	
 func _format_turn_line(state: Dictionary) -> String:
 	var turn_any = state.get("turn")
 	if typeof(turn_any) != TYPE_DICTIONARY:
@@ -268,15 +281,13 @@ func configure_lobby() -> void:
 
 	# Render the rest of players
 	for i in range(player_count):
-		if i != curr_player_index:
-			var player = lobby["players"][i]
+		var player = lobby["players"][i]
+		if Globals.username == player["username"] and player["playerId"] == lobby["hostPlayerId"]:
+			is_host = true
 			
-			var username = player["username"]
-			if i < curr_player_index:
-				username2node[username] = $CanvasLayer/Players.get_child((i + player_count - curr_player_index))
-			else:
-				username2node[username] = $CanvasLayer/Players.get_child(i - curr_player_index)
-			setup_player(username)
+		var username = player["username"]
+		username2node[username] = $CanvasLayer/Players.get_child(i)
+		setup_player(username)
 				
 	$CanvasLayer/"Start Game".visible = is_host && player_count >= 2
 

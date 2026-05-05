@@ -38,8 +38,7 @@ func _ready() -> void:
 
 	# Display welcome and stats on start
 	var stats = await NetworkClient.get_stats()
-	print("stats")
-	print(stats)
+	print(JSON.stringify(stats, "\t"))
 	WelcomeMessage.text = "WELCOME,\n" + stats["username"].to_upper() + "!"
 	StatsDisplay.text = "GAMES PLAYED: " + str(int(stats["gamesPlayed"])) + "\n\nGAMES WON: " + str(int(stats["wins"]))
 

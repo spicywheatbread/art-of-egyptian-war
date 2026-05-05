@@ -15,6 +15,8 @@ var _is_connected: bool = false
 
 var last_lobby_state = null
 
+var payload_output = FileAccess.open("res://log.txt", FileAccess.WRITE)
+
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
 	set_process(true) 
@@ -44,7 +46,11 @@ func send_json (payload: Dictionary):
 
 
 func register_user (username: String, password: String):
-	send_json({"type": "register", "username": username, "password": password})
+	send_json({
+		"type": "register",
+		"username": username,
+		"password": password
+	})
 	var response = await auth_ok
 	
 	if response == null:
@@ -55,7 +61,11 @@ func register_user (username: String, password: String):
 	get_tree().change_scene_to_file("res://Assets/Scenes/Lobby.tscn")
 
 func login_user (username: String, password: String):
-	send_json({"type": "login", "username": username, "password": password})
+	send_json({
+		"type": "login",
+		"username": username,
+		"password": password
+	})
 	var response = await auth_ok
 	
 	if response == null:
@@ -66,12 +76,17 @@ func login_user (username: String, password: String):
 	get_tree().change_scene_to_file("res://Assets/Scenes/Lobby.tscn")
 
 func get_stats():
-	send_json({ "type": "getMyStats" })
+	send_json({
+		"type": "getMyStats"
+	})
 	return await stats_state
 	
 
 func create_lobby (): 
-	send_json({ "type": "createLobby", "username": Globals.username })
+	send_json({
+		"type": "createLobby",
+		"username": Globals.username
+	})
 	var response = await lobby_state
 		
 	# Set lobby codeand go to game
@@ -90,17 +105,34 @@ func join_lobby (game_code: String):
 	get_tree().change_scene_to_file("res://Assets/Scenes/Game.tscn")
 	
 func leave_lobby ():
-	send_json({ "type": "leaveLobby" })
+	send_json({
+		"type": "leaveLobby"
+	})
 	get_tree().change_scene_to_file("res://Assets/Scenes/Lobby.tscn")
 
 func start_game():
-	send_json({"type": "startGame"})
+	send_json({
+		"type": "startGame"
+	})
 	
 func play_card ():
-	send_json ({"type": "playCard"}) 
+	send_json ({
+		"type": "playCard"
+	}) 
 
 func slap ():
-	send_json ({"type":"slap"}) 
+	send_json ({
+		"type":"slap"
+	}) 
+	
+func drag_card(global_position: Vector2):
+	send_json({
+		"type": "drag",
+		"global_position": {
+			"x": global_position.x,
+			"y": global_position.y
+		}
+	})
 
 func _poll_socket ():
 	# Data transfer and state updates will only happen when calling this function.
@@ -117,7 +149,8 @@ func _poll_socket ():
 			if _socket.was_string_packet():
 				var packet_text = packet.get_string_from_utf8()
 				var response = JSON.parse_string(packet_text)
-				print(response)
+				
+				payload_output.store_line(JSON.stringify(response, "\t"))
 				
 				# Emit signal based on type received
 				match response["type"]:

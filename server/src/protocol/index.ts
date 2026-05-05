@@ -21,5 +21,6 @@ export type {
   GameOverRoomState,
   RoomState,
   RoomSnapshotForPlayer,
+  Vec2,
 } from "./gameState";
 

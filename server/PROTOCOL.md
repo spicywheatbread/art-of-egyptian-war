@@ -91,6 +91,15 @@ Optional `username` (when present) must match the authenticated account.
 { "type": "slap" }
 ```
 
+### drag
+
+Sent when the current turn's player is dragging a card with the mouse.
+
+```json
+{ "type": "drag",
+  "global_position": Vec2 }
+```
+
 ### recordOutcome (dev-only)
 
 Enabled only when `ENABLE_DEV_RECORD_OUTCOME=true`.

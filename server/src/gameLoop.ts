@@ -11,6 +11,7 @@ import {
     type RoomSnapshotForPlayer,
     type InGamePlayer,
     type LastActionEvent,
+    type Vec2,
     MAX_PLAYERS_PER_GAME,
     MIN_PLAYERS_PER_GAME,
 } from "./protocol";
@@ -138,7 +139,7 @@ export class GameLoop {
             burnedCardsOnBadSlapCount: session.burnedCardsOnBadSlapCount,
             gameStartedAtMs: null,
             remainingChancesToFlipRoyal: session.remainingChancesToFlipRoyal,
-            lastAction: session.lastAction
+            lastAction: session.lastAction,
         };
 
         return {
@@ -291,6 +292,7 @@ export class GameLoop {
             "byPlayerId": playerId,
             "card": card
         }
+
         this.checkForWin (s); 
         return { ok: true };
     } 
@@ -337,6 +339,18 @@ export class GameLoop {
         this.checkForWin (s);
         return { ok: true };
     } 
+
+    drag (roomId: RoomId, globalPosition: Vec2) {
+        const s = this.sessions.get(roomId); 
+        if (!s) return { ok: false, code: "ROOM_NOT_FOUND", message: "Room not found" };
+        if (s.status != "gameStarted") return { ok: false, code: "GAME_NOT_STARTED", message: "Game has not started" };
+
+       s.lastAction = {
+            "type": "dragCard",
+            "atMs": Date.now(),
+            "globalPosition": globalPosition
+        }
+    }
 
     private makeAndShuffleDeck (): Card[] {
         const deck = [] as Card[];
