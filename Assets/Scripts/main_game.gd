@@ -9,7 +9,7 @@ var _in_online_match: bool = false
 @export var card_tscn: PackedScene
 
 @onready var _center_pile: Center_Pile = $"Center Pile"
-
+var current_state
 
 func _ready() -> void:
 	if not NetworkClient.game_state.is_connected(_on_game_state):
@@ -74,11 +74,11 @@ func _on_game_state(payload: Variant) -> void:
 	if typeof(public_any) != TYPE_DICTIONARY:
 		return
 
-	var state: Dictionary = public_any
-	match String(state.get("status", "")):
+	current_state = public_any
+	match String(current_state.get("status", "")):
 		"InGame":
 			_in_online_match = true
-			_apply_in_game_state(state)
+			_apply_in_game_state(current_state)
 			_set_play_slap_visible(true)
 			var st_in = get_node_or_null("GameStatus") as Label
 			if st_in:
@@ -87,7 +87,7 @@ func _on_game_state(payload: Variant) -> void:
 			_in_online_match = false
 			_set_player_network_drag(false)
 			_set_play_slap_visible(false)
-			_apply_game_over_state(state)
+			_apply_game_over_state(current_state)
 		"Lobby":
 			_in_online_match = false
 			_set_player_network_drag(false)
@@ -95,7 +95,6 @@ func _on_game_state(payload: Variant) -> void:
 			var st_lobby = get_node_or_null("GameStatus") as Label
 			if st_lobby:
 				st_lobby.visible = false
-
 
 func _apply_in_game_state(state: Dictionary) -> void:
 	var players: Array = state.get("players", [])
@@ -108,6 +107,7 @@ func _apply_in_game_state(state: Dictionary) -> void:
 		if node:
 			node.set_hand_card_count(hand_n)
 
+	# _display_dragged(state.get("dragPosition", Vector2(0, 0)))
 	_rebuild_center_pile_from_server(state.get("pileCards", []))
 
 	var turn_line = _format_turn_line(state).to_upper()
@@ -161,7 +161,17 @@ func _format_turn_line(state: Dictionary) -> String:
 		return "Turn: YOUR TURN (%s)" % name
 	return "Turn: %s" % name
 
-
+func get_current_turn_username() -> String: 
+	var tid = current_state.get("turn").get("currentPlayerId", "")
+	var players = current_state.get("players", [])
+	for p in players:
+		if p.get("playerId", "") == tid:
+			return p.get("username", "")
+			
+	# if we reach here, something is messed up
+	print("Can't match turn to player for id:", tid)
+	return ""
+	
 func _format_last_action_line(last_any: Variant) -> String:
 	if typeof(last_any) != TYPE_DICTIONARY:
 		return ""

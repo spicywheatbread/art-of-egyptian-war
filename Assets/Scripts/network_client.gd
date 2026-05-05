@@ -7,7 +7,8 @@ signal lobby_state(payload: Dictionary)
 signal game_state (payload: Dictionary)
 signal stats_state(payload: Dictionary)
 
-@export var websocket_url: String = "wss://truthful-nature-production-1b37.up.railway.app"
+# @export var websocket_url: String = "wss://truthful-nature-production-1b37.up.railway.app"
+@export var websocket_url: String = "ws://localhost:8080"
 #@export var auto_reconnect: bool = false 
 
 var _socket: WebSocketPeer = WebSocketPeer.new()

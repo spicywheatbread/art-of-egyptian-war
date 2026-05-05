@@ -33,10 +33,14 @@ var card_offset = Vector2.ZERO
 var original_position = Vector2.ZERO
 var original_zindex = 0
 var current_drop_zone = null # Tracks if over a valid zone
+@onready var main_game = get_node("/root/Game")
 
+func is_my_turn() -> bool:
+	return Globals.username == main_game.get_current_turn_username()
+	
 func _on_mouse_entered_deck() -> void:
 	# Only show playable on current user's deck
-	if player_username == Globals.username:
+	if player_username == Globals.username and is_my_turn():
 		Input.set_default_cursor_shape(Input.CURSOR_POINTING_HAND)
 
 func _on_mouse_exited_deck() -> void:
@@ -45,8 +49,12 @@ func _on_mouse_exited_deck() -> void:
 func _start_card_drag(_viewport, event, _shape_idx):
 	if network_sync_hand:
 		return
-	# Only allow if current user pile
+		
+	# Only allow a player to drag their own pile
 	if player_username != Globals.username:
+		return
+		
+	if player_username != main_game.get_current_turn_username():
 		return
 
 	# Start drag on left button click
