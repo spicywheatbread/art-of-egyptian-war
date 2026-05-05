@@ -15,6 +15,8 @@ var _is_connected: bool = false
 
 var last_lobby_state = null
 
+var payload_output = FileAccess.open("res://log.txt", FileAccess.WRITE)
+
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
 	set_process(true) 
@@ -145,7 +147,8 @@ func _poll_socket ():
 			if _socket.was_string_packet():
 				var packet_text = packet.get_string_from_utf8()
 				var response = JSON.parse_string(packet_text)
-				print(JSON.stringify(response, "\t"))
+				
+				payload_output.store_line(JSON.stringify(response, "\t"))
 				
 				# Emit signal based on type received
 				match response["type"]:
