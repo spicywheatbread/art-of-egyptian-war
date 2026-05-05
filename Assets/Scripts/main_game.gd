@@ -33,7 +33,7 @@ func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed:
 		match event.physical_keycode:
 			KEY_SPACE:
-				var random_position = $"Center Pile".global_position + Vector2(randf_range(-10, 10), randf_range(-15, 15))
+				var random_position = $"CanvasLayer/Center Pile".global_position + Vector2(randf_range(-10, 10), randf_range(-15, 15))
 				NetworkClient.play_card(random_position)
 			KEY_S:
 				NetworkClient.slap()
@@ -240,7 +240,7 @@ func _rebuild_center_pile_from_server(pile_any: Variant, pileCardPositions) -> v
 		var pos_dict = pileCardPositions[count]
 		var pos = Vector2(float(pos_dict.get("x")), float(pos_dict.get("y")))
 		if pos.is_equal_approx(Vector2(0, 0)):
-			c.global_position == $"Center Pile".global_position
+			c.global_position == $"CanvasLayer/Center Pile".global_position
 		else:
 			c.global_position = pos
 		count += 1
