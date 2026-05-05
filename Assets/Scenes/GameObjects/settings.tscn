@@ -14,6 +14,9 @@ region = Rect2(81, 49, 14, 14)
 atlas = ExtResource("1_jrldb")
 region = Rect2(7, 0, 98, 149)
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_5ec6b"]
+bg_color = Color(0.11372549, 0.32941177, 0.21568628, 1)
+
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_sslyg"]
 bg_color = Color(0.3137255, 0.6627451, 0.47058824, 1)
 
@@ -81,6 +84,7 @@ offset_left = 240.0
 offset_top = 145.0
 offset_right = 262.0
 offset_bottom = 166.0
+theme_override_styles/normal = SubResource("StyleBoxFlat_5ec6b")
 
 [node name="Volume" type="Label" parent="Popup" unique_id=1276121818]
 layout_mode = 0
@@ -166,6 +170,7 @@ offset_right = 148.0
 offset_bottom = -4.5710144
 grow_horizontal = 2
 grow_vertical = 0
+color = Color(0.11372549, 0.32941177, 0.21568628, 1)
 edit_alpha = false
 edit_intensity = false
 color_modes_visible = false

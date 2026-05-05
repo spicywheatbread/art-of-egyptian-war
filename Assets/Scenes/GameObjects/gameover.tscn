@@ -1,0 +1,62 @@
+[gd_scene format=3 uid="uid://uip3jpt00mk6"]
+
+[ext_resource type="Texture2D" uid="uid://c7sjej3uh7fl4" path="res://Assets/Images/UI/Win_Lose.png" id="1_vlr4b"]
+[ext_resource type="FontFile" uid="uid://6303at6snnwr" path="res://Assets/Font/Font1.png" id="2_s7y6c"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_i821v"]
+atlas = ExtResource("1_vlr4b")
+region = Rect2(11, 299, 90, 74)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_xdy2a"]
+atlas = ExtResource("1_vlr4b")
+region = Rect2(161, 386, 29, 28)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_0wmgo"]
+atlas = ExtResource("1_vlr4b")
+region = Rect2(316, 387, 25, 25)
+
+[node name="GameOver" type="Node2D" unique_id=1799306605]
+
+[node name="Popup" type="TextureRect" parent="." unique_id=1819844844]
+offset_left = 381.0
+offset_top = 134.0
+offset_right = 815.1892
+offset_bottom = 491.0
+texture = SubResource("AtlasTexture_i821v")
+
+[node name="WinningIcon" type="TextureRect" parent="Popup" unique_id=981607548]
+visible = false
+layout_mode = 0
+offset_left = 142.0
+offset_top = 36.0
+offset_right = 298.0
+offset_bottom = 192.0
+texture = SubResource("AtlasTexture_xdy2a")
+
+[node name="LosingIcon" type="TextureRect" parent="Popup" unique_id=538973930]
+layout_mode = 0
+offset_left = 151.0
+offset_top = 54.0
+offset_right = 303.0
+offset_bottom = 206.0
+texture = SubResource("AtlasTexture_0wmgo")
+
+[node name="Label" type="Label" parent="Popup" unique_id=1430468032]
+layout_mode = 0
+offset_left = 60.0
+offset_top = 239.0
+offset_right = 391.0
+offset_bottom = 305.0
+theme_override_fonts/font = ExtResource("2_s7y6c")
+theme_override_font_sizes/font_size = 40
+text = "YOU LOST!"
+horizontal_alignment = 1
+
+[node name="Button" type="Button" parent="Popup" unique_id=2140025153]
+modulate = Color(1, 1, 1, 0)
+layout_mode = 0
+offset_left = 375.0
+offset_top = 12.0
+offset_right = 419.0
+offset_bottom = 52.0
+mouse_default_cursor_shape = 2

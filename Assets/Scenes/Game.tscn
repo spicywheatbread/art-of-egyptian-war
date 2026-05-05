@@ -9,6 +9,8 @@
 [ext_resource type="FontFile" uid="uid://6303at6snnwr" path="res://Assets/Font/Font1.png" id="5_4iy6t"]
 [ext_resource type="PackedScene" uid="uid://llyeweeqjoc5" path="res://Assets/Scenes/GameObjects/settings.tscn" id="5_ltsxh"]
 [ext_resource type="Texture2D" uid="uid://ct3ttysfdqk34" path="res://Assets/Images/UI/Buttons.png" id="6_4iy6t"]
+[ext_resource type="PackedScene" uid="uid://uip3jpt00mk6" path="res://Assets/Scenes/GameObjects/gameover.tscn" id="10_e0nf8"]
+[ext_resource type="AudioStream" uid="uid://cbgsni7tsyibx" path="res://Assets/card_flip.mp3" id="11_g3py7"]
 
 [sub_resource type="Gradient" id="Gradient_3fuio"]
 offsets = PackedFloat32Array(0.089201875)
@@ -63,11 +65,6 @@ metadata/_edit_group_ = true
 position = Vector2(45, 16)
 shape = SubResource("RectangleShape2D_4iy6t")
 metadata/_edit_group_ = true
-
-[node name="Init Game" type="Button" parent="." unique_id=1269849149]
-offset_right = 185.0
-offset_bottom = 76.0
-text = "Login & Init Game"
 
 [node name="JoinCode" type="TextureRect" parent="." unique_id=678569724]
 offset_left = 453.0
@@ -130,7 +127,6 @@ vertical_alignment = 1
 
 [node name="P1" parent="Players" unique_id=1284586332 instance=ExtResource("4_owchf")]
 process_mode = 4
-visible = false
 position = Vector2(588, 552)
 
 [node name="P2" parent="Players" unique_id=942831778 instance=ExtResource("4_owchf")]
@@ -163,26 +159,21 @@ vertical_alignment = 1
 
 [node name="Play Card" type="Button" parent="." unique_id=1751675900]
 visible = false
-offset_left = 420.0
-offset_top = 520.0
-offset_right = 580.0
-offset_bottom = 564.0
+modulate = Color(1, 1, 1, 0)
+offset_left = 544.0
+offset_top = 495.0
+offset_right = 629.0
+offset_bottom = 611.0
+mouse_default_cursor_shape = 2
 theme_override_fonts/font = ExtResource("5_4iy6t")
 theme_override_font_sizes/font_size = 18
-text = "PLAY CARD"
 
-[node name="Slap" type="Button" parent="." unique_id=698695917]
+[node name="GameOver" parent="." unique_id=1799306605 instance=ExtResource("10_e0nf8")]
 visible = false
-offset_left = 600.0
-offset_top = 520.0
-offset_right = 760.0
-offset_bottom = 564.0
-theme_override_fonts/font = ExtResource("5_4iy6t")
-theme_override_font_sizes/font_size = 18
-text = "SLAP"
 
-[connection signal="pressed" from="Init Game" to="." method="_on_button_pressed"]
+[node name="AudioStreamPlayer2D" type="AudioStreamPlayer2D" parent="." unique_id=447241635]
+stream = ExtResource("11_g3py7")
+
 [connection signal="pressed" from="Start Game" to="." method="_on_start_game_pressed"]
 [connection signal="settings_changed" from="Settings" to="." method="_on_settings_changed"]
 [connection signal="pressed" from="Play Card" to="." method="_on_play_button_pressed"]
-[connection signal="pressed" from="Slap" to="." method="_on_slap_button_pressed"]
