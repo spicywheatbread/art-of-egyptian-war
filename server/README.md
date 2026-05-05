@@ -7,9 +7,16 @@ WebSocket game server for Art of Egyptian War. Manages lobby rooms where players
 ```
 src/
   index.ts              – Entry point; WebSocket server, message routing, disconnect handling
+  gameLoop.ts           – Game state machine and core gameplay mechanics (dealing, turns, slaps, win conditions)
   accounts/service.ts   – Firestore-backed register/login and persistent stats updates
   db/firestore.ts       – Firebase Admin SDK initialization (service account or ADC)
-  protocol/             – Shared types (game state, cards, IDs, settings)
+  protocol/
+    index.ts            – Protocol version constant
+    card.ts             – Card types (rank, suit enums)
+    ids.ts              – Type aliases (PlayerId, RoomId, GameSessionId)
+    user.ts             – Player and account statistics structures
+    gameSettings.ts     – Configurable game rules
+    gameState.ts        – Game room state structures (Lobby, InGame, GameOver phases)
   lobby/
     store.ts            – In-memory lobby state (rooms, sockets, create/join/leave, broadcast)
     messages.ts         – Client/server message types and JSON validation
@@ -28,18 +35,23 @@ All messages are one UTF-8 JSON object per WebSocket text frame and include a `t
 | `createLobby`   | _(none)_                           | optional `username` must match authenticated user |
 | `joinLobby`     | `gameCode`                         | optional `username` must match authenticated user |
 | `leaveLobby`    | _(none)_                           | leaves current room |
+| `startGame`     | _(none)_                           | host only; deals cards and transitions to InGame |
+| `playCard`      | `cardIndex`                        | player plays a card on their turn |
+| `slap`          | _(none)_                           | player attempts to slap the center pile |
+| `drag`          | `x`, `y`                           | sends card drag position for UI synchronization |
+| `getMyStats`    | _(none)_                           | retrieves account statistics |
 | `recordOutcome` | `didWin`                           | dev-only stats update; requires `ENABLE_DEV_RECORD_OUTCOME=true` |
 
 **Server → Client**
 
-| `type`       | Fields                                   |
-|--------------|------------------------------------------|
-| `welcome`    | `protocol` (version number)              |
-| `authOk`     | `username`, `wins`, `gamesPlayed`        |
-| `lobbyState` | `lobby` (full `LobbyRoomState` snapshot) |
-| `error`      | `code`, `message`                        |
-
-Recommended client flow (Godot): connect → read `welcome` → `register`/`login` → lobby messages.
+| `type`       | Fields                                   | Notes |
+|--------------|------------------------------------------|-------|
+| `welcome`    | `protocol` (version number)              | sent immediately on connection |
+| `authOk`     | `username`, `wins`, `gamesPlayed`        | sent after successful register/login |
+| `lobbyState` | `lobby` (full `LobbyRoomState` snapshot) | sent when room state changes or after join |
+| `gameState`  | `game` (full `GameRoomState` snapshot)   | sent periodically during active game; includes turn info, center pile, hand counts |
+| `myStats`    | `stats` (account statistics)             | response to `getMyStats` request |
+| `error`      | `code`, `message`                        | sent on any error condition |
 
 Full message shapes and examples are in `PROTOCOL.md`.
 
@@ -143,3 +155,49 @@ wscat -c ws://localhost:8080
 ```
 
 Both clients receive the updated `lobbyState` whenever someone joins, leaves, or disconnects.
+
+## Game Flow & Mechanics
+
+### Room Lifecycle
+1. **Lobby Phase**: Players join and wait for host to start
+2. **InGame Phase**: Cards are dealt; players take turns playing cards, attempting slaps
+3. **GameOver Phase**: Winner determined; statistics recorded to Firestore
+
+### Card Dealing
+Full 52-card deck distributed round-robin to all players at game start.
+
+### Royal Cards
+When a player plays **Jack** (1 chance), **Queen** (2 chances), **King** (3 chances), or **Ace** (4 chances), the next player gets that many opportunities to flip a card from the draw pile:
+- If they flip a non-royal card, they collect the center pile
+- If they flip another royal card, the turns pass to the next player
+- If they run out of chances, they collect the center pile
+
+### Slap Rules
+Players can slap the center pile when:
+- **Pair**: Two consecutive cards of the same rank
+- **Sandwich**: Same rank with exactly one card between them
+
+Successful slap wins the center pile. **Bad slap** (invalid slap) results in a configurable penalty (1–52 cards burned or entire hand).
+
+### Turn Management
+- Players take turns in circular order
+- Players with no cards are skipped
+- Turn passes after playing a card (unless it's a royal card)
+
+### Win Condition
+First player to collect all 52 cards or last player remaining with cards.
+
+### Configurable Game Settings
+To be implemented
+- `includeJokers` – Include 2 jokers in deck
+- `enableTopSlaps`, `enableBottomSlaps` – Allow slaps (independent toggle)
+- `burnCardsOnBadSlap` – Cards lost for bad slap (1–52 or "ENTIRE_HAND")
+- `turnTimeLimitMs` – Optional turn timeout (null = no limit)
+- `maxPlayers` – 2–4 players
+- `enableSlapOnRankMatch`, `enableSlapOnSuitMatch` – Additional slap rules (experimental)
+
+### Statistics & Persistence
+After each game, player stats are recorded to Firestore (`accounts` collection):
+- `wins` – Total games won
+- `gamesPlayed` – Total games played
+- Per-game metrics: successful slaps, unsuccessful slaps, longest game duration

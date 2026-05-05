@@ -100,6 +100,14 @@ Sent when the current turn's player is dragging a card with the mouse.
   "global_position": Vec2 }
 ```
 
+### getMyStats
+
+Request account statistics (wins, games played, etc.).
+
+```json
+{ "type": "getMyStats" }
+```
+
 ### recordOutcome (dev-only)
 
 Enabled only when `ENABLE_DEV_RECORD_OUTCOME=true`.
@@ -162,6 +170,14 @@ Fields the server uses today (others may be added):
 ### gameState
 
 Per-player snapshot after the game starts or when state changes (e.g. after `playCard` / `slap`). Shape matches `RoomSnapshotForPlayer` in the server types.
+
+### myStats
+
+Response to `getMyStats` request. Contains player account statistics.
+
+```json
+{ "type": "myStats", "stats": { "wins": 5, "gamesPlayed": 12 } }
+```
 
 ### error
 
