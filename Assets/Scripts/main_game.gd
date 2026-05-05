@@ -287,31 +287,16 @@ func configure_lobby() -> void:
 	var player_count = lobby["players"].size()
 	var is_host = false
 	var curr_player_index
-	for i in range(player_count):
-		var player = lobby["players"][i]
-		
-		var username = player["username"]
-		if username == Globals.username:
-			username2node[username] = $Players/P1
-			setup_player(username)
-			
-			curr_player_index = i
-			
-			# Find host
-			if player["playerId"] == lobby["hostPlayerId"]:
-				is_host = true
-
+	
 	# Render the rest of players
 	for i in range(player_count):
-		if i != curr_player_index:
-			var player = lobby["players"][i]
+		var player = lobby["players"][i]
+		if Globals.username == player["username"] and player["playerId"] == lobby["hostPlayerId"]:
+			is_host = true
 			
-			var username = player["username"]
-			if i < curr_player_index:
-				username2node[username] = $Players.get_child((i + player_count - curr_player_index))
-			else:
-				username2node[username] = $Players.get_child(i - curr_player_index)
-			setup_player(username)
+		var username = player["username"]
+		username2node[username] = $Players.get_child(i)
+		setup_player(username)
 				
 	$"Start Game".visible = is_host && player_count >= 2
 
