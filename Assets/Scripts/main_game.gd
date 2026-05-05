@@ -8,7 +8,7 @@ var _in_online_match: bool = false
 @export var card_tscn: PackedScene
 @onready var card_flip_sound = $AudioStreamPlayer2D
 @onready var _center_pile: Center_Pile = $"Center Pile"
-var current_state
+var current_state = {}
 
 func _ready() -> void:
 	# Handle game over
@@ -159,7 +159,20 @@ func _username_for_player_id(state: Dictionary, pid: String) -> String:
 			return str(p.get("username", ""))
 	return ""
 
-
+func get_current_turn_username() -> String: 
+	var turn = current_state.get("turn")
+	if typeof(turn) != TYPE_DICTIONARY:
+		return ""
+	var tid = turn.get("currentPlayerId", "")
+	var players = current_state.get("players", [])
+	for p in players:
+		if p.get("playerId", "") == tid:
+			return p.get("username", "")
+			
+	# if we reach here, something is messed up
+	print("Can't match turn to player for id:", tid)
+	return ""
+	
 func _format_turn_line(state: Dictionary) -> String:
 	var turn_any = state.get("turn")
 	if typeof(turn_any) != TYPE_DICTIONARY:

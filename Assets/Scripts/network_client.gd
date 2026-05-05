@@ -7,7 +7,8 @@ signal lobby_state(payload: Dictionary)
 signal game_state (payload: Dictionary)
 signal stats_state(payload: Dictionary)
 
-@export var websocket_url: String = "wss://truthful-nature-production-1b37.up.railway.app" # "ws://localhost:8080"
+@export var websocket_url: String = "ws://localhost:8080"
+# "wss://truthful-nature-production-1b37.up.railway.app" 
 #@export var auto_reconnect: bool = false 
 
 var _socket: WebSocketPeer = WebSocketPeer.new()
@@ -126,7 +127,6 @@ func slap ():
 	}) 
 	
 func drag_card(global_position: Vector2):
-	# Only can drag if its your turn
 	send_json({
 		"type": "drag",
 		"global_position": global_position
