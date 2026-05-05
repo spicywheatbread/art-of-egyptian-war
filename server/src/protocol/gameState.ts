@@ -29,6 +29,11 @@ export interface PlayedCardEvent {
   card: Card;
 }
 
+export interface DragEvent {
+    type: "dragCard";
+    atMs: TimestampMs;
+    globalPosition: Vec2;
+}
 export interface SlapEvent {
   type: "slap";
   atMs: TimestampMs;
@@ -39,13 +44,17 @@ export interface SlapEvent {
   burnedCount: number;
 }
 
+export interface Vec2 {
+    x: number;
+    y: number;
+}
 export interface StartGameEvent {
     type: "startGame";
     atMs: TimestampMs;
     byPlayerId: PlayerId;
 }
 
-export type LastActionEvent = PlayedCardEvent | SlapEvent | StartGameEvent;
+export type LastActionEvent = PlayedCardEvent | SlapEvent | StartGameEvent | DragEvent;
 
 export interface PublicGameRoomState {
   status: "InGame";

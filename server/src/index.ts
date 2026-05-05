@@ -422,6 +422,19 @@ export async function startServer(options: StartServerOptions = {}): Promise<Run
           break;
         }
 
+        case "drag": {
+          const socketInfo = store.getSocketInfo(socket);
+          if (!socketInfo) {
+            sendError(store, socket, "NOT_IN_ROOM", "Somehow dragging a card while not in room?");
+            return;
+          }
+
+          gameLoop.drag(socketInfo.roomId, msg.global_position)
+
+          sendGameSnapshotsForRoom(socketInfo.roomId);
+          break;
+        }
+
         case "recordOutcome": {
           if (!enableDevRecordOutcome) {
             sendError(
