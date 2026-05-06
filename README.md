@@ -2,6 +2,8 @@
 
 The Art of Egyptian War will be a digital adaptation of the casual card game “Egyptian War”. Our game aims to be an easily accessible alternative to the real world game with additional mechanics. Because our game is online, people are able to play Egyptian War even if they are not in the same location.
 
+Play [here](https://vkouru07.itch.io/art-of-egyptian-war)!
+
 ## Rules of the Game
 2-4 players
 
