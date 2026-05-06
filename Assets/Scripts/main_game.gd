@@ -1,15 +1,15 @@
 extends Node2D
 
-var lobby: Dictionary = {}
-var username2node: Dictionary = {}
-
-var _in_online_match: bool = false
-
 @export var card_tscn: PackedScene
 @onready var card_flip_sound = $CanvasLayer/PlayCardAudio
 @onready var slap_sound1 = $CanvasLayer/SlapAudio1
 @onready var _center_pile: Center_Pile = $CanvasLayer/"Center Pile"
-var current_state = {}
+
+var current_game_state = {}
+var current_lobby_state = {}
+
+var username_to_node: Dictionary = {}
+var _in_online_match: bool = false
 
 func _ready() -> void:
 	# Handle game over
@@ -18,6 +18,7 @@ func _ready() -> void:
 	
 	if not NetworkClient.game_state.is_connected(_on_game_state):
 		NetworkClient.game_state.connect(_on_game_state)
+	
 	if not NetworkClient.lobby_state.is_connected(_on_lobby_state):
 		NetworkClient.lobby_state.connect(_on_lobby_state)
 
@@ -38,16 +39,16 @@ func _on_game_state(payload: Variant) -> void:
 	if typeof(public_any) != TYPE_DICTIONARY:
 		return
 
-	current_state = public_any
-	match String(current_state.get("status", "")):
+	current_game_state = public_any
+	match String(current_game_state.get("status", "")):
 		"InGame":
 			_in_online_match = true
-			_apply_in_game_state(current_state)
+			_apply_in_game_state(current_game_state)
 			$CanvasLayer/GameStatus.visible = true
 		"GameOver":
 			_in_online_match = false
 			_set_player_network_drag(false)
-			_apply_game_over_state(current_state)
+			_apply_game_over_state(current_game_state)
 		"Lobby":
 			_in_online_match = false
 			_set_player_network_drag(false)
@@ -62,13 +63,13 @@ func _apply_in_game_state(state: Dictionary) -> void:
 			continue
 		var username = str(p.get("username", ""))
 		var hand_count = _to_int_safe(p.get("hand_count", 0))
-		var player_node = username2node.get(username) as Player
+		var player_node = username_to_node.get(username) as Player
 		player_node.set_hand_card_count(hand_count)
 		player_node.set_label_turn(username == get_current_turn_username())
 
 	var lastAction = state.get("lastAction")
 	if lastAction.get("type") == "dragCard":
-		var p = username2node[get_current_turn_username()]
+		var p = username_to_node[get_current_turn_username()]
 		var pos_dict = lastAction.get("globalPosition")
 		var pos = Vector2(float(pos_dict.get("x")), float(pos_dict.get("y")))
 		p.display_dragged(pos)
@@ -107,34 +108,34 @@ func _rebuild_center_pile_from_server(pile_any: Variant, pileCardPositions) -> v
 		
 func _on_lobby_state(payload: Dictionary) -> void:
 	var l = payload["lobby"]
-	if not lobby or lobby != l:
-		lobby = l
+	if not current_lobby_state or current_lobby_state != l:
+		current_lobby_state = l
 		configure_lobby()
 
 
 func configure_lobby() -> void:
-	$CanvasLayer/JoinCode/JoinCodeLabel.text = "CODE: " + lobby["gameCode"]
+	$CanvasLayer/JoinCode/JoinCodeLabel.text = "CODE: " + current_lobby_state["gameCode"]
 
 	for child in $CanvasLayer/Players.get_children():
 		child.visible = false
 		child.process_mode = Node.PROCESS_MODE_DISABLED
 
-	username2node.clear()
+	username_to_node.clear()
 	
 	# Find host and current player
-	var player_count = lobby["players"].size()
+	var player_count = current_lobby_state["players"].size()
 	var is_host = false
 
 	# Render the rest of players
 	for i in range(player_count):
-		var player = lobby["players"][i]
+		var player = current_lobby_state["players"][i]
 		var username = player["username"]
 		var player_node = $CanvasLayer/Players.get_child(i) as Player
-		username2node[username] = player_node
+		username_to_node[username] = player_node
 		player_node.setup(username)
 		if Globals.username == player["username"]:
 			player_node.set_username_color_me()
-			if player["playerId"] == lobby["hostPlayerId"]:
+			if player["playerId"] == current_lobby_state["hostPlayerId"]:
 				is_host = true
 				
 	$CanvasLayer/"Start Game".visible = is_host && player_count >= 2
@@ -221,11 +222,11 @@ func _format_last_action_line(last_any: Variant, players: Variant) -> String:
 			return ""
 
 func get_current_turn_username() -> String: 
-	var turn = current_state.get("turn")
+	var turn = current_game_state.get("turn")
 	if typeof(turn) != TYPE_DICTIONARY:
 		return ""
 	var tid = turn.get("currentPlayerId", "")
-	var players = current_state.get("players", [])
+	var players = current_game_state.get("players", [])
 	for p in players:
 		if p.get("playerId", "") == tid:
 			return p.get("username", "")
@@ -299,7 +300,7 @@ func _on_center_pile_input(_viewport: Node, event: InputEvent, _shape_idx: int) 
 
 
 func _set_player_network_drag(enabled_network_sync: bool) -> void:
-	for uname in username2node:
-		var p = username2node[uname] as Player
+	for uname in username_to_node:
+		var p = username_to_node[uname] as Player
 		if p:
 			p.network_sync_hand = enabled_network_sync
