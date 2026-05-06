@@ -101,7 +101,7 @@ func _rebuild_center_pile_from_server(pile_any: Variant, pileCardPositions) -> v
 		var pos_dict = pileCardPositions[count]
 		var pos = Vector2(float(pos_dict.get("x")), float(pos_dict.get("y")))
 		if pos.is_equal_approx(Vector2(0, 0)):
-			c.global_position == $"CanvasLayer/Center Pile".global_position
+			c.global_position = $"CanvasLayer/Center Pile".global_position
 		else:
 			c.global_position = pos
 		count += 1
@@ -255,7 +255,6 @@ func init_fake_game() -> void:
 	NetworkClient.login_user("Alice", "secret123")
 	NetworkClient.leave_lobby()
 	NetworkClient.create_lobby()
-
 
 func _on_start_game_pressed() -> void:
 	$CanvasLayer/"Start Game".visible = false
