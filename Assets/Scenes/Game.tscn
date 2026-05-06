@@ -157,7 +157,7 @@ stream = ExtResource("11_g3py7")
 [node name="SlapAudio1" type="AudioStreamPlayer2D" parent="CanvasLayer" unique_id=1001043794]
 stream = ExtResource("12_tim1p")
 
-[node name="ColorRect" type="ColorRect" parent="CanvasLayer" unique_id=741967465]
+[node name="Background" type="ColorRect" parent="CanvasLayer" unique_id=741967465]
 z_index = -2397
 anchors_preset = 15
 anchor_right = 1.0
