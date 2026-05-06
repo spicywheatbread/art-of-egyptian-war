@@ -28,32 +28,6 @@ func _ready() -> void:
 
 	$CanvasLayer/GameStatus.visible = false
 
-func _unhandled_input(event: InputEvent) -> void:
-	if not _in_online_match:
-		return
-	if event is InputEventKey and event.pressed:
-		match event.physical_keycode:
-			KEY_SPACE:
-				var random_position = $"CanvasLayer/Center Pile".global_position + Vector2(randf_range(-10, 10), randf_range(-15, 15))
-				NetworkClient.play_card(random_position)
-			KEY_S:
-				NetworkClient.slap()
-
-
-func _on_center_pile_input(_viewport: Node, event: InputEvent, _shape_idx: int) -> void:
-	if not _in_online_match:
-		return
-	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
-		NetworkClient.slap()
-
-
-func _set_player_network_drag(enabled_network_sync: bool) -> void:
-	for uname in username2node:
-		var p = username2node[uname] as Player
-		if p:
-			p.network_sync_hand = enabled_network_sync
-
-
 func _on_game_state(payload: Variant) -> void:
 	if typeof(payload) != TYPE_DICTIONARY:
 		return
@@ -104,8 +78,79 @@ func _apply_in_game_state(state: Dictionary) -> void:
 	var turn_line = _format_turn_line(state).to_upper()
 	var last_line = _format_last_action_line(state.get("lastAction"), players).to_upper()
 	$CanvasLayer/GameStatus.text = ("" if last_line.is_empty() else last_line + "\n") + turn_line
+	
+func _rebuild_center_pile_from_server(pile_any: Variant, pileCardPositions) -> void:
+	_center_pile.clear_pile()
+	if typeof(pile_any) != TYPE_ARRAY:
+		return
+
+	var count = 0
+	for item in pile_any:
+		if typeof(item) != TYPE_DICTIONARY:
+			continue
+		var cd: Dictionary = item
+		if cd.get("isJoker", false):
+			continue
+		var suit_i = _to_int_safe(cd.get("suit", 0))
+		var rank_i = _to_int_safe(cd.get("rank", 1))
+		var c = card_tscn.instantiate() as Card
+		c.setup(suit_i, rank_i)
+		_center_pile.add_card(c)
+		
+		var pos_dict = pileCardPositions[count]
+		var pos = Vector2(float(pos_dict.get("x")), float(pos_dict.get("y")))
+		if pos.is_equal_approx(Vector2(0, 0)):
+			c.global_position == $"CanvasLayer/Center Pile".global_position
+		else:
+			c.global_position = pos
+		count += 1
+		
+func _on_lobby_state(payload: Dictionary) -> void:
+	var l = payload["lobby"]
+	if not lobby or lobby != l:
+		lobby = l
+		configure_lobby()
 
 
+func configure_lobby() -> void:
+	$CanvasLayer/JoinCode/JoinCodeLabel.text = "CODE: " + lobby["gameCode"]
+
+	for child in $CanvasLayer/Players.get_children():
+		child.visible = false
+		child.process_mode = Node.PROCESS_MODE_DISABLED
+
+	username2node.clear()
+	
+	# Find host and current player
+	var player_count = lobby["players"].size()
+	var is_host = false
+	var curr_player_index
+	for i in range(player_count):
+		var player = lobby["players"][i]
+		
+		var username = player["username"]
+		if username == Globals.username:
+			username2node[username] = $CanvasLayer/Players/P1
+			setup_player(username)
+			
+			curr_player_index = i
+			
+			# Find host
+			if player["playerId"] == lobby["hostPlayerId"]:
+				is_host = true
+
+	# Render the rest of players
+	for i in range(player_count):
+		var player = lobby["players"][i]
+		if Globals.username == player["username"] and player["playerId"] == lobby["hostPlayerId"]:
+			is_host = true
+			
+		var username = player["username"]
+		username2node[username] = $CanvasLayer/Players.get_child(i)
+		setup_player(username)
+				
+	$CanvasLayer/"Start Game".visible = is_host && player_count >= 2
+	
 func _apply_game_over_state(state: Dictionary) -> void:
 	var stats_any = state.get("finalStats")
 	var line = "Game over."
@@ -133,29 +178,6 @@ func _apply_game_over_state(state: Dictionary) -> void:
 			
 	$CanvasLayer/GameStatus.visible = true
 	$CanvasLayer/GameStatus.text = line.to_upper()
-
-
-func _username_for_player_id(state: Dictionary, pid: String) -> String:
-	for p in state.get("players", []):
-		if typeof(p) != TYPE_DICTIONARY:
-			continue
-		if str(p.get("playerId", "")) == pid:
-			return str(p.get("username", ""))
-	return ""
-
-func get_current_turn_username() -> String: 
-	var turn = current_state.get("turn")
-	if typeof(turn) != TYPE_DICTIONARY:
-		return ""
-	var tid = turn.get("currentPlayerId", "")
-	var players = current_state.get("players", [])
-	for p in players:
-		if p.get("playerId", "") == tid:
-			return p.get("username", "")
-			
-	# if we reach here, something is messed up
-	print("Can't match turn to player for id:", tid)
-	return ""
 	
 func _format_turn_line(state: Dictionary) -> String:
 	var turn_any = state.get("turn")
@@ -210,7 +232,20 @@ func _format_last_action_line(last_any: Variant, players: Variant) -> String:
 		_:
 			return ""
 
-
+func get_current_turn_username() -> String: 
+	var turn = current_state.get("turn")
+	if typeof(turn) != TYPE_DICTIONARY:
+		return ""
+	var tid = turn.get("currentPlayerId", "")
+	var players = current_state.get("players", [])
+	for p in players:
+		if p.get("playerId", "") == tid:
+			return p.get("username", "")
+			
+	# if we reach here, something is messed up
+	print("Can't match turn to player for id:", tid)
+	return ""
+	
 func _to_int_safe(v: Variant) -> int:
 	if v == null:
 		return 0
@@ -219,89 +254,6 @@ func _to_int_safe(v: Variant) -> int:
 	if typeof(v) == TYPE_INT:
 		return v
 	return int(v)
-
-
-func _rebuild_center_pile_from_server(pile_any: Variant, pileCardPositions) -> void:
-	_center_pile.clear_pile()
-	if typeof(pile_any) != TYPE_ARRAY:
-		return
-
-	var count = 0
-	for item in pile_any:
-		if typeof(item) != TYPE_DICTIONARY:
-			continue
-		var cd: Dictionary = item
-		if cd.get("isJoker", false):
-			continue
-		var suit_i = _to_int_safe(cd.get("suit", 0))
-		var rank_i = _to_int_safe(cd.get("rank", 1))
-		var c = card_tscn.instantiate() as Card
-		c.setup(suit_i, rank_i)
-		_center_pile.add_card(c)
-		
-		var pos_dict = pileCardPositions[count]
-		var pos = Vector2(float(pos_dict.get("x")), float(pos_dict.get("y")))
-		if pos.is_equal_approx(Vector2(0, 0)):
-			c.global_position == $"CanvasLayer/Center Pile".global_position
-		else:
-			c.global_position = pos
-		count += 1
-
-
-func _process(_delta: float) -> void:
-	pass
-
-
-func _exit_tree() -> void:
-	pass
-
-
-func _on_lobby_state(payload: Dictionary) -> void:
-	var l = payload["lobby"]
-	if not lobby or lobby != l:
-		lobby = l
-		configure_lobby()
-
-
-func configure_lobby() -> void:
-	$CanvasLayer/JoinCode/JoinCodeLabel.text = "CODE: " + lobby["gameCode"]
-
-	for child in $CanvasLayer/Players.get_children():
-		child.visible = false
-		child.process_mode = Node.PROCESS_MODE_DISABLED
-
-	username2node.clear()
-	
-	# Find host and current player
-	var player_count = lobby["players"].size()
-	var is_host = false
-	var curr_player_index
-	for i in range(player_count):
-		var player = lobby["players"][i]
-		
-		var username = player["username"]
-		if username == Globals.username:
-			username2node[username] = $CanvasLayer/Players/P1
-			setup_player(username)
-			
-			curr_player_index = i
-			
-			# Find host
-			if player["playerId"] == lobby["hostPlayerId"]:
-				is_host = true
-
-	# Render the rest of players
-	for i in range(player_count):
-		var player = lobby["players"][i]
-		if Globals.username == player["username"] and player["playerId"] == lobby["hostPlayerId"]:
-			is_host = true
-			
-		var username = player["username"]
-		username2node[username] = $CanvasLayer/Players.get_child(i)
-		setup_player(username)
-				
-	$CanvasLayer/"Start Game".visible = is_host && player_count >= 2
-
 
 func setup_player(username: String) -> void:
 	var node = username2node[username] as Player
@@ -336,3 +288,36 @@ func _on_settings_changed(color: Color, volume: int) -> void:
 	
 	card_flip_sound.volume_linear = volume / 100.0
 	slap_sound1.volume_linear = volume / 100.0
+
+func _username_for_player_id(state: Dictionary, pid: String) -> String:
+	for p in state.get("players", []):
+		if typeof(p) != TYPE_DICTIONARY:
+			continue
+		if str(p.get("playerId", "")) == pid:
+			return str(p.get("username", ""))
+	return ""
+	
+func _unhandled_input(event: InputEvent) -> void:
+	if not _in_online_match:
+		return
+	if event is InputEventKey and event.pressed:
+		match event.physical_keycode:
+			KEY_SPACE:
+				var random_position = $"CanvasLayer/Center Pile".global_position + Vector2(randf_range(-10, 10), randf_range(-15, 15))
+				NetworkClient.play_card(random_position)
+			KEY_S:
+				NetworkClient.slap()
+
+
+func _on_center_pile_input(_viewport: Node, event: InputEvent, _shape_idx: int) -> void:
+	if not _in_online_match:
+		return
+	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+		NetworkClient.slap()
+
+
+func _set_player_network_drag(enabled_network_sync: bool) -> void:
+	for uname in username2node:
+		var p = username2node[uname] as Player
+		if p:
+			p.network_sync_hand = enabled_network_sync
