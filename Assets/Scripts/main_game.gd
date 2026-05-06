@@ -11,6 +11,13 @@ var current_lobby_state = {}
 var username_to_node: Dictionary = {}
 var _in_online_match: bool = false
 
+var _pile_collect_animating: bool = false
+var _pile_collect_sig: String = ""
+var _pile_collect_tween: Tween = null
+var _prev_pile_count: int = 0
+var _prev_hand_counts: Dictionary = {} # username -> int
+
+
 func _ready() -> void:
 	# Handle game over
 	$CanvasLayer/GameOver.visible = false
@@ -58,14 +65,26 @@ func _on_game_state(payload: Variant) -> void:
 
 func _apply_in_game_state(state: Dictionary) -> void:
 	var players: Array = state.get("players", [])
+	var hand_counts_now: Dictionary = {}
+	var best_delta: int = -999999
+	var best_user: String = ""
 	for p in players:
 		if typeof(p) != TYPE_DICTIONARY:
 			continue
 		var username = str(p.get("username", ""))
 		var hand_count = _to_int_safe(p.get("hand_count", 0))
+		hand_counts_now[username] = hand_count
+		var prev_count := _to_int_safe(_prev_hand_counts.get(username, hand_count))
+		var delta: int = int(hand_count - prev_count)
+		if delta > best_delta:
+			best_delta = delta
+			best_user = username
 		var player_node = username_to_node.get(username) as Player
 		player_node.set_hand_card_count(hand_count)
 		player_node.set_label_turn(username == get_current_turn_username())
+
+	var pile_any: Variant = state.get("pileCards", [])
+	var current_pile_count := (pile_any as Array).size() if typeof(pile_any) == TYPE_ARRAY else 0
 
 	var lastAction = state.get("lastAction")
 	if lastAction.get("type") == "dragCard":
@@ -74,11 +93,80 @@ func _apply_in_game_state(state: Dictionary) -> void:
 		var pos = Vector2(float(pos_dict.get("x")), float(pos_dict.get("y")))
 		p.display_dragged(pos)
 		
-	_rebuild_center_pile_from_server(state.get("pileCards", []), state.get("pileCardsPositions", []))
+	if not _pile_collect_animating:
+		var started = _maybe_animate_center_pile_to_winner(state, best_user, best_delta)
+		if not started:
+			_rebuild_center_pile_from_server(state.get("pileCards", []), state.get("pileCardsPositions", []))
+	_prev_pile_count = current_pile_count
+	_prev_hand_counts = hand_counts_now
 
 	var turn_line = _format_turn_line(state).to_upper()
 	var last_line = _format_last_action_line(state.get("lastAction"), players).to_upper()
 	$CanvasLayer/GameStatus.text = ("" if last_line.is_empty() else last_line + "\n") + turn_line
+
+func _maybe_animate_center_pile_to_winner(state: Dictionary, winner_username: String, winner_delta: int) -> bool:
+	if _center_pile.cards.size() <= 0:
+		return false
+
+	var incoming_pile_any: Variant = state.get("pileCards", [])
+	if typeof(incoming_pile_any) != TYPE_ARRAY:
+		return false
+	var incoming_count := (incoming_pile_any as Array).size()
+	if not (_prev_pile_count > 0 and incoming_count == 0):
+		return false
+
+	# Avoid re-triggering on the same emptied-pile snapshot.
+	var sig := str(_prev_pile_count) + "->" + str(incoming_count) + ":" + str(state.get("turn", {})) + ":" + str(state.get("lastAction", {}))
+	if sig == _pile_collect_sig:
+		return false
+	_pile_collect_sig = sig
+
+	# Identify winner as the player whose hand count increased the most this tick.
+	if winner_username.is_empty() or winner_delta <= 0:
+		return false
+
+	var winner_node := username_to_node.get(winner_username) as Player
+	if not winner_node:
+		return false
+
+	var target_node := winner_node.get_node_or_null("Cards") as Node2D
+	var target_pos := (target_node.global_position if target_node else winner_node.global_position)
+
+	_pile_collect_animating = true
+	if _pile_collect_tween and is_instance_valid(_pile_collect_tween):
+		_pile_collect_tween.kill()
+
+	_pile_collect_tween = create_tween()
+	_pile_collect_tween.set_parallel(true)
+
+	var i := 0
+	for child in _center_pile.get_children():
+		if not (child is Card):
+			continue
+		var c := child as Node2D
+		c.scale = Vector2.ONE
+
+		c.z_index = 1000 + i
+		var jitter := Vector2(randf_range(-18.0, 18.0), randf_range(-18.0, 18.0))
+		var delay := float(i) * 0.05
+		var dur := 0.75
+		_pile_collect_tween.tween_property(c, "global_position", target_pos + jitter, dur)\
+			.set_delay(delay)\
+			.set_trans(Tween.TRANS_QUAD)\
+			.set_ease(Tween.EASE_IN_OUT)
+		_pile_collect_tween.tween_property(c, "scale", Vector2(0.35, 0.35), dur)\
+			.set_delay(delay)\
+			.set_trans(Tween.TRANS_QUAD)\
+			.set_ease(Tween.EASE_IN_OUT)
+
+		i += 1
+
+	_pile_collect_tween.finished.connect(func():
+
+		_center_pile.clear_pile()
+		_pile_collect_animating = false
+	)
+	return true
 	
 func _rebuild_center_pile_from_server(pile_any: Variant, pileCardPositions) -> void:
 	_center_pile.clear_pile()
