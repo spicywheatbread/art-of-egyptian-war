@@ -13,14 +13,6 @@
 [ext_resource type="AudioStream" uid="uid://cbgsni7tsyibx" path="res://Assets/SFX/card_flip.mp3" id="11_g3py7"]
 [ext_resource type="AudioStream" uid="uid://cpm8xiw558vjc" path="res://Assets/SFX/slap1.mp3" id="12_tim1p"]
 
-[sub_resource type="Gradient" id="Gradient_3fuio"]
-offsets = PackedFloat32Array(0.089201875)
-colors = PackedColorArray(0.1122, 0.33, 0.21384001, 1)
-
-[sub_resource type="GradientTexture2D" id="GradientTexture2D_53qdw"]
-gradient = SubResource("Gradient_3fuio")
-fill_to = Vector2(1, 1)
-
 [sub_resource type="AtlasTexture" id="AtlasTexture_g3py7"]
 atlas = ExtResource("4_4e1g7")
 region = Rect2(0, 0, 1088, 1280)
@@ -42,12 +34,6 @@ card_tscn = ExtResource("3_ltsxh")
 
 [node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=1935964888]
 layer = -5
-
-[node name="Background" type="Sprite2D" parent="CanvasLayer" unique_id=1555052404]
-z_index = -1911
-position = Vector2(574, 324.00003)
-scale = Vector2(18.0625, 10.125001)
-texture = SubResource("GradientTexture2D_53qdw")
 
 [node name="Center Pile" type="Node2D" parent="CanvasLayer" unique_id=628171694]
 z_index = -199
@@ -170,6 +156,16 @@ stream = ExtResource("11_g3py7")
 
 [node name="SlapAudio1" type="AudioStreamPlayer2D" parent="CanvasLayer" unique_id=1001043794]
 stream = ExtResource("12_tim1p")
+
+[node name="Background" type="ColorRect" parent="CanvasLayer" unique_id=741967465]
+z_index = -2397
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.015600008, 0.39, 0.21527998, 1)
 
 [connection signal="pressed" from="CanvasLayer/Start Game" to="." method="_on_start_game_pressed"]
 [connection signal="settings_changed" from="CanvasLayer/Settings" to="." method="_on_settings_changed"]
