@@ -435,6 +435,23 @@ export async function startServer(options: StartServerOptions = {}): Promise<Run
           break;
         }
 
+        case "sendChat": {
+          const socketInfo = store.getSocketInfo(socket);
+          if (!socketInfo) {
+            sendError(store, socket, "NOT_IN_ROOM", "Join a game before sending chat");
+            return;
+          }
+
+          const result = gameLoop.sendChat(socketInfo.roomId, socketInfo.playerId, msg.emoji_number);
+          if (!result.ok) {
+            sendError(store, socket, result.code ?? "SEND_CHAT_FAILED", result.message ?? "");
+            return;
+          }
+
+          sendGameSnapshotsForRoom(socketInfo.roomId);
+          break;
+        }
+
         case "recordOutcome": {
           if (!enableDevRecordOutcome) {
             sendError(

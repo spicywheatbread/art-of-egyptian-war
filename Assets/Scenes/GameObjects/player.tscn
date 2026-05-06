@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" uid="uid://roke7kdnvqpo" path="res://Assets/Scripts/player.gd" id="1_rxvhy"]
 [ext_resource type="PackedScene" uid="uid://bixoatsoqg66h" path="res://Assets/Scenes/GameObjects/card.tscn" id="2_r4ko2"]
+[ext_resource type="PackedScene" uid="uid://b67qct0k3p1i0" path="res://Assets/Scenes/GameObjects/chat.tscn" id="3_o24gj"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_yga71"]
 size = Vector2(84, 112)
@@ -25,6 +26,10 @@ text = "Player Deck"
 horizontal_alignment = 1
 
 [node name="Cards" type="Node2D" parent="." unique_id=1155625537]
+
+[node name="Chat" parent="." unique_id=548038191 instance=ExtResource("3_o24gj")]
+position = Vector2(-105, -30.000004)
+scale = Vector2(0.2, 0.2)
 
 [connection signal="input_event" from="Area2D" to="." method="_start_card_drag"]
 [connection signal="mouse_entered" from="Area2D" to="." method="_on_mouse_entered_deck"]

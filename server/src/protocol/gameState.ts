@@ -54,7 +54,14 @@ export interface StartGameEvent {
     byPlayerId: PlayerId;
 }
 
-export type LastActionEvent = PlayedCardEvent | SlapEvent | StartGameEvent | DragEvent;
+export interface ChatEvent {
+    type: "sendChat";
+    atMs: TimestampMs;
+    byPlayerId: PlayerId;
+    emojiNumber: number;
+}
+
+export type LastActionEvent = PlayedCardEvent | SlapEvent | StartGameEvent | DragEvent | ChatEvent;
 
 export interface PublicGameRoomState {
   status: "InGame";

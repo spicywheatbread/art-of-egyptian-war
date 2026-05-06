@@ -139,6 +139,11 @@ func drag_card(global_position: Vector2):
 		}
 	})
 
+
+func send_chat(emojiNumber : int):
+	send_json({"type": "sendChat", "emoji_number": emojiNumber})
+
+
 func _poll_socket ():
 	# Data transfer and state updates will only happen when calling this function.
 	_socket.poll()
