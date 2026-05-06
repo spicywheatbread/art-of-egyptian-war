@@ -63,3 +63,9 @@ func _on_forgot_button_pressed() -> void:
 	popup.dialog_text = "too badd" 
 	add_child(popup) 
 	popup.popup_centered() 
+
+
+# Auto login on Enter
+func _input(event):
+	if event is InputEventKey and event.pressed and event.keycode == KEY_ENTER:
+		_on_login_button_pressed()

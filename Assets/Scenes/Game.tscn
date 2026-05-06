@@ -10,7 +10,8 @@
 [ext_resource type="PackedScene" uid="uid://llyeweeqjoc5" path="res://Assets/Scenes/GameObjects/settings.tscn" id="5_ltsxh"]
 [ext_resource type="Texture2D" uid="uid://ct3ttysfdqk34" path="res://Assets/Images/UI/Buttons.png" id="6_4iy6t"]
 [ext_resource type="PackedScene" uid="uid://uip3jpt00mk6" path="res://Assets/Scenes/GameObjects/gameover.tscn" id="10_e0nf8"]
-[ext_resource type="AudioStream" uid="uid://cbgsni7tsyibx" path="res://Assets/card_flip.mp3" id="11_g3py7"]
+[ext_resource type="AudioStream" uid="uid://cbgsni7tsyibx" path="res://Assets/SFX/card_flip.mp3" id="11_g3py7"]
+[ext_resource type="AudioStream" uid="uid://cpm8xiw558vjc" path="res://Assets/SFX/slap1.mp3" id="12_tim1p"]
 
 [sub_resource type="Gradient" id="Gradient_3fuio"]
 offsets = PackedFloat32Array(0.089201875)
@@ -164,8 +165,11 @@ vertical_alignment = 1
 [node name="GameOver" parent="CanvasLayer" unique_id=1799306605 instance=ExtResource("10_e0nf8")]
 visible = false
 
-[node name="AudioStreamPlayer2D" type="AudioStreamPlayer2D" parent="CanvasLayer" unique_id=447241635]
+[node name="PlayCardAudio" type="AudioStreamPlayer2D" parent="CanvasLayer" unique_id=447241635]
 stream = ExtResource("11_g3py7")
+
+[node name="SlapAudio1" type="AudioStreamPlayer2D" parent="CanvasLayer" unique_id=1001043794]
+stream = ExtResource("12_tim1p")
 
 [connection signal="pressed" from="CanvasLayer/Start Game" to="." method="_on_start_game_pressed"]
 [connection signal="settings_changed" from="CanvasLayer/Settings" to="." method="_on_settings_changed"]

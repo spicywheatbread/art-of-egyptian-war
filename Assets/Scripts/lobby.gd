@@ -86,3 +86,9 @@ func _on_join_game_confirm_button_pressed() -> void:
 	var success = await NetworkClient.join_lobby(JoinCodeInput.text)
 	if !success:
 		InvalidCodeMessage.visible = true
+
+
+# Auto join on Enter
+func _input(event):
+	if event is InputEventKey and event.pressed and event.keycode == KEY_ENTER:
+		_on_join_game_confirm_button_pressed()
