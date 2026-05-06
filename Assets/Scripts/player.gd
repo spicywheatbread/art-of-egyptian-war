@@ -10,7 +10,11 @@ const OFFSET = Vector2(0.1, -0.5) # slight diagonal pile look
 ## When true, hand is driven by the server snapshot (no local drag-to-play).
 var network_sync_hand: bool = false
 
-
+func setup(username: String) -> void:
+	set_player_username(username)
+	visible = true
+	process_mode = Node.PROCESS_MODE_ALWAYS
+	
 func _process(_delta):
 	# Animation for card dragging
 	if dragged_card and Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT):
@@ -126,7 +130,15 @@ func get_top_position():
 func set_player_username(username : String) -> void:
 	player_username = username
 	$Label.text = username
-
+	
+func set_username_color_me():
+	$Label.add_theme_color_override("font_color", Color(255, 208, 0, 255))
+	
+func set_label_turn(is_my_turn: bool):
+	if is_my_turn:
+		$Label.text = str("> ", player_username, " <")
+	else:
+		$Label.text = player_username
 
 ## Matches visible card backs to the server's hand_count for this seat.
 func set_hand_card_count(count: int) -> void:

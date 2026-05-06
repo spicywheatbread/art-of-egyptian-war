@@ -60,11 +60,11 @@ func _apply_in_game_state(state: Dictionary) -> void:
 	for p in players:
 		if typeof(p) != TYPE_DICTIONARY:
 			continue
-		var uname = str(p.get("username", ""))
-		var hand_n = _to_int_safe(p.get("hand_count", 0))
-		var node = username2node.get(uname) as Player
-		if node:
-			node.set_hand_card_count(hand_n)
+		var username = str(p.get("username", ""))
+		var hand_count = _to_int_safe(p.get("hand_count", 0))
+		var player_node = username2node.get(username) as Player
+		player_node.set_hand_card_count(hand_count)
+		player_node.set_label_turn(username == get_current_turn_username())
 
 	var lastAction = state.get("lastAction")
 	if lastAction.get("type") == "dragCard":
@@ -124,30 +124,18 @@ func configure_lobby() -> void:
 	# Find host and current player
 	var player_count = lobby["players"].size()
 	var is_host = false
-	var curr_player_index
-	for i in range(player_count):
-		var player = lobby["players"][i]
-		
-		var username = player["username"]
-		if username == Globals.username:
-			username2node[username] = $CanvasLayer/Players/P1
-			setup_player(username)
-			
-			curr_player_index = i
-			
-			# Find host
-			if player["playerId"] == lobby["hostPlayerId"]:
-				is_host = true
 
 	# Render the rest of players
 	for i in range(player_count):
 		var player = lobby["players"][i]
-		if Globals.username == player["username"] and player["playerId"] == lobby["hostPlayerId"]:
-			is_host = true
-			
 		var username = player["username"]
-		username2node[username] = $CanvasLayer/Players.get_child(i)
-		setup_player(username)
+		var player_node = $CanvasLayer/Players.get_child(i) as Player
+		username2node[username] = player_node
+		player_node.setup(username)
+		if Globals.username == player["username"]:
+			player_node.set_username_color_me()
+			if player["playerId"] == lobby["hostPlayerId"]:
+				is_host = true
 				
 	$CanvasLayer/"Start Game".visible = is_host && player_count >= 2
 	
@@ -254,12 +242,6 @@ func _to_int_safe(v: Variant) -> int:
 	if typeof(v) == TYPE_INT:
 		return v
 	return int(v)
-
-func setup_player(username: String) -> void:
-	var node = username2node[username] as Player
-	node.set_player_username(username)
-	node.visible = true
-	node.process_mode = Node.PROCESS_MODE_ALWAYS
 
 func _on_slap_button_pressed() -> void:
 	NetworkClient.slap()
