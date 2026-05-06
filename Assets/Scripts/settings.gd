@@ -14,11 +14,6 @@ signal settings_changed(color: Color, volume: int)
 func _ready() -> void:
 	SettingsPopup.visible = false
 
-
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta: float) -> void:
-	pass
-
 func _on_settings_button_pressed() -> void:
 	SettingsPopup.visible = true
 	ColorPickerPopup.visible = false
