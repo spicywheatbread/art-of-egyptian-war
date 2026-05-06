@@ -21,7 +21,6 @@ offset_left = -68.0
 offset_top = 63.000004
 offset_right = 67.0
 offset_bottom = 90.0
-theme_override_colors/font_color = Color(1, 0.81666666, 0, 1)
 text = "Player Deck"
 horizontal_alignment = 1
 
