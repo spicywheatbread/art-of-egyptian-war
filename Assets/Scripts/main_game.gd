@@ -6,7 +6,8 @@ var username2node: Dictionary = {}
 var _in_online_match: bool = false
 
 @export var card_tscn: PackedScene
-@onready var card_flip_sound = $CanvasLayer/AudioStreamPlayer2D
+@onready var card_flip_sound = $CanvasLayer/PlayCardAudio
+@onready var slap_sound1 = $CanvasLayer/SlapAudio1
 @onready var _center_pile: Center_Pile = $CanvasLayer/"Center Pile"
 var current_state = {}
 
@@ -195,8 +196,10 @@ func _format_last_action_line(last_any: Variant, players: Variant) -> String:
 			$CanvasLayer/JoinCode.visible = false
 			return "Started."
 		"playCard":
+			card_flip_sound.play()
 			return "Card played by " + name
 		"slap":
+			slap_sound1.play()
 			var ok = la.get("wasSuccessful", false)
 			
 			if ok:
@@ -219,7 +222,6 @@ func _to_int_safe(v: Variant) -> int:
 
 
 func _rebuild_center_pile_from_server(pile_any: Variant, pileCardPositions) -> void:
-	card_flip_sound.play()
 	_center_pile.clear_pile()
 	if typeof(pile_any) != TYPE_ARRAY:
 		return
@@ -332,4 +334,5 @@ func _on_settings_changed(color: Color, volume: int) -> void:
 	gradient.set_color(0, color)
 	gradient.set_color(1, color)
 	
-	$CanvasLayer/AudioStreamPlayer2D.volume_linear = volume / 100.0
+	card_flip_sound.volume_linear = volume / 100.0
+	slap_sound1.volume_linear = volume / 100.0
