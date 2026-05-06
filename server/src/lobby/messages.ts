@@ -60,6 +60,11 @@ export interface DragMessage {
     global_position: Vec2;
 }
 
+export interface SendChatMessage {
+  type: "sendChat";
+  emoji_number: number;
+}
+
 export type ClientMessage =
   | CreateLobbyMessage
   | JoinLobbyMessage
@@ -71,7 +76,8 @@ export type ClientMessage =
   | StartGameMessage
   | PlayCardMessage
   | SlapMessage
-  | DragMessage;
+  | DragMessage
+  | SendChatMessage;
 
 // --- Server → Client ---
 
@@ -131,7 +137,8 @@ const CLIENT_TYPES = new Set<string>([
   "startGame", // TODO mention i added this 
   "playCard", 
   "slap",
-  "drag"
+  "drag",
+  "sendChat"
 ]);
 
 export function parseClientMessage(raw: string): ClientMessage {

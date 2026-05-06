@@ -1,0 +1,147 @@
+[gd_scene format=3 uid="uid://b67qct0k3p1i0"]
+
+[ext_resource type="Script" uid="uid://g3cogw2ahvdl" path="res://Assets/Scripts/chat.gd" id="1_2mm0p"]
+[ext_resource type="Texture2D" uid="uid://dmg1jup6jxrus" path="res://Assets/Images/UI/Icons.png" id="1_v1axy"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_j1mm6"]
+bg_color = Color(0.6, 0.6, 0.6, 0)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_2mm0p"]
+bg_color = Color(0.6, 0.6, 0.6, 0)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_neg1i"]
+bg_color = Color(0.6, 0.6, 0.6, 0)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_8wh1o"]
+bg_color = Color(0.6, 0.6, 0.6, 0)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_q18jp"]
+bg_color = Color(0.6, 0.6, 0.6, 0)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_435eb"]
+atlas = ExtResource("1_v1axy")
+region = Rect2(49, 54, 14, 4)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_j1mm6"]
+atlas = ExtResource("1_v1axy")
+region = Rect2(40, 183, 15, 17)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_neg1i"]
+atlas = ExtResource("1_v1axy")
+region = Rect2(71, 214, 17, 17)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_8wh1o"]
+atlas = ExtResource("1_v1axy")
+region = Rect2(71, 183, 17, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_q18jp"]
+atlas = ExtResource("1_v1axy")
+region = Rect2(8, 182, 15, 18)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_15j4e"]
+atlas = ExtResource("1_v1axy")
+region = Rect2(40, 183, 15, 17)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ht7cd"]
+atlas = ExtResource("1_v1axy")
+region = Rect2(71, 214, 17, 17)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_r8xgh"]
+atlas = ExtResource("1_v1axy")
+region = Rect2(71, 183, 17, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_osgxp"]
+atlas = ExtResource("1_v1axy")
+region = Rect2(8, 182, 15, 18)
+
+[node name="Chat" type="Node2D" unique_id=548038191]
+script = ExtResource("1_2mm0p")
+
+[node name="ChatToggle" type="Button" parent="." unique_id=1775494921]
+visible = false
+offset_left = 280.0
+offset_top = 461.0
+offset_right = 409.33167
+offset_bottom = 565.7149
+rotation = 1.5707964
+theme_override_styles/normal = SubResource("StyleBoxFlat_j1mm6")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_2mm0p")
+theme_override_styles/hover = SubResource("StyleBoxFlat_neg1i")
+theme_override_styles/disabled = SubResource("StyleBoxFlat_8wh1o")
+theme_override_styles/focus = SubResource("StyleBoxFlat_q18jp")
+icon = SubResource("AtlasTexture_435eb")
+expand_icon = true
+
+[node name="ChatOptions" type="GridContainer" parent="." unique_id=1197979188]
+visible = false
+offset_left = 36.0
+offset_top = 190.0
+offset_right = 281.0
+offset_bottom = 435.0
+theme_override_constants/h_separation = 20
+theme_override_constants/v_separation = 20
+columns = 2
+
+[node name="Emoji1" type="TextureRect" parent="ChatOptions" unique_id=1876065394]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+texture = SubResource("AtlasTexture_j1mm6")
+
+[node name="Emoji2" type="TextureRect" parent="ChatOptions" unique_id=550360402]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+texture = SubResource("AtlasTexture_neg1i")
+
+[node name="Emoji3" type="TextureRect" parent="ChatOptions" unique_id=844957214]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+texture = SubResource("AtlasTexture_8wh1o")
+
+[node name="Emoji4" type="TextureRect" parent="ChatOptions" unique_id=2098314827]
+layout_mode = 2
+texture = SubResource("AtlasTexture_q18jp")
+
+[node name="ChatDisplay1" type="TextureRect" parent="." unique_id=1689844668]
+visible = false
+offset_left = 825.0
+offset_top = 25.0
+offset_right = 1150.0
+offset_bottom = 350.0
+texture = SubResource("AtlasTexture_15j4e")
+
+[node name="ChatDisplay2" type="TextureRect" parent="." unique_id=225299440]
+visible = false
+offset_left = 825.0
+offset_top = 25.0
+offset_right = 1150.0
+offset_bottom = 350.0
+texture = SubResource("AtlasTexture_ht7cd")
+
+[node name="ChatDisplay3" type="TextureRect" parent="." unique_id=1835894167]
+visible = false
+offset_left = 825.0
+offset_top = 25.0
+offset_right = 1150.0
+offset_bottom = 350.0
+texture = SubResource("AtlasTexture_r8xgh")
+
+[node name="ChatDisplay4" type="TextureRect" parent="." unique_id=764727000]
+visible = false
+offset_left = 825.0
+offset_top = 25.0
+offset_right = 1150.0
+offset_bottom = 350.0
+texture = SubResource("AtlasTexture_osgxp")
+
+[node name="Timer" type="Timer" parent="." unique_id=539223614]
+wait_time = 5.0
+
+[connection signal="pressed" from="ChatToggle" to="." method="_on_chat_toggle_pressed"]
+[connection signal="gui_input" from="ChatOptions/Emoji1" to="." method="_on_emoji_1_gui_input"]
+[connection signal="gui_input" from="ChatOptions/Emoji2" to="." method="_on_emoji_2_gui_input"]
+[connection signal="gui_input" from="ChatOptions/Emoji3" to="." method="_on_emoji_3_gui_input"]
+[connection signal="gui_input" from="ChatOptions/Emoji4" to="." method="_on_emoji_4_gui_input"]
+[connection signal="timeout" from="Timer" to="." method="_on_timer_timeout"]

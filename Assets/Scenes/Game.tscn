@@ -122,17 +122,14 @@ position = Vector2(588, 552)
 
 [node name="P2" parent="CanvasLayer/Players" unique_id=942831778 instance=ExtResource("4_owchf")]
 process_mode = 4
-visible = false
 position = Vector2(916, 328)
 
 [node name="P3" parent="CanvasLayer/Players" unique_id=1362231068 instance=ExtResource("4_owchf")]
 process_mode = 4
-visible = false
 position = Vector2(587, 113)
 
 [node name="P4" parent="CanvasLayer/Players" unique_id=1454291071 instance=ExtResource("4_owchf")]
 process_mode = 4
-visible = false
 position = Vector2(266, 327)
 
 [node name="Settings" parent="CanvasLayer" unique_id=671792383 instance=ExtResource("5_ltsxh")]

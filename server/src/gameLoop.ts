@@ -358,6 +358,27 @@ export class GameLoop {
         }
     }
 
+    sendChat (roomId: RoomId, playerId: PlayerId, emojiNumber: number): { ok: boolean; code?: string; message?: string } {
+        const s = this.sessions.get(roomId);
+        if (!s) return { ok: false, code: "ROOM_NOT_FOUND", message: "Room not found" };
+        if (s.status != "gameStarted") return { ok: false, code: "GAME_NOT_STARTED", message: "Game has not started" };
+
+        if (emojiNumber < 1 || emojiNumber > 4) {
+            return { ok: false, code: "INVALID_EMOJI_NUMBER", message: "Emoji number must be between 1 and 4" };
+        }
+
+        const player = s.players.find((p) => p.playerId == playerId);
+        if (!player) return { ok: false, code: "PLAYER_NOT_FOUND", message: "Player not found" };
+
+        s.lastAction = {
+            "type": "sendChat",
+            "atMs": Date.now(),
+            "byPlayerId": playerId,
+            "emojiNumber": emojiNumber
+        }
+        return { ok: true };
+    }
+
     private makeAndShuffleDeck (): Card[] {
         const deck = [] as Card[];
         const suits = Object.values(Suit).filter((v): v is Suit => typeof v === "number");

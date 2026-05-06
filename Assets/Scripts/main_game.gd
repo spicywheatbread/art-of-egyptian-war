@@ -214,7 +214,6 @@ func configure_lobby() -> void:
 	var player_count = current_lobby_state["players"].size()
 	var is_host = false
 
-	# Render the rest of players
 	for i in range(player_count):
 		var player = current_lobby_state["players"][i]
 		var username = player["username"]
@@ -293,6 +292,10 @@ func _format_last_action_line(last_any: Variant, players: Variant) -> String:
 	match String(la.get("type", "")):
 		"startGame":
 			$CanvasLayer/JoinCode.visible = false
+			# Enable chatting
+			for username in username_to_node:
+				if Globals.username == username:
+					username_to_node[username].get_node("Chat").show_chat_toggle()
 			return "Started."
 		"playCard":
 			card_flip_sound.play()
@@ -306,6 +309,13 @@ func _format_last_action_line(last_any: Variant, players: Variant) -> String:
 			
 			var burned = str(int(la.get("burnedCount", 0)))
 			return "Bad slap! " + name + " burned %s cards" % burned
+		"sendChat":
+			var emoji_number = la.get("emojiNumber")
+			var player_node = username_to_node.get(name) as Player
+			player_node.get_node("Chat").display_emoji(emoji_number)
+			
+			# Return previous value
+			return $CanvasLayer/GameStatus.text.split("\n")[0]
 		_:
 			return ""
 
@@ -351,10 +361,7 @@ func _on_start_game_pressed() -> void:
 
 
 func _on_settings_changed(color: Color, volume: int) -> void:
-	var tex = $CanvasLayer/Background.texture as GradientTexture2D
-	var gradient = tex.gradient
-	gradient.set_color(0, color)
-	gradient.set_color(1, color)
+	$CanvasLayer/Background.color = color
 	
 	card_flip_sound.volume_linear = volume / 100.0
 	slap_sound1.volume_linear = volume / 100.0
