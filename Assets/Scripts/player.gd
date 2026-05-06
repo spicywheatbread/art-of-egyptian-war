@@ -137,8 +137,8 @@ func set_player_username(username : String) -> void:
 func set_username_color_me():
 	$Label.add_theme_color_override("font_color", Color(255, 208, 0, 255))
 	
-func set_label_turn(is_my_turn: bool):
-	if is_my_turn:
+func set_label_turn(my_turn: bool):
+	if my_turn:
 		$Label.text = str("> ", player_username, " <")
 	else:
 		$Label.text = player_username
